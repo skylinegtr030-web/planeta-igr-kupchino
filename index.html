@@ -13,11 +13,14 @@ html{scroll-behavior:smooth;}
 body{
   font-family:'Nunito',Arial,sans-serif;
   color:var(--dark);
+  position:relative;
   background:
     radial-gradient(circle at 10% 8%, rgba(226,35,26,.07), transparent 40%),
     radial-gradient(circle at 90% 15%, rgba(31,95,214,.08), transparent 40%),
     radial-gradient(circle at 15% 60%, rgba(40,167,69,.07), transparent 40%),
     radial-gradient(circle at 85% 80%, rgba(255,199,44,.10), transparent 40%),
+    radial-gradient(circle at 30% 100%, rgba(31,95,214,.06), transparent 40%),
+    radial-gradient(circle at 70% 45%, rgba(226,35,26,.05), transparent 40%),
     #f7f8fc;
   overflow-x:hidden;
 }
@@ -32,17 +35,18 @@ a{text-decoration:none;color:inherit;}
 img{max-width:100%;display:block;}
 .section{position:relative;padding:70px 6vw;}
 .section-inner{position:relative;z-index:2;max-width:1200px;margin:0 auto;}
-.section + .section{border-top:1px solid rgba(17,26,59,.07);}
 
-.particles-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+.particles-bg{position:absolute;top:0;left:0;width:100%;z-index:0;overflow:visible;pointer-events:none;}
 .particles-bg span{
-  position:absolute;border-radius:50%;opacity:.4;
-  animation:float-p linear infinite;
-  box-shadow:0 0 14px currentColor;
+  position:absolute;border-radius:50%;opacity:.45;
+  animation:bob-p ease-in-out infinite;
+  box-shadow:0 0 16px currentColor;
 }
-@keyframes float-p{
-  0%{transform:translateY(110vh) translateX(0) rotate(0deg);}
-  100%{transform:translateY(-10vh) translateX(40px) rotate(360deg);}
+@keyframes bob-p{
+  0%,100%{transform:translate(0,0);}
+  25%{transform:translate(14px,-22px);}
+  50%{transform:translate(-10px,10px);}
+  75%{transform:translate(18px,16px);}
 }
 
 .badge{
@@ -179,7 +183,7 @@ nav a:hover{color:var(--red);}
   width:100%;padding:12px 14px;border:2px solid #e9ebf2;border-radius:12px;margin-bottom:14px;font-family:inherit;font-size:1rem;
 }
 
-footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;border-top:1px solid rgba(17,26,59,.07);}
+footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;}
 
 .fade-up{opacity:0;transform:translateY(30px);transition:.6s ease;}
 .fade-up.show{opacity:1;transform:translateY(0);}
@@ -416,22 +420,32 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;border-top:1
 <footer>© Планета Игр — Купчино, ТРК «Балкания Nova». Все цены актуальны на дату публикации сайта.</footer>
 
 <script>
+function sizeParticleField(){
+  const box=document.getElementById('p-global');
+  if(!box)return;
+  box.style.height=document.documentElement.scrollHeight+'px';
+}
 function makeParticles(id,count,colors){
   const box=document.getElementById(id);
   if(!box)return;
   for(let i=0;i<count;i++){
     const s=document.createElement('span');
-    const size=8+Math.random()*16;
+    const size=8+Math.random()*18;
     s.style.width=size+'px';s.style.height=size+'px';
     s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*100+'%';
     const c=colors[Math.floor(Math.random()*colors.length)];
     s.style.background=c;s.style.color=c;
-    s.style.animationDuration=(14+Math.random()*14)+'s';
-    s.style.animationDelay=(Math.random()*20)+'s';
+    s.style.animationDuration=(5+Math.random()*6)+'s';
+    s.style.animationDelay=(Math.random()*6)+'s';
     box.appendChild(s);
   }
 }
-makeParticles('p-global',26,['#e2231a','#1f5fd6','#28a745','#ffc72c']);
+sizeParticleField();
+makeParticles('p-global',60,['#e2231a','#1f5fd6','#28a745','#ffc72c']);
+window.addEventListener('load',sizeParticleField);
+window.addEventListener('resize',sizeParticleField);
+setInterval(sizeParticleField,2000);
 
 const observer=new IntersectionObserver((entries)=>{
   entries.forEach(en=>{
