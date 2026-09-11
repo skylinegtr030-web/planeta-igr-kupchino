@@ -139,10 +139,13 @@ section{padding:80px 6%;position:relative;}
   font-weight:800;font-size:12px;margin-bottom:12px;transform:rotate(-3deg);}
 .feat h3{font-size:26px;margin-bottom:12px;}
 .feat p{font-weight:700;color:#cfd4ee;line-height:1.6;font-size:15.5px;}
-.feat-visual{background:linear-gradient(160deg,#1a2350,#0d1230);border-radius:24px;padding:40px;text-align:center;
-  border:2px solid rgba(255,255,255,.15);font-size:80px;position:relative;}
-.feat-visual .spark{position:absolute;font-size:22px;animation:floaty 4s ease-in-out infinite;}
-@keyframes floaty{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-22px) rotate(6deg);}}
+.feat-visual{border-radius:24px;overflow:hidden;position:relative;height:280px;
+  border:2px solid rgba(255,255,255,.15);box-shadow:0 14px 0 rgba(0,0,0,.25);}
+.feat-visual img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.9);}
+.feat-visual .cap-badge{position:absolute;bottom:14px;left:14px;background:rgba(13,18,48,.75);color:#fff;
+  padding:8px 14px;border-radius:14px;font-size:13px;font-weight:800;backdrop-filter:blur(4px);}
+.feat-visual .spark{position:absolute;font-size:26px;animation:floaty 4s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-18px) rotate(6deg);}}
 
 .shows{background:#fff;}
 .show-wrap{max-width:1150px;margin:0 auto;column-count:3;column-gap:22px;}
@@ -191,6 +194,7 @@ section{padding:80px 6%;position:relative;}
 .polaroid{background:#fff;padding:10px 10px 26px;box-shadow:0 10px 0 rgba(0,0,0,.1);width:230px;}
 .polaroid:nth-child(1){transform:rotate(-4deg);} .polaroid:nth-child(2){transform:rotate(3deg);margin-top:24px;}
 .polaroid:nth-child(3){transform:rotate(-2deg);} .polaroid:nth-child(4){transform:rotate(4deg);margin-top:16px;}
+.polaroid:nth-child(5){transform:rotate(-3deg);}
 .polaroid img{width:100%;height:170px;object-fit:cover;display:block;}
 .polaroid .cap{text-align:center;padding-top:8px;font-weight:800;font-size:13px;}
 
@@ -299,7 +303,7 @@ footer span{color:var(--red);}
   <div class="hero-content">
     <span class="kicker"><img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6ecf1cf2211c86e075a57f4ca99f1c289d110aa69dd56abfc89c7657dae94d32dbc91796b705d851b2ab16febfc158e24ce18207e8420bd4d7a02bb4e70aada367" alt="Вовка"> Вовка-жираф ждёт гостей · ТРК «Балкания Nova»</span>
     <h1>Самый <span>яркий</span> ДЕНЬ <span class="g">РОЖДЕНИЯ</span> в <span class="b">Купчино</span> 🎉</h1>
-    <p>Праздничная комната, аниматоры, лазертаг «Кузар», аттракцион «Пол — это лава», шоу-программы и торт — всё для незабываемого праздника</p>
+    <p>Праздничная комната, аниматоры, неоновая лазерная арена, светящийся игровой пол, шоу-программы и торт — всё для незабываемого праздника</p>
     <div class="hero-buttons">
       <a href="#rooms" class="btn btn-primary">🎂 Выбрать программу</a>
       <a href="#contacts" class="btn btn-secondary">📅 Забронировать дату</a>
@@ -330,7 +334,7 @@ footer span{color:var(--red);}
           <li>Праздничная посуда · 6 безлимитных билетов на площадку</li>
           <li>До 15 детей</li>
         </ul>
-        <div class="cap">Продление — 1500 ₽/час</div>
+        <div class="cap">Продление — 2000 ₽/час</div>
       </div>
     </div>
     <div class="ticket">
@@ -343,7 +347,7 @@ footer span{color:var(--red);}
           <li>6 безлимитных билетов на площадку</li>
           <li>До 15–20 детей</li>
         </ul>
-        <div class="cap">Продление — 1500 ₽/час</div>
+        <div class="cap">Продление — 2000 ₽/час</div>
       </div>
     </div>
     <div class="ticket">
@@ -356,7 +360,7 @@ footer span{color:var(--red);}
           <li>2 безлимитные карты на автоматы (30 мин)</li>
           <li>До 20 детей</li>
         </ul>
-        <div class="cap">Продление — 1500 ₽/час</div>
+        <div class="cap">Продление — 2000 ₽/час</div>
       </div>
     </div>
   </div>
@@ -364,24 +368,32 @@ footer span{color:var(--red);}
 </section>
 
 <section class="newfeat" id="newfeat">
-  <h2 class="section-title center" style="color:#fff;">Новые <span style="color:var(--yellow);">развлечения</span> 🆕</h2>
-  <p class="section-sub center" style="color:#cfd4ee;">Специально для ярких праздников добавили два хитовых формата</p>
+  <h2 class="section-title center" style="color:#fff;">Хиты <span style="color:var(--yellow);">филиала</span> 🆕</h2>
+  <p class="section-sub center" style="color:#cfd4ee;">Настоящие фото из нашего зала в ТРК «Балкания Nova» — неоновая арена и светящийся игровой пол</p>
   <div class="feat-row fade-in">
     <div class="feat">
       <div>
         <span class="badge-new">🔫 Хит для команд</span>
-        <h3>Лазертаг «Кузар»</h3>
-        <p>Командные лазерные бои в тёмном лабиринте с бластерами — азартная активная игра, которая объединяет и детей, и взрослых гостей. Отличная альтернатива обычным конкурсам: заряд адреналина, командная тактика и куча эмоций для именинника и его друзей.</p>
+        <h3>Неоновая лазерная арена «Кузар»</h3>
+        <p>У нас есть настоящая тёмная арена с неоновой разметкой и мягкими препятствиями — командные лазерные бои в стиле киберпространства. Азартная активная игра, которая объединяет и детей, и взрослых гостей: заряд адреналина, командная тактика и куча эмоций для именинника и его друзей.</p>
       </div>
-      <div class="feat-visual">🔫<span class="spark" style="top:10%;left:15%;">✨</span><span class="spark" style="bottom:15%;right:15%;animation-delay:1s;">💥</span></div>
+      <div class="feat-visual">
+        <img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e6f073edceaa8fbac870f3e84b64e42160a80c30362b6792c85413566e2f12120548d8f3d420d913ba16ece60bd285508ecadb4586fd57faf2622c591efe7a0f0" alt="Неоновая лазерная арена в Планете игр Купчино">
+        <span class="cap-badge">📍 Наш филиал, Балкания Nova</span>
+        <span class="spark" style="top:8%;left:10%;">✨</span>
+      </div>
     </div>
     <div class="feat">
       <div>
         <span class="badge-new">🌋 Новый аттракцион</span>
-        <h3>«Пол — это лава»</h3>
-        <p>Интерактивный светящийся пол с сотнями игровых плит: нажимай на нужные цвета, уворачивайся от «лавы» и зарабатывай очки. Несколько игровых режимов — можно играть одному или устроить командное соревнование прямо во время праздника.</p>
+        <h3>Светящийся игровой пол</h3>
+        <p>Прямо у нас в зале — интерактивный светящийся пол с яркими квадратами: наступай на нужные цвета, реагируй быстрее соперника и зарабатывай очки. Несколько игровых режимов — можно играть одному или устроить командное соревнование прямо во время праздника.</p>
       </div>
-      <div class="feat-visual">🌋<span class="spark" style="top:15%;right:20%;">🔥</span><span class="spark" style="bottom:10%;left:20%;animation-delay:.6s;">⚡</span></div>
+      <div class="feat-visual">
+        <img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6ef542ce5c64f6857cc10895c7bdc2e16682bb0e8786760ec7ba11ab1a364e36230a8188035e79f4e46a80449f4a9d981c0a20c6b54bd567c4b4173eea10813fe5" alt="Светящийся игровой пол в Планете игр Купчино">
+        <span class="cap-badge">📍 Наш филиал, Балкания Nova</span>
+        <span class="spark" style="top:10%;right:12%;">⚡</span>
+      </div>
     </div>
   </div>
 </section>
@@ -435,8 +447,8 @@ footer span{color:var(--red);}
   <div class="inc-cloud fade-in">
     <div class="inc-item"><span class="ic">🏰</span>Лабиринт</div>
     <div class="inc-item"><span class="ic">🤸</span>Батут</div>
-    <div class="inc-item"><span class="ic">🔫</span>Кузар</div>
-    <div class="inc-item"><span class="ic">🌋</span>Пол-лава</div>
+    <div class="inc-item"><span class="ic">🔫</span>Неон-арена</div>
+    <div class="inc-item"><span class="ic">🌋</span>Свет. пол</div>
     <div class="inc-item"><span class="ic">🎁</span>Призотека</div>
     <div class="inc-item"><span class="ic">🎂</span>Торт</div>
   </div>
@@ -461,7 +473,8 @@ footer span{color:var(--red);}
   <div class="polaroid-row fade-in">
     <div class="polaroid"><img src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/fffc434a-ebb1-5d8c-b661-7f516b759bc7/e5ef0bdd-4d50-572e-98ad-4ed3401a4d97.jpg" alt="Игровой зал"><div class="cap">Игровой зал</div></div>
     <div class="polaroid"><img src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/affd4c5e-be8a-50d5-b5d1-7c55a7f006a5/e5ef0bdd-4d50-572e-98ad-4ed3401a4d97.jpg" alt="Горки"><div class="cap">Горки</div></div>
-    <div class="polaroid"><img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e4fe34daa736b0ca181661a93ce07db3c0b45c616585c4fff4d452f9b2bcf8a0a63f0fb450d5fbd3159179d3ee1940ec8ca11eaf4ad89f98ee0101343bb8528bc" alt="Вовка на пастбище"><div class="cap">Вовка на прогулке 🦒</div></div>
+    <div class="polaroid"><img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6eb52ae5d299a815267827a27ec8a0795de297241b1e0080634b32facf601ca45b614fdae45ada29fcd91ecf7d4016ae000f670ea3e6443317d04c577ae2ebfa43" alt="Интерактивный городок для малышей"><div class="cap">Городок для малышей</div></div>
+    <div class="polaroid"><img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6ecf1cf2211c86e075a57f4ca99f1c289d110aa69dd56abfc89c7657dae94d32dbc91796b705d851b2ab16febfc158e24ce18207e8420bd4d7a02bb4e70aada367" alt="Вовка на пастбище"><div class="cap">Вовка на прогулке 🦒</div></div>
     <div class="polaroid"><img src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/1b5acb2a-d81c-5acf-ba7a-d3c81167efd8/864523e2-18ee-591c-84d7-b641849c1938.jpg" alt="Зона малышей"><div class="cap">Зона малышей</div></div>
   </div>
 </section>
@@ -480,11 +493,11 @@ footer span{color:var(--red);}
     </div>
     <div class="history-item">
       <h4>🎪 Купчино присоединяется</h4>
-      <p>Филиал в ТРК «Балкания Nova» на Балканской площади стал одним из самых популярных: по данным 2ГИС, он держит рейтинг 4.8 из 5 на основе 114 оценок посетителей.</p>
+      <p>Филиал в ТРК «Балкания Nova» на Балканской площади стал одним из самых популярных: более 100 призовых аппаратов, гигантский лабиринт, неоновая лазерная арена и светящийся игровой пол. По данным 2ГИС, филиал держит рейтинг 4.8 из 5 на основе 114 оценок посетителей.</p>
     </div>
     <div class="history-item">
       <h4>🦒 Новый герой — Вовка</h4>
-      <p>Специально для дней рождений в Купчино мы завели дружелюбного жирафа Вовку — он встречает гостей и рассказывает про новые развлечения: лазертаг «Кузар» и аттракцион «Пол — это лава».</p>
+      <p>Специально для дней рождений в Купчино мы завели дружелюбного жирафа Вовку — он встречает гостей и рассказывает про хиты филиала: неоновую арену и светящийся пол.</p>
     </div>
   </div>
   <div class="history-stats fade-in">
@@ -528,7 +541,7 @@ footer span{color:var(--red);}
         <li><b>Адрес:</b> Санкт-Петербург, Балканская площадь, 5, ТРК «Балкания Nova», 3 этаж (м. Купчино)</li>
         <li><b>Телефон:</b> +7 (981) 818‑01‑34</li>
         <li><b>Режим работы:</b> ежедневно с 10:00 до 22:00</li>
-        <li><b>Комната:</b> бронирование от 3 часов, продление 1500 ₽/час</li>
+        <li><b>Комната:</b> бронирование от 3 часов, продление 2000 ₽/час</li>
       </ul>
       <div class="map-wrap">
         <iframe src="https://maps.google.com/maps?q=%D0%A1%D0%B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%80%D0%B1%D1%83%D1%80%D0%B3,%20%D0%91%D0%B0%D0%BB%D0%BA%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%20%D0%BF%D0%BB%D0%BE%D1%89%D0%B0%D0%B4%D1%8C%2C%205&z=16&output=embed" loading="lazy" allowfullscreen></iframe>
@@ -539,7 +552,7 @@ footer span{color:var(--red);}
         <input type="text" placeholder="Ваше имя" required>
         <input type="tel" placeholder="Телефон" required>
         <input type="text" placeholder="Дата праздника и возраст именинника">
-        <textarea rows="2" placeholder="Пожелания (кузар, лава-пол, шоу, аниматор)"></textarea>
+        <textarea rows="2" placeholder="Пожелания (неон-арена, свет. пол, шоу, аниматор)"></textarea>
         <button type="submit" class="btn btn-primary">🎉 Отправить заявку</button>
       </form>
     </div>
@@ -551,7 +564,7 @@ footer span{color:var(--red);}
 <script>
 const phrases = [
   "Привет! Меня зовут Вовка 🦒 Я живу на Планете Игр в Купчино и обожаю дни рождения!",
-  "Знаешь, что у нас нового? Лазертаг «Кузар» и «Пол — это лава» 🔥",
+  "Знаешь, что у нас есть? Неоновая лазерная арена и светящийся игровой пол 🔥",
   "А ещё у нас торт, шарики и целая комната приключений 🎂",
   "Жми кнопку — погнали смотреть программы!"
 ];
