@@ -12,6 +12,7 @@
   --blue:#0b64d6; --blue-d:#084a9f;
   --green:#22b24c; --green-d:#188a3a;
   --yellow:#ffcc00;
+  --sky1:#8ec9ff; --sky2:#e9f6ff;
   --white:#fff; --dark:#0d1230;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -20,17 +21,48 @@ h1,h2,h3,h4,.logo,.btn,.ticket h4,.giraffe-bubble{font-family:'Baloo 2',cursive;
 a{text-decoration:none;color:inherit;} ul{list-style:none;}
 html{scroll-behavior:smooth;}
 
-#intro{position:fixed;inset:0;z-index:10000;background:radial-gradient(circle at 50% 20%,#1c2a63,#070914 75%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
+.sky-bg{position:absolute;inset:0;overflow:hidden;z-index:0;
+  background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 65%,#fff8e0 100%);}
+.sun{position:absolute;top:8%;right:10%;width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,#fff6c8,var(--yellow) 60%,#ffb800 100%);
+  box-shadow:0 0 60px 30px rgba(255,204,0,.5);animation:pulse 3.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.cloud{position:absolute;background:#fff;border-radius:100px;opacity:.95;filter:drop-shadow(0 8px 6px rgba(0,0,0,.06));}
+.cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:100px;}
+.cloud.c1{width:160px;height:56px;top:14%;left:-10%;animation:drift 38s linear infinite;}
+.cloud.c1::before{width:90px;height:90px;top:-46px;left:20px;}
+.cloud.c1::after{width:70px;height:70px;top:-32px;left:80px;}
+.cloud.c2{width:120px;height:44px;top:34%;left:-15%;animation:drift 50s linear infinite;animation-delay:-10s;}
+.cloud.c2::before{width:70px;height:70px;top:-36px;left:16px;}
+.cloud.c2::after{width:54px;height:54px;top:-24px;left:60px;}
+.cloud.c3{width:200px;height:64px;top:55%;left:-20%;animation:drift 60s linear infinite;animation-delay:-20s;}
+.cloud.c3::before{width:100px;height:100px;top:-52px;left:30px;}
+.cloud.c3::after{width:80px;height:80px;top:-36px;left:110px;}
+.cloud.c4{width:130px;height:48px;top:75%;left:-12%;animation:drift 44s linear infinite;animation-delay:-30s;}
+.cloud.c4::before{width:76px;height:76px;top:-38px;left:18px;}
+.cloud.c4::after{width:56px;height:56px;top:-26px;left:66px;}
+@keyframes drift{from{transform:translateX(0);}to{transform:translateX(140vw);}}
+
+#intro{position:fixed;inset:0;z-index:10000;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   transition:opacity .6s ease, visibility .6s ease;}
 #intro.hide{opacity:0;visibility:hidden;pointer-events:none;}
-#fw-canvas{position:absolute;inset:0;width:100%;height:100%;}
+#fw-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;}
 .giraffe-wrap{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;}
 .giraffe-bubble{background:#fff;color:var(--dark);padding:16px 26px;border-radius:22px;font-weight:700;font-size:17px;
-  max-width:340px;text-align:center;margin-bottom:6px;position:relative;box-shadow:0 8px 0 rgba(0,0,0,.25);min-height:34px;}
+  max-width:340px;text-align:center;margin-bottom:10px;position:relative;box-shadow:0 8px 0 rgba(0,0,0,.15);min-height:34px;}
 .giraffe-bubble::after{content:"";position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);
   border-width:16px 12px 0 12px;border-style:solid;border-color:#fff transparent transparent transparent;}
-#giraffe-svg{width:170px;animation:bob 2.4s ease-in-out infinite;}
+.giraffe-photo-wrap{position:relative;cursor:pointer;user-select:none;}
+.giraffe-photo-wrap img{width:230px;height:230px;object-fit:cover;border-radius:50%;border:8px solid #fff;
+  box-shadow:0 14px 0 rgba(0,0,0,.15);animation:bob 2.4s ease-in-out infinite;transition:transform .15s;}
+.giraffe-photo-wrap:active img{transform:scale(.94);}
+.giraffe-photo-wrap .hat{position:absolute;top:-34px;right:20px;font-size:64px;transform:rotate(18deg);
+  filter:drop-shadow(0 4px 3px rgba(0,0,0,.2));}
+.giraffe-photo-wrap .tap-hint{position:absolute;bottom:-14px;right:-10px;background:var(--red);color:#fff;
+  font-size:11px;font-weight:800;padding:5px 10px;border-radius:12px;box-shadow:0 3px 0 var(--red-d);
+  animation:pulse2 1.6s ease-in-out infinite;}
+@keyframes pulse2{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg);}50%{transform:translateY(-14px) rotate(1.5deg);}}
 .enter-btn{margin-top:24px;background:linear-gradient(135deg,var(--yellow),#e6b800);color:var(--dark);
   padding:16px 40px;border-radius:50px;font-weight:800;font-size:18px;border:none;cursor:pointer;
@@ -38,10 +70,10 @@ html{scroll-behavior:smooth;}
 .enter-btn:hover{transform:translateY(4px);box-shadow:0 3px 0 #b98f00;}
 
 header{position:fixed;top:0;left:0;width:100%;z-index:999;background:var(--dark);
-  display:flex;align-items:center;justify-content:space-between;padding:10px 5%;
+  display:flex;align-items:center;justify-content:space-between;padding:8px 5%;
   border-bottom:5px solid; border-image:linear-gradient(90deg,var(--red),var(--yellow),var(--green),var(--blue)) 1;}
-.logo{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;color:#fff;}
-.logo svg{width:38px;height:38px;}
+.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:#fff;}
+.logo img{width:38px;height:38px;border-radius:50%;border:2px solid var(--yellow);object-fit:cover;}
 header nav ul{display:flex;gap:18px;flex-wrap:wrap;}
 header nav a{color:#fff;font-weight:700;font-size:13.5px;border-bottom:3px solid transparent;padding:4px 2px;}
 header nav a:hover{color:var(--yellow);border-color:var(--yellow);}
@@ -49,30 +81,27 @@ header .phone-btn{background:linear-gradient(135deg,var(--red),var(--red-d));col
   font-weight:800;box-shadow:0 5px 0 var(--red-d);white-space:nowrap;}
 
 .hero{position:relative;min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;
-  color:#fff;padding:150px 6% 60px;overflow:hidden;gap:20px;
-  background:radial-gradient(circle at 12% 25%,rgba(238,28,37,.5),transparent 45%),
-    radial-gradient(circle at 92% 10%,rgba(11,100,214,.55),transparent 45%),
-    radial-gradient(circle at 60% 100%,rgba(34,178,76,.5),transparent 45%),
-    linear-gradient(160deg,#0d1230,#1a2350 60%,#0d1230);}
-.balloon{position:absolute;font-size:40px;animation:floaty 5s ease-in-out infinite;opacity:.95;z-index:1;}
-@keyframes floaty{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-22px) rotate(6deg);}}
+  color:var(--dark);padding:150px 6% 60px;overflow:hidden;gap:20px;}
 .hero-content{position:relative;z-index:2;}
-.hero .kicker{display:inline-block;background:var(--yellow);color:var(--dark);font-weight:800;padding:9px 20px;border-radius:30px;
-  margin-bottom:20px;transform:rotate(-3deg);box-shadow:0 5px 0 #cc9f00;}
-.hero h1{font-size:clamp(32px,5vw,58px);font-weight:800;line-height:1.08;margin-bottom:20px;text-shadow:0 4px 0 rgba(0,0,0,.35);}
-.hero h1 span{color:var(--yellow);} .hero h1 .r{color:#ff5b52;} .hero h1 .g{color:#5fe987;}
-.hero p{font-size:19px;font-weight:700;margin-bottom:30px;opacity:.95;max-width:520px;}
+.hero .kicker{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--dark);font-weight:800;padding:8px 18px 8px 8px;border-radius:30px;
+  margin-bottom:20px;box-shadow:0 5px 0 rgba(0,0,0,.12);}
+.hero .kicker img{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--yellow);}
+.hero h1{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.1;margin-bottom:20px;color:var(--dark);}
+.hero h1 span{color:var(--red);} .hero h1 .g{color:var(--green-d);} .hero h1 .b{color:var(--blue);}
+.hero p{font-size:19px;font-weight:700;margin-bottom:30px;color:#2a2f4a;max-width:520px;}
 .hero-buttons{display:flex;gap:16px;flex-wrap:wrap;}
 .btn{padding:16px 32px;border-radius:50px;font-weight:800;font-size:16px;border:none;cursor:pointer;transition:.15s;display:inline-block;}
 .btn-primary{background:linear-gradient(135deg,var(--red),var(--red-d));color:#fff;box-shadow:0 7px 0 var(--red-d);}
 .btn-primary:hover{transform:translateY(4px);box-shadow:0 3px 0 var(--red-d);}
 .btn-secondary{background:#fff;color:var(--blue);box-shadow:0 7px 0 #b9c9e0;}
 .hero-photo{position:relative;z-index:2;justify-self:end;}
-.hero-photo img{width:340px;max-width:90vw;border-radius:26px;border:6px solid #fff;box-shadow:0 22px 0 rgba(0,0,0,.25);transform:rotate(4deg);}
+.hero-photo img.main{width:320px;max-width:90vw;border-radius:26px;border:6px solid #fff;box-shadow:0 22px 0 rgba(0,0,0,.18);transform:rotate(4deg);}
 .hero-photo .tag2{position:absolute;bottom:-18px;left:-24px;background:var(--green);color:#fff;padding:12px 18px;border-radius:16px;
   font-weight:800;transform:rotate(-6deg);box-shadow:0 5px 0 var(--green-d);font-size:14px;}
+.hero-photo .vovka-badge{position:absolute;top:-30px;right:-20px;width:110px;height:110px;border-radius:50%;
+  border:6px solid #fff;box-shadow:0 8px 0 rgba(0,0,0,.15);object-fit:cover;transform:rotate(-8deg);}
 
-.wave-divider{position:relative;height:90px;background:#fffdf7;}
+.wave-divider{position:relative;height:90px;background:#fffdf7;z-index:2;}
 .wave-divider svg{position:absolute;bottom:0;width:100%;height:100%;}
 
 section{padding:80px 6%;position:relative;}
@@ -113,6 +142,7 @@ section{padding:80px 6%;position:relative;}
 .feat-visual{background:linear-gradient(160deg,#1a2350,#0d1230);border-radius:24px;padding:40px;text-align:center;
   border:2px solid rgba(255,255,255,.15);font-size:80px;position:relative;}
 .feat-visual .spark{position:absolute;font-size:22px;animation:floaty 4s ease-in-out infinite;}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-22px) rotate(6deg);}}
 
 .shows{background:#fff;}
 .show-wrap{max-width:1150px;margin:0 auto;column-count:3;column-gap:22px;}
@@ -192,59 +222,25 @@ footer span{color:var(--red);}
 <body>
 
 <div id="intro">
+  <div class="sky-bg">
+    <div class="sun"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="cloud c4"></div>
+  </div>
   <canvas id="fw-canvas"></canvas>
   <div class="giraffe-wrap">
     <div class="giraffe-bubble" id="giraffe-text"></div>
-    <svg id="giraffe-svg" viewBox="0 0 220 340" fill="none">
-      <ellipse cx="110" cy="325" rx="60" ry="9" fill="#000" opacity="0.18"/>
-      <defs>
-        <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#f2c368"/><stop offset="100%" stop-color="#e0a83f"/>
-        </linearGradient>
-      </defs>
-      <rect x="70" y="230" width="16" height="90" rx="7" fill="url(#bodyGrad)"/>
-      <rect x="100" y="235" width="16" height="88" rx="7" fill="url(#bodyGrad)"/>
-      <rect x="130" y="230" width="16" height="90" rx="7" fill="url(#bodyGrad)"/>
-      <rect x="65" y="305" width="24" height="10" rx="4" fill="#6b4a23"/>
-      <rect x="127" y="305" width="24" height="10" rx="4" fill="#6b4a23"/>
-      <ellipse cx="108" cy="220" rx="62" ry="46" fill="url(#bodyGrad)"/>
-      <path d="M95 30 C60 55 55 110 62 160 C66 190 85 215 100 222 L125 218 C120 190 112 160 112 120 C112 90 118 55 100 30 Z" fill="url(#bodyGrad)"/>
-      <g fill="#8a5a22" opacity="0.85">
-        <polygon points="80,60 95,55 90,72 75,75"/>
-        <polygon points="70,95 88,90 84,108 68,112"/>
-        <polygon points="90,130 108,126 104,146 86,150"/>
-        <polygon points="72,160 90,156 86,176 70,178"/>
-        <polygon points="100,190 118,186 116,204 98,206"/>
-        <polygon points="120,70 136,66 132,84 118,86"/>
-        <polygon points="118,150 134,146 132,164 116,166"/>
-        <ellipse cx="95" cy="230" rx="14" ry="10"/>
-        <ellipse cx="125" cy="228" rx="12" ry="9"/>
-      </g>
-      <ellipse cx="97" cy="32" rx="26" ry="22" fill="url(#bodyGrad)"/>
-      <path d="M85 20 Q97 8 109 20" stroke="#8a5a22" stroke-width="3" fill="none" opacity=".6"/>
-      <circle cx="88" cy="28" r="4" fill="#3a2a10"/><circle cx="106" cy="28" r="4" fill="#3a2a10"/>
-      <circle cx="89.5" cy="26.5" r="1.2" fill="#fff"/><circle cx="107.5" cy="26.5" r="1.2" fill="#fff"/>
-      <path d="M87 42 Q97 48 107 42" stroke="#6b4a23" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-      <ellipse cx="97" cy="46" rx="7" ry="4" fill="#8a5a22" opacity=".5"/>
-      <path d="M84 8 L78 -6 M110 8 L116 -6" stroke="#6b4a23" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="78" cy="-6" r="4.5" fill="#8a5a22"/><circle cx="116" cy="-6" r="4.5" fill="#8a5a22"/>
-      <path d="M70 4 L124 4 L97 -26 Z" fill="#ee1c25" stroke="#fff" stroke-width="2"/>
-      <circle cx="97" cy="-26" r="5" fill="#22b24c"/>
-      <ellipse cx="70" cy="70" rx="20" ry="9" fill="#0b64d6" transform="rotate(-25 70 70)"/>
-    </svg>
+    <div class="giraffe-photo-wrap" id="giraffe-click">
+      <img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6ecf1cf2211c86e075a57f4ca99f1c289d110aa69dd56abfc89c7657dae94d32dbc91796b705d851b2ab16febfc158e24ce18207e8420bd4d7a02bb4e70aada367" alt="Жираф Вовка">
+      <div class="hat">🎉</div>
+      <div class="tap-hint">Нажми на меня!</div>
+    </div>
   </div>
   <button class="enter-btn" id="enter-btn">🎉 Погнали на праздник!</button>
 </div>
 
 <header>
   <div class="logo">
-    <svg viewBox="0 0 64 64" fill="none">
-      <circle cx="32" cy="32" r="22" fill="#ee1c25"/>
-      <ellipse cx="32" cy="34" rx="30" ry="8" fill="none" stroke="#ffcc00" stroke-width="3"/>
-      <circle cx="24" cy="28" r="4" fill="#fff"/><circle cx="40" cy="28" r="4" fill="#fff"/>
-      <circle cx="24" cy="28" r="2" fill="#0d1230"/><circle cx="40" cy="28" r="2" fill="#0d1230"/>
-      <path d="M22 40 Q32 48 42 40" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
-    </svg>
+    <img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6ecf1cf2211c86e075a57f4ca99f1c289d110aa69dd56abfc89c7657dae94d32dbc91796b705d851b2ab16febfc158e24ce18207e8420bd4d7a02bb4e70aada367" alt="Вовка">
     День рождения · Планета Игр Купчино
   </div>
   <nav>
@@ -261,12 +257,13 @@ footer span{color:var(--red);}
 </header>
 
 <section class="hero">
-  <div class="balloon" style="top:14%;left:6%;animation-delay:.1s;">🎈</div>
-  <div class="balloon" style="top:70%;left:4%;animation-delay:1s;font-size:32px;">🎁</div>
-  <div class="balloon" style="top:10%;right:38%;animation-delay:.6s;font-size:28px;">✨</div>
+  <div class="sky-bg">
+    <div class="sun"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="cloud c4"></div>
+  </div>
   <div class="hero-content">
-    <span class="kicker">🦒 Вовка-жираф ждёт гостей · ТРК «Балкания Nova»</span>
-    <h1>Самый <span class="r">яркий</span> ДЕНЬ <span>РОЖДЕНИЯ</span> в <span class="g">Купчино</span> 🎉</h1>
+    <span class="kicker"><img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6ecf1cf2211c86e075a57f4ca99f1c289d110aa69dd56abfc89c7657dae94d32dbc91796b705d851b2ab16febfc158e24ce18207e8420bd4d7a02bb4e70aada367" alt="Вовка"> Вовка-жираф ждёт гостей · ТРК «Балкания Nova»</span>
+    <h1>Самый <span>яркий</span> ДЕНЬ <span class="g">РОЖДЕНИЯ</span> в <span class="b">Купчино</span> 🎉</h1>
     <p>Праздничная комната, аниматоры, лазертаг «Кузар», аттракцион «Пол — это лава», шоу-программы и торт — всё для незабываемого праздника</p>
     <div class="hero-buttons">
       <a href="#rooms" class="btn btn-primary">🎂 Выбрать программу</a>
@@ -274,7 +271,8 @@ footer span{color:var(--red);}
     </div>
   </div>
   <div class="hero-photo">
-    <img src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/e0eaa6cd-08df-5d9d-9cdc-374c38b3fcb1/4855ca96-039e-52b1-995a-8f3cd479b138.jpg" alt="Праздничная комната">
+    <img class="main" src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/e0eaa6cd-08df-5d9d-9cdc-374c38b3fcb1/4855ca96-039e-52b1-995a-8f3cd479b138.jpg" alt="Праздничная комната">
+    <img class="vovka-badge" src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e4fe34daa736b0ca181661a93ce07db3c0b45c616585c4fff4d452f9b2bcf8a0a63f0fb450d5fbd3159179d3ee1940ec8ca11eaf4ad89f98ee0101343bb8528bc" alt="Вовка">
     <div class="tag2">🎈 Комната<br>«Поздравляшка»</div>
   </div>
 </section>
@@ -428,7 +426,7 @@ footer span{color:var(--red);}
   <div class="polaroid-row fade-in">
     <div class="polaroid"><img src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/fffc434a-ebb1-5d8c-b661-7f516b759bc7/e5ef0bdd-4d50-572e-98ad-4ed3401a4d97.jpg" alt="Игровой зал"><div class="cap">Игровой зал</div></div>
     <div class="polaroid"><img src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/affd4c5e-be8a-50d5-b5d1-7c55a7f006a5/e5ef0bdd-4d50-572e-98ad-4ed3401a4d97.jpg" alt="Горки"><div class="cap">Горки</div></div>
-    <div class="polaroid"><img src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/e0eaa6cd-08df-5d9d-9cdc-374c38b3fcb1/4855ca96-039e-52b1-995a-8f3cd479b138.jpg" alt="Лабиринт"><div class="cap">Лабиринт</div></div>
+    <div class="polaroid"><img src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e4fe34daa736b0ca181661a93ce07db3c0b45c616585c4fff4d452f9b2bcf8a0a63f0fb450d5fbd3159179d3ee1940ec8ca11eaf4ad89f98ee0101343bb8528bc" alt="Вовка на пастбище"><div class="cap">Вовка на прогулке 🦒</div></div>
     <div class="polaroid"><img src="https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/1b5acb2a-d81c-5acf-ba7a-d3c81167efd8/864523e2-18ee-591c-84d7-b641849c1938.jpg" alt="Зона малышей"><div class="cap">Зона малышей</div></div>
   </div>
 </section>
@@ -457,11 +455,31 @@ footer span{color:var(--red);}
 <footer>© 2026 Планета <span>Игр</span> — Купчино. Черновой макет сайта для согласования с клиентом.</footer>
 
 <script>
-const introText = "Привет! Меня зовут Вовка 🦒 Я живу на Планете Игр в Купчино и обожаю дни рождения — идём, покажу, как тут веселятся!";
+const phrases = [
+  "Привет! Меня зовут Вовка 🦒 Я живу на Планете Игр в Купчино и обожаю дни рождения!",
+  "Знаешь, что у нас нового? Лазертаг «Кузар» и «Пол — это лава» 🔥",
+  "А ещё у нас торт, шарики и целая комната приключений 🎂",
+  "Жми кнопку — погнали смотреть программы!"
+];
+let phraseIndex = 0;
 const bubble = document.getElementById('giraffe-text');
 let i=0;
-function type(){ if(i<=introText.length){ bubble.textContent = introText.slice(0,i); i++; setTimeout(type,28);} }
-type();
+function type(text, cb){
+  i=0;
+  function step(){ if(i<=text.length){ bubble.textContent = text.slice(0,i); i++; setTimeout(step,26);} else if(cb){cb();} }
+  step();
+}
+type(phrases[0]);
+
+const giraffeEl = document.getElementById('giraffe-click');
+giraffeEl.addEventListener('click', ()=>{
+  phraseIndex = (phraseIndex+1) % phrases.length;
+  type(phrases[phraseIndex]);
+  const rect = giraffeEl.getBoundingClientRect();
+  burst(rect.left+rect.width/2, rect.top+rect.height/2);
+  giraffeEl.style.transform = 'scale(0.9) rotate(-4deg)';
+  setTimeout(()=>{giraffeEl.style.transform='';},200);
+});
 
 const canvas = document.getElementById('fw-canvas');
 const ctx = canvas.getContext('2d');
@@ -470,19 +488,18 @@ resize(); addEventListener('resize',resize);
 const colors=['#ee1c25','#ffcc00','#22b24c','#0b64d6','#ff5b52','#5fe987'];
 let particles=[];
 function burst(x,y){
-  for(let k=0;k<40;k++){
+  for(let k=0;k<36;k++){
     const angle = Math.random()*Math.PI*2;
     const speed = 2+Math.random()*4;
-    particles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:60+Math.random()*20,color:colors[Math.floor(Math.random()*colors.length)]});
+    particles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:55+Math.random()*20,color:colors[Math.floor(Math.random()*colors.length)]});
   }
 }
 function loop(){
-  ctx.fillStyle='rgba(7,9,20,0.25)';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   particles.forEach(p=>{
     p.x+=p.vx; p.y+=p.vy; p.vy+=0.04; p.life--;
-    ctx.beginPath(); ctx.fillStyle=p.color; ctx.globalAlpha=Math.max(p.life/80,0);
-    ctx.arc(p.x,p.y,2.6,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle=p.color; ctx.globalAlpha=Math.max(p.life/75,0);
+    ctx.arc(p.x,p.y,2.8,0,Math.PI*2); ctx.fill();
   });
   ctx.globalAlpha=1;
   particles = particles.filter(p=>p.life>0);
@@ -490,12 +507,12 @@ function loop(){
 }
 loop();
 const fwInterval = setInterval(()=>{
-  burst(Math.random()*canvas.width*0.8+canvas.width*0.1, Math.random()*canvas.height*0.5+40);
-},700);
+  burst(Math.random()*canvas.width*0.8+canvas.width*0.1, Math.random()*canvas.height*0.4+40);
+},900);
 
 function closeIntro(){document.getElementById('intro').classList.add('hide');clearInterval(fwInterval);}
 document.getElementById('enter-btn').addEventListener('click', closeIntro);
-setTimeout(closeIntro, 7000);
+setTimeout(closeIntro, 9000);
 
 const faders = document.querySelectorAll('.fade-in');
 const io = new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.12});
