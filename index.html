@@ -74,8 +74,8 @@ header{position:fixed;top:0;left:0;width:100%;z-index:999;background:var(--dark)
   border-bottom:5px solid; border-image:linear-gradient(90deg,var(--red),var(--yellow),var(--green),var(--blue)) 1;}
 .logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:#fff;}
 .logo img{width:38px;height:38px;border-radius:50%;border:2px solid var(--yellow);object-fit:cover;}
-header nav ul{display:flex;gap:18px;flex-wrap:wrap;}
-header nav a{color:#fff;font-weight:700;font-size:13.5px;border-bottom:3px solid transparent;padding:4px 2px;}
+header nav ul{display:flex;gap:16px;flex-wrap:wrap;}
+header nav a{color:#fff;font-weight:700;font-size:13px;border-bottom:3px solid transparent;padding:4px 2px;}
 header nav a:hover{color:var(--yellow);border-color:var(--yellow);}
 header .phone-btn{background:linear-gradient(135deg,var(--red),var(--red-d));color:#fff;padding:9px 18px;border-radius:40px;
   font-weight:800;box-shadow:0 5px 0 var(--red-d);white-space:nowrap;}
@@ -194,10 +194,45 @@ section{padding:80px 6%;position:relative;}
 .polaroid img{width:100%;height:170px;object-fit:cover;display:block;}
 .polaroid .cap{text-align:center;padding-top:8px;font-weight:800;font-size:13px;}
 
+.history{background:linear-gradient(135deg,#eef8ff,#fff2f1);}
+.history-wrap{max-width:1000px;margin:0 auto;position:relative;padding-left:30px;}
+.history-wrap::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:4px;
+  background:repeating-linear-gradient(180deg,var(--red) 0 20px,var(--blue) 20px 40px,var(--green) 40px 60px,var(--yellow) 60px 80px);
+  border-radius:4px;}
+.history-item{position:relative;margin-bottom:34px;padding-left:26px;}
+.history-item::before{content:"";position:absolute;left:-30px;top:4px;width:18px;height:18px;border-radius:50%;
+  background:var(--white);border:4px solid var(--red);}
+.history-item:nth-child(2)::before{border-color:var(--blue);}
+.history-item:nth-child(3)::before{border-color:var(--green);}
+.history-item:nth-child(4)::before{border-color:var(--yellow);}
+.history-item h4{font-size:19px;margin-bottom:6px;}
+.history-item p{font-weight:700;color:#444;font-size:15px;line-height:1.6;}
+.history-stats{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-top:40px;}
+.hstat{background:#fff;border-radius:18px;padding:20px 26px;text-align:center;box-shadow:0 8px 0 rgba(0,0,0,.08);min-width:140px;}
+.hstat .num{font-size:30px;font-weight:800;color:var(--red);}
+.hstat:nth-child(2) .num{color:var(--blue);} .hstat:nth-child(3) .num{color:var(--green);}
+.hstat .lbl{font-size:12.5px;font-weight:700;color:#666;}
+
+.reviews{background:#fff;}
+.rating-badge{display:flex;align-items:center;gap:16px;justify-content:center;margin-bottom:40px;flex-wrap:wrap;}
+.rating-badge .stars{font-size:26px;color:var(--yellow);}
+.rating-badge .num{font-size:34px;font-weight:800;color:var(--dark);}
+.rating-badge .src{font-size:13px;color:#888;font-weight:700;}
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:1150px;margin:0 auto;}
+.review-card{background:#fffaf0;border-radius:20px;padding:26px;border:3px solid var(--dark);position:relative;}
+.review-card:nth-child(2){border-color:var(--blue);}
+.review-card:nth-child(3){border-color:var(--green);}
+.review-card .quote{font-size:28px;position:absolute;top:10px;right:18px;opacity:.25;}
+.review-card p.txt{font-weight:700;font-size:15px;color:#333;line-height:1.6;margin-bottom:14px;}
+.review-card .who{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800;color:#555;}
+.review-card .stars-sm{color:var(--yellow);font-size:14px;}
+
 .contacts{background:linear-gradient(135deg,var(--blue),var(--dark));color:#fff;}
-.contact-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+.contact-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px;}
 .contact-info li{padding:12px 0;font-size:15.5px;font-weight:700;border-bottom:2px dashed rgba(255,255,255,.25);}
 .contact-info b{color:var(--yellow);}
+.map-wrap{border-radius:22px;overflow:hidden;box-shadow:0 10px 0 rgba(0,0,0,.2);margin-top:18px;border:4px solid #fff;}
+.map-wrap iframe{width:100%;height:260px;border:0;display:block;}
 .form-box{background:#fff;color:var(--dark);padding:28px;border-radius:22px;box-shadow:0 10px 0 rgba(0,0,0,.2);}
 .form-box input,.form-box textarea{width:100%;padding:13px;margin-bottom:12px;border-radius:12px;border:2px solid #ddd;font-size:14.5px;font-family:'Nunito';}
 .form-box button{width:100%;}
@@ -248,8 +283,8 @@ footer span{color:var(--red);}
       <li><a href="#rooms">Комнаты</a></li>
       <li><a href="#newfeat">Кузар и Лава</a></li>
       <li><a href="#shows">Шоу</a></li>
-      <li><a href="#quests">Квизы и МК</a></li>
-      <li><a href="#gallery">Фото</a></li>
+      <li><a href="#history">История</a></li>
+      <li><a href="#reviews">Отзывы</a></li>
       <li><a href="#contacts">Контакты</a></li>
     </ul>
   </nav>
@@ -431,15 +466,74 @@ footer span{color:var(--red);}
   </div>
 </section>
 
+<section class="history" id="history">
+  <h2 class="section-title center">Наша <span>история</span> 🕰️</h2>
+  <p class="section-sub center">«Планета игр» — сеть семейных развлекательных центров Санкт-Петербурга, которая выросла до 7+ филиалов в разных районах города</p>
+  <div class="history-wrap fade-in">
+    <div class="history-item">
+      <h4>🚀 Начало пути</h4>
+      <p>Первые центры «Планеты игр» появились в торговых комплексах Санкт-Петербурга и быстро полюбились семьям с детьми — благодаря сочетанию игровых автоматов, симуляторов и детских площадок под одной крышей.</p>
+    </div>
+    <div class="history-item">
+      <h4>🏢 Рост сети</h4>
+      <p>Со временем сеть открыла филиалы в ТРК «Континент» на Стачек, «Норд», «Меркурий», «Родео Драйв», «Vokzal 1853» и ТРК «Невский» на Большевиков (филиал на Большевиков открылся в 2019 году) — сегодня это уже 7+ точек по всему городу.</p>
+    </div>
+    <div class="history-item">
+      <h4>🎪 Купчино присоединяется</h4>
+      <p>Филиал в ТРК «Балкания Nova» на Балканской площади стал одним из самых популярных: по данным 2ГИС, он держит рейтинг 4.8 из 5 на основе 114 оценок посетителей.</p>
+    </div>
+    <div class="history-item">
+      <h4>🦒 Новый герой — Вовка</h4>
+      <p>Специально для дней рождений в Купчино мы завели дружелюбного жирафа Вовку — он встречает гостей и рассказывает про новые развлечения: лазертаг «Кузар» и аттракцион «Пол — это лава».</p>
+    </div>
+  </div>
+  <div class="history-stats fade-in">
+    <div class="hstat"><div class="num">7+</div><div class="lbl">филиалов в СПб</div></div>
+    <div class="hstat"><div class="num">4.8★</div><div class="lbl">рейтинг в 2ГИС</div></div>
+    <div class="hstat"><div class="num">100+</div><div class="lbl">аппаратов и аттракционов</div></div>
+  </div>
+</section>
+
+<section class="reviews" id="reviews">
+  <h2 class="section-title center">Что говорят <span>гости</span> 💬</h2>
+  <div class="rating-badge">
+    <span class="stars">★★★★★</span>
+    <span class="num">4.8</span>
+    <span class="src">на основе 114 оценок и 89 отзывов · 2ГИС</span>
+  </div>
+  <div class="review-grid fade-in">
+    <div class="review-card">
+      <span class="quote">❝</span>
+      <p class="txt">«Недавно нас с моими пятилетними двойняшками пригласили на день рождения в этот игровой центр. Очень классное место для детей — мальчишек потом было не увести. Батуты и лабиринты — это наше всё! Организация праздника была на высоте, в восторге остались и дети, и родители».</p>
+      <div class="who"><span>Оксана Прушинская</span><span class="stars-sm">★★★★★ · янв. 2022</span></div>
+    </div>
+    <div class="review-card">
+      <span class="quote">❝</span>
+      <p class="txt">«Потрясающая площадка, не видела похожих в СПб. Ребёнку 2,5 года, безумно интересно там играть».</p>
+      <div class="who"><span>Дарья Кожухарь</span><span class="stars-sm">★★★★★ · нояб. 2019</span></div>
+    </div>
+    <div class="review-card">
+      <span class="quote">❝</span>
+      <p class="txt">«Очень хорошее место для игр, я там получила карту со скидкой 10% — теперь возвращаемся сюда снова и снова».</p>
+      <div class="who"><span>Элина</span><span class="stars-sm">★★★★★ · KidsReview</span></div>
+    </div>
+  </div>
+</section>
+
 <section class="contacts" id="contacts">
   <h2 class="section-title center" style="color:#fff;">Забронировать <span style="color:var(--yellow);">праздник</span> 📍</h2>
   <div class="contact-grid">
-    <ul class="contact-info">
-      <li><b>Адрес:</b> Санкт-Петербург, Балканская пл., 5, ТРК «Балкания Nova» (м. Купчино)</li>
-      <li><b>Телефон:</b> +7 (981) 818‑01‑34</li>
-      <li><b>Режим работы:</b> ежедневно с 10:00 до 22:00</li>
-      <li><b>Комната:</b> бронирование от 3 часов, продление 1500 ₽/час</li>
-    </ul>
+    <div>
+      <ul class="contact-info">
+        <li><b>Адрес:</b> Санкт-Петербург, Балканская площадь, 5, ТРК «Балкания Nova», 3 этаж (м. Купчино)</li>
+        <li><b>Телефон:</b> +7 (981) 818‑01‑34</li>
+        <li><b>Режим работы:</b> ежедневно с 10:00 до 22:00</li>
+        <li><b>Комната:</b> бронирование от 3 часов, продление 1500 ₽/час</li>
+      </ul>
+      <div class="map-wrap">
+        <iframe src="https://maps.google.com/maps?q=%D0%A1%D0%B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%80%D0%B1%D1%83%D1%80%D0%B3,%20%D0%91%D0%B0%D0%BB%D0%BA%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%20%D0%BF%D0%BB%D0%BE%D1%89%D0%B0%D0%B4%D1%8C%2C%205&z=16&output=embed" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
     <div class="form-box">
       <form onsubmit="alert('Заявка отправлена! Вовка уже готовит шарики 🎈'); return false;">
         <input type="text" placeholder="Ваше имя" required>
