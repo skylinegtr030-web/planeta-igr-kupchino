@@ -939,7 +939,7 @@ function openOrder(packId,roomId,extraId){
 function closeOrder(){document.getElementById('orderModal').classList.remove('active');}
 
 /* POSTs to the Google Apps Script Web App once SHEET_WEBHOOK_URL is filled in below */
-const SHEET_WEBHOOK_URL="";
+const SHEET_WEBHOOK_URL="https://script.google.com/macros/s/AKfycbyERsFLMP_S2xWNi6AgDJHZPU6Mh6t_TogQkTTECva4zWDif140dh3yt3R2pwpmCUCKJA/exec";
 function submitOrder(e){
   e.preventDefault();
   const form=e.target;
