@@ -81,7 +81,7 @@ header{
 }
 .logo{display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:900;}
 .logo .dot{width:14px;height:14px;border-radius:50%;background:conic-gradient(var(--red),var(--yellow),var(--green),var(--blue),var(--red));animation:spin 6s linear infinite;}
-nav a{margin-left:24px;font-weight:800;font-size:.95rem;color:var(--dark);}
+nav a{margin-left:22px;font-weight:800;font-size:.92rem;color:var(--dark);}
 nav a:hover{color:var(--red);}
 .btn{
   display:inline-block;padding:14px 28px;border-radius:14px;font-weight:900;font-size:1rem;
@@ -92,6 +92,7 @@ nav a:hover{color:var(--red);}
 .btn-primary:active{transform:translateY(6px);box-shadow:0 0 0 #a5150e;}
 .btn-outline{background:transparent;color:var(--blue);border:2px solid var(--blue);}
 .btn-outline:hover{background:var(--blue);color:#fff;transform:translateY(-2px);}
+.btn-sm{padding:9px 16px;font-size:.85rem;border-radius:10px;}
 
 .hero{min-height:88vh;display:flex;align-items:center;padding:60px 6vw;position:relative;}
 .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center;width:100%;max-width:1200px;margin:0 auto;position:relative;z-index:2;}
@@ -100,13 +101,24 @@ nav a:hover{color:var(--red);}
 .hero p{font-size:1.15rem;margin-bottom:26px;max-width:520px;font-weight:600;color:#42506e;}
 .hero-btns{display:flex;gap:16px;flex-wrap:wrap;}
 .hero-photo-wrap{position:relative;}
-.hero-photo{border-radius:24px;box-shadow:0 20px 50px rgba(17,26,59,.16);transition:.4s transform;}
-.hero-photo-wrap:hover .hero-photo{transform:rotate(-1deg) scale(1.02);}
 .hero-tag{
   position:absolute;bottom:-18px;left:-18px;background:#fff;color:var(--dark);
   padding:12px 18px;border-radius:16px;font-weight:900;box-shadow:0 10px 24px rgba(17,26,59,.15);
-  font-size:1rem;border:2px solid var(--yellow);
+  font-size:1rem;border:2px solid var(--yellow);z-index:6;
 }
+.collage{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;height:420px;border-radius:24px;overflow:hidden;box-shadow:0 20px 50px rgba(17,26,59,.16);}
+.collage-slot{position:relative;overflow:hidden;border-radius:16px;}
+.collage-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;animation:collage-fade 16s infinite;}
+.collage-slot img:nth-child(1){animation-delay:0s;}
+.collage-slot img:nth-child(2){animation-delay:8s;}
+@keyframes collage-fade{
+  0%{opacity:0;transform:scale(1.04);}
+  4%{opacity:1;transform:scale(1);}
+  46%{opacity:1;transform:scale(1);}
+  50%{opacity:0;transform:scale(1.04);}
+  100%{opacity:0;}
+}
+
 .balloon{
   position:absolute;font-size:2.6rem;cursor:pointer;user-select:none;z-index:5;
   animation:balloon-float 4s ease-in-out infinite;
@@ -141,31 +153,11 @@ nav a:hover{color:var(--red);}
 }
 .area-list span:hover{transform:translateY(-6px) rotate(-2deg) scale(1.06);box-shadow:0 12px 24px rgba(17,26,59,.16);}
 
-.room-wrap{display:grid;grid-template-columns:1.3fr .7fr;gap:20px;min-height:420px;}
-.room-main{border-radius:22px;overflow:hidden;cursor:pointer;position:relative;box-shadow:0 16px 40px rgba(17,26,59,.14);min-height:420px;}
-.room-main img{transition:.5s transform;width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
-.room-main:hover img{transform:scale(1.08);}
-.room-side{display:flex;flex-direction:column;gap:20px;height:420px;}
-.room-thumb{border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 12px 28px rgba(17,26,59,.12);position:relative;flex:1;min-height:190px;}
-.room-thumb img{width:100%;height:100%;object-fit:cover;transition:.4s transform;display:block;position:absolute;inset:0;}
-.room-thumb:hover img{transform:scale(1.1);}
-.room-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent);color:#fff;padding:14px;font-weight:800;font-size:.9rem;z-index:2;}
-
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,12,30,.88);z-index:100;align-items:center;justify-content:center;padding:20px;}
-.modal-bg.active{display:flex;}
-.modal-box{background:#fff;border-radius:20px;max-width:800px;width:100%;overflow:hidden;max-height:90vh;overflow-y:auto;position:relative;}
-.modal-box img{width:100%;}
-.modal-close{position:absolute;top:20px;right:30px;font-size:2rem;color:#fff;cursor:pointer;z-index:101;}
-.modal-thumbs{display:flex;gap:8px;padding:14px;overflow-x:auto;}
-.modal-thumbs img{width:80px;height:60px;object-fit:cover;border-radius:8px;cursor:pointer;flex-shrink:0;opacity:.6;}
-.modal-thumbs img.active{opacity:1;outline:3px solid var(--red);}
-.modal-info{padding:20px;}
-
 .pack-grid{display:flex;flex-wrap:wrap;gap:26px;justify-content:center;}
 .pack{
   background:rgba(255,255,255,.9);border-radius:20px;padding:28px 24px;width:265px;box-shadow:0 12px 28px rgba(17,26,59,.08);
   position:relative;transition:transform .15s ease,box-shadow .3s;opacity:0;transform:translateY(30px);border:1px solid rgba(17,26,59,.06);
-  transform-style:preserve-3d;
+  transform-style:preserve-3d;cursor:pointer;
 }
 .pack.show{opacity:1;transform:translateY(0);}
 .pack:hover{box-shadow:0 22px 40px rgba(17,26,59,.16);}
@@ -175,11 +167,14 @@ nav a:hover{color:var(--red);}
 .pack .price{font-size:1.8rem;font-weight:900;color:var(--red);margin:10px 0;}
 .pack ul{list-style:none;font-size:.9rem;line-height:1.8;}
 .pack ul li:before{content:"● ";color:var(--green);}
+.pack ul li.gift{background:rgba(255,199,44,.18);border-radius:8px;padding:3px 8px;font-weight:800;margin:2px 0;}
+.pack ul li.gift:before{content:"🎁 ";}
 .pack-tag{
   position:absolute;top:-14px;right:20px;background:var(--yellow);color:var(--dark);
   padding:5px 14px;border-radius:20px;font-weight:900;font-size:.75rem;box-shadow:0 6px 14px rgba(0,0,0,.12);
   animation:tag-bounce 2s ease-in-out infinite;
 }
+.pack-cta{margin-top:14px;text-align:center;font-weight:900;color:var(--blue);font-size:.85rem;}
 @keyframes tag-bounce{0%,100%{transform:rotate(4deg) translateY(0);}50%{transform:rotate(4deg) translateY(-4px);}}
 
 .activity{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-bottom:56px;}
@@ -197,12 +192,14 @@ nav a:hover{color:var(--red);}
 .extras{columns:3 260px;column-gap:20px;}
 .extra-card{
   break-inside:avoid;background:rgba(255,255,255,.9);border-radius:18px;padding:22px;margin-bottom:20px;
-  box-shadow:0 10px 24px rgba(17,26,59,.08);text-align:center;transition:.25s;cursor:default;
+  box-shadow:0 10px 24px rgba(17,26,59,.08);text-align:center;transition:.25s;cursor:pointer;
 }
 .extra-card:hover{transform:translateY(-8px) scale(1.03);box-shadow:0 18px 34px rgba(17,26,59,.15);}
 .extra-card:hover svg{animation:wiggle .5s ease;}
 @keyframes wiggle{0%,100%{transform:rotate(0);}25%{transform:rotate(-14deg);}75%{transform:rotate(14deg);}}
 .extra-price{font-weight:900;color:var(--red);font-size:1.15rem;margin-top:8px;}
+.extra-hint{font-size:.75rem;color:#8a93ab;font-weight:700;margin-top:2px;}
+.extras-cta{text-align:center;margin-top:14px;}
 
 .timeline{position:relative;padding-left:36px;}
 .timeline:before{content:"";position:absolute;left:8px;top:0;bottom:0;width:3px;background:rgba(17,26,59,.1);}
@@ -233,17 +230,73 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
 .fade-up{opacity:0;transform:translateY(30px);transition:.6s ease;}
 .fade-up.show{opacity:1;transform:translateY(0);}
 
+/* Quest */
+.quest-box{background:rgba(255,255,255,.92);border-radius:22px;padding:34px;box-shadow:0 14px 32px rgba(17,26,59,.1);max-width:640px;margin:0 auto;}
+.quest-q{display:none;}
+.quest-q.active{display:block;}
+.quest-opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+.quest-opts button{flex:1 1 140px;padding:12px 16px;border-radius:12px;border:2px solid #e4e7f0;background:#fff;font-weight:800;cursor:pointer;transition:.2s;}
+.quest-opts button:hover{border-color:var(--blue);transform:translateY(-2px);}
+.quest-opts button.wrong{border-color:var(--red);background:rgba(226,35,26,.08);}
+.quest-opts button.correct{border-color:var(--green);background:rgba(40,167,69,.12);}
+.quest-progress{display:flex;gap:8px;margin-bottom:18px;}
+.quest-progress span{flex:1;height:6px;border-radius:4px;background:#e4e7f0;}
+.quest-progress span.done{background:var(--green);}
+.quest-result{display:none;text-align:center;}
+.quest-result.active{display:block;}
+.promo-code{display:inline-block;background:var(--dark);color:#fff;font-weight:900;font-size:1.4rem;letter-spacing:2px;padding:14px 26px;border-radius:14px;margin:16px 0;}
+
+/* Order form modal */
+.order-box{max-width:720px;padding:30px 34px;}
+.order-box h3{font-size:1.6rem;margin-bottom:4px;}
+.order-box>p{color:#6b7690;font-weight:700;margin-bottom:18px;}
+.order-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+.order-box label{display:block;font-weight:800;font-size:.82rem;color:#42506e;margin:10px 0 4px;}
+.order-box input,.order-box textarea{width:100%;padding:11px 13px;border:2px solid #e9ebf2;border-radius:10px;font-family:inherit;font-size:.95rem;}
+.order-box input:focus,.order-box textarea:focus{outline:none;border-color:var(--blue);}
+.order-section{margin-top:16px;border-top:1px solid #eee;padding-top:12px;}
+.order-section h4{font-size:1rem;margin-bottom:8px;}
+.order-options{display:flex;flex-direction:column;gap:6px;}
+.order-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;border:2px solid #e9ebf2;font-weight:700;font-size:.9rem;cursor:pointer;transition:.15s;}
+.order-opt:hover{border-color:var(--blue);}
+.order-opt input{width:auto;margin:0;}
+.order-opt .oo-name{flex:1;}
+.order-opt .oo-meta{font-size:.78rem;color:#8a93ab;font-weight:700;}
+.order-summary{background:rgba(31,95,214,.06);border-radius:14px;padding:14px 16px;margin-top:16px;font-weight:800;font-size:.92rem;display:flex;flex-direction:column;gap:4px;}
+.order-note{font-weight:600;font-size:.75rem;color:#8a93ab;margin-top:4px;}
+.order-discount{color:var(--green);}
+
+/* Extra modal */
+.extra-box{max-width:520px;padding:0;overflow:hidden;}
+.extra-box-inner{padding:26px 28px 30px;}
+.extra-box h3{font-size:1.4rem;padding:22px 28px 0;}
+.extra-modal-media{position:relative;height:220px;margin-top:14px;overflow:hidden;}
+.extra-modal-media img{width:100%;height:100%;object-fit:cover;}
+.extra-modal-media .icon-block{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4.4rem;}
+.extra-modal-media:after{content:"";position:absolute;left:0;right:0;bottom:0;height:75%;background:linear-gradient(180deg,transparent,#fff 90%);}
+.extra-modal-body{position:relative;z-index:2;margin-top:-56px;padding:0 28px 26px;}
+.extra-modal-body p{font-weight:600;color:#42506e;margin-bottom:10px;}
+.tier-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed #e4e7f0;font-weight:700;font-size:.88rem;}
+.tier-row:last-child{border-bottom:none;}
+.tier-row .tier-price{color:var(--red);font-weight:900;white-space:nowrap;}
+
+.room-note{text-align:center;margin-top:6px;font-weight:800;color:#6b7690;}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,12,30,.88);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.modal-bg.active{display:flex;}
+.modal-box{background:#fff;border-radius:20px;max-width:800px;width:100%;overflow:hidden;max-height:90vh;overflow-y:auto;position:relative;margin:auto;}
+.modal-box img{width:100%;}
+.modal-close{position:absolute;top:16px;right:20px;font-size:2rem;color:#8a93ab;cursor:pointer;z-index:101;line-height:1;}
+.extra-box .modal-close,.order-box .modal-close{color:#8a93ab;}
+
 @media(max-width:900px){
-  .hero-grid,.contact-grid{grid-template-columns:1fr;}
-  .room-wrap{grid-template-columns:1fr;min-height:auto;}
-  .room-main{min-height:280px;}
-  .room-side{height:auto;flex-direction:row;}
-  .room-thumb{min-height:140px;}
+  .hero-grid,.contact-grid,.order-grid{grid-template-columns:1fr;}
   .activity{grid-template-columns:1fr;}
   .activity.rev{direction:ltr;}
   .extras{columns:1 100%;}
   nav{display:none;}
   .balloon{font-size:2rem;}
+  .collage{height:320px;}
 }
 </style>
 </head>
@@ -255,10 +308,10 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
 <header>
   <div class="logo"><span class="dot"></span> Планета Игр</div>
   <nav>
-    <a href="#birthday">Дни рождения</a>
+    <a href="#rooms">Банкетные комнаты</a>
     <a href="#activities">Кузар и Лава-пол</a>
     <a href="#prices">Цены</a>
-    <a href="#history">О нас</a>
+    <a href="#quest">Квест</a>
     <a href="#reviews">Отзывы</a>
     <a href="#contact">Контакты</a>
   </nav>
@@ -270,15 +323,20 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
     <div>
       <span class="badge red">Планета Игр · Балканская пл., 5 · ТРК «Балкания Nova»</span>
       <h1>День рождения, который <span>запомнится</span> надолго</h1>
-      <p>Праздничная комната, аниматоры, шоу-программы, лазертаг «Кузар» и светящийся «Лава-пол» — всё в одном центре развлечений в Купчино.</p>
+      <p>Банкетные комнаты «Джунгли» и «Лофт», аниматоры, шоу-программы, лазертаг «Кузар» и светящийся «Лава-пол» — всё в одном центре развлечений в Купчино.</p>
       <div class="hero-btns">
         <a href="#prices" class="btn btn-primary" id="ctaPrices">Смотреть пакеты и цены</a>
-        <a href="#contact" class="btn btn-outline">Забронировать дату</a>
+        <a href="javascript:void(0)" class="btn btn-outline" onclick="openOrder()">Заказать праздник</a>
       </div>
       <p style="margin-top:14px;font-size:.85rem;color:#8a93ab;">Попробуйте лопнуть шарики справа сверху 🎈</p>
     </div>
     <div class="hero-photo-wrap">
-      <img class="hero-photo" src="balkaniya-komn5.jpg" alt="Праздничная комната Планета Игр">
+      <div class="collage">
+        <div class="collage-slot"><img src="hero-collage-1.jpg" alt="Праздник в Планете Игр"><img src="room-jungle-1.jpg" alt="Банкетная комната Джунгли"></div>
+        <div class="collage-slot"><img src="hero-collage-2.jpg" alt="Аниматоры Планета Игр"><img src="lava-pol-real-1.jpg" alt="Лава-пол"></div>
+        <div class="collage-slot"><img src="hero-collage-3.jpg" alt="Праздничная программа"><img src="room-loft-1.jpg" alt="Банкетная комната Лофт"></div>
+        <div class="collage-slot"><img src="hero-collage-6.jpg" alt="Игровая зона"><img src="kuzar-real-arena-1.jpg" alt="Лазертаг Кузар"></div>
+      </div>
       <div class="hero-tag">2 700 м² · 10:00–22:00</div>
     </div>
   </div>
@@ -299,76 +357,76 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
       <span>🌀 Лабиринт и горки</span>
       <span>🔫 Лазертаг «Кузар»</span>
       <span>💡 Интерактивный «Лава-пол»</span>
-      <span>🎂 Праздничная комната</span>
+      <span>🌿 Банкетная комната «Джунгли»</span>
+      <span>⭐ Банкетная комната «Лофт»</span>
       <span>🍭 Призотека</span>
     </div>
   </div>
 </section>
 
-<section class="section" id="birthday">
-  <div class="section-inner fade-up">
+<section class="section" id="rooms">
+  <div class="section-inner">
     <span class="badge blue">Ваш праздник</span>
-    <h2 style="font-size:2.2rem;margin-bottom:10px;">Комната «Поздравляшка»</h2>
-    <p style="max-width:600px;margin-bottom:30px;font-weight:600;color:#42506e;">Космическая роспись, банкетные столы, диванная зона и место для аниматора — комната полностью готова к празднику. Нажмите на фото, чтобы посмотреть все ракурсы.</p>
-    <div class="room-wrap">
-      <div class="room-main" onclick="openGallery(0)">
-        <img src="1000062457.jpg" alt="Праздничная комната — общий вид">
-        <div class="room-caption">Общий вид комнаты · нажмите, чтобы открыть галерею</div>
+    <h2 style="font-size:2.2rem;margin-bottom:10px;">Банкетные комнаты</h2>
+    <p style="max-width:600px;margin-bottom:10px;font-weight:600;color:#42506e;">Две банкетные комнаты для праздника — выберите атмосферу, которая понравится именно вашей компании. Нажмите на пакет ниже, чтобы забронировать вместе с комнатой.</p>
+
+    <div class="activity">
+      <div>
+        <div class="icon-circle"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2c-4 3-4 8-4 8s5 1 8-2c2-2 2-6 2-6s-4 0-6 0z" stroke="#28a745" stroke-width="2" stroke-linejoin="round"/><path d="M12 22v-9" stroke="#28a745" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <span class="badge green">Банкетная комната</span>
+        <h3 style="font-size:1.8rem;margin-bottom:12px;">«Джунгли»</h3>
+        <p style="font-weight:600;color:#42506e;margin-bottom:16px;">Зелёная комната с настенными джунглями — жираф, зебра, слон и обезьянки среди листвы, живые нотки декора и неоновая надпись «С Днём Рождения». Уютно и атмосферно для компании до 20 человек.</p>
+        <a href="javascript:void(0)" class="btn btn-primary btn-sm" onclick="openOrder(null,'jungle-room')">Забронировать «Джунгли»</a>
       </div>
-      <div class="room-side">
-        <div class="room-thumb" onclick="openGallery(1)">
-          <img src="1000062459.jpg" alt="Сервировка стола">
-          <div class="room-caption">Праздничная сервировка</div>
-        </div>
-        <div class="room-thumb" onclick="openGallery(2)">
-          <img src="1000062460.jpg" alt="Оформление шарами">
-          <div class="room-caption">Оформление шарами</div>
-        </div>
-      </div>
+      <img src="room-jungle-2.jpg" alt="Банкетная комната Джунгли">
     </div>
+
+    <div class="activity rev">
+      <div>
+        <div class="icon-circle"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.9 6.3L21 9.3l-4.5 4.4L17.6 20 12 16.9 6.4 20l1.1-6.3L3 9.3l6.1-1z" stroke="#ffc72c" stroke-width="2" stroke-linejoin="round"/></svg></div>
+        <span class="badge red">Банкетная комната</span>
+        <h3 style="font-size:1.8rem;margin-bottom:12px;">«Лофт»</h3>
+        <p style="font-weight:600;color:#42506e;margin-bottom:16px;">Стильная чёрно-золотая комната в индустриальном стиле — белый кирпич, деревянные панели, светящаяся звезда и гирлянда лампочек. Отличный выбор для эффектных фото и взрослой компании.</p>
+        <a href="javascript:void(0)" class="btn btn-primary btn-sm" onclick="openOrder(null,'loft-room')">Забронировать «Лофт»</a>
+      </div>
+      <img src="room-loft-1.jpg" alt="Банкетная комната Лофт">
+    </div>
+
+    <p class="room-note">Аренда банкетной комнаты — 5 000 ₽ / 2 часа · продление — 2 500 ₽ / час · безлимит в день праздника — 750 ₽ будни / 1 000 ₽ выходные</p>
   </div>
 </section>
-
-<div class="modal-bg" id="galleryModal">
-  <span class="modal-close" onclick="closeGallery()">&times;</span>
-  <div class="modal-box">
-    <img id="modalImg" src="1000062457.jpg" alt="">
-    <div class="modal-thumbs" id="modalThumbs"></div>
-    <div class="modal-info">
-      <h3>Комната «Поздравляшка»</h3>
-      <p style="margin:10px 0;">Аренда — 5 000 ₽ / 2 часа, продление — 2 500 ₽ / час. Вмещает компанию до 20 детей и взрослых.</p>
-      <a href="#contact" class="btn btn-primary" onclick="closeGallery()">Забронировать дату</a>
-    </div>
-  </div>
-</div>
 
 <section class="section" id="prices">
   <div class="section-inner">
     <span class="badge green">Пакеты праздника</span>
-    <h2 style="font-size:2.2rem;margin-bottom:30px;">Выберите программу для рождения</h2>
+    <h2 style="font-size:2.2rem;margin-bottom:10px;">Выберите программу для рождения</h2>
+    <p style="max-width:600px;margin-bottom:30px;font-weight:600;color:#42506e;">Нажмите на пакет — откроется форма заявки с этой программой, где можно сразу увидеть примерную стоимость и время окончания праздника.</p>
     <div class="pack-grid">
-      <div class="pack"><span class="pack-tag">Хит</span>
+      <div class="pack" onclick="openOrder('malysh')"><span class="pack-tag">Хит</span>
         <h3>Малыш JO</h3><div class="guests">До 6 гостей</div>
         <div class="price">24 500 ₽</div><div class="pack-perf"></div>
         <ul><li>3 часа банкетной комнаты</li><li>Праздничная сервировка</li><li>6 безлимитных билетов</li><li>Аниматор с героем — 1 час</li></ul>
+        <div class="pack-cta">Нажмите, чтобы заказать →</div>
       </div>
-      <div class="pack">
+      <div class="pack" onclick="openOrder('jungle')">
         <h3>Гости в джунглях</h3><div class="guests">До 8 гостей</div>
         <div class="price">33 000 ₽</div><div class="pack-perf"></div>
         <ul><li>Всё из пакета «Малыш JO»</li><li>Аквагрим / блеск-тату</li><li>10 гелиевых шаров</li><li>2 тайм-карты, приглашения</li></ul>
+        <div class="pack-cta">Нажмите, чтобы заказать →</div>
       </div>
-      <div class="pack"><span class="pack-tag">Топ</span>
+      <div class="pack" onclick="openOrder('king')"><span class="pack-tag">Топ</span>
         <h3>Король саванны</h3><div class="guests">До 10 гостей</div>
         <div class="price">50 500 ₽</div><div class="pack-perf"></div>
-        <ul><li>4 часа банкетной комнаты</li><li>МК / шоу / квест на выбор</li><li>«Лава-пол» и 3 карты на автоматы</li><li>Серебряное шоу в подарок</li></ul>
+        <ul><li>4 часа банкетной комнаты</li><li>МК / шоу / квест на выбор</li><li>«Лава-пол» и 3 карты на автоматы</li><li class="gift">Серебряное шоу в подарок</li></ul>
+        <div class="pack-cta">Нажмите, чтобы заказать →</div>
       </div>
-      <div class="pack">
+      <div class="pack" onclick="openOrder('cyber')">
         <h3>Кибер Пати</h3><div class="guests">До 10 гостей</div>
         <div class="price">36 500 ₽</div><div class="pack-perf"></div>
         <ul><li>3 часа банкетной комнаты</li><li>5 тайм-карт на 60 минут</li><li>Лазертаг «Кузар» — 1 час</li><li>«Лава-пол» — 20 минут</li></ul>
+        <div class="pack-cta">Нажмите, чтобы заказать →</div>
       </div>
     </div>
-    <p style="text-align:center;margin-top:30px;font-weight:800;color:#6b7690;">Аренда «Поздравляшки» — 5 000 ₽ / 2 часа · продление — 2 500 ₽ / час · безлимит в день праздника — 750 ₽ будни / 1 000 ₽ выходные</p>
   </div>
 </section>
 
@@ -379,54 +437,78 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
         <div class="icon-circle"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2-6 4 12 2-6h6" stroke="#e2231a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <span class="badge red">Командная битва</span>
         <h3 style="font-size:1.8rem;margin-bottom:12px;">Лазертаг «Кузар»</h3>
-        <p style="font-weight:600;color:#42506e;">Тёмный лабиринт с неоновой разметкой, лазерные бластеры и командные режимы игры. Отличный формат для именинников от 8 лет и шумных компаний.</p>
+        <p style="font-weight:600;color:#42506e;">Тёмный неоновый лабиринт с лазерными бластерами и командными режимами игры. Отличный формат для именинников от 8 лет и шумных компаний.</p>
       </div>
-      <img src="%D0%BA%D1%83%D0%B7%D0%B0%D1%80.jpg" alt="Лазертаг Кузар">
+      <img src="kuzar-real-arena-1.jpg" alt="Лазертаг Кузар — неоновый лабиринт">
     </div>
     <div class="activity rev">
       <div>
         <div class="icon-circle"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#28a745" stroke-width="2.4"/><path d="M12 4v16M4 12h16" stroke="#28a745" stroke-width="2"/></svg></div>
         <span class="badge green">Интерактив</span>
         <h3 style="font-size:1.8rem;margin-bottom:12px;">«Лава-пол»</h3>
-        <p style="font-weight:600;color:#42506e;">Светящийся интерактивный пол с игровыми режимами — «пол это лава», догонялки со светом и реакция на скорость. Заряжает энергией всю компанию.</p>
+        <p style="font-weight:600;color:#42506e;">Светящийся интерактивный LED-пол с переливающейся анимацией и игровыми режимами — «пол это лава», догонялки со светом и реакция на скорость. Заряжает энергией всю компанию.</p>
       </div>
-      <img src="%D0%BB%D0%B0%D0%B2%D0%B0%20%D0%BF%D0%BE%D0%BB.jpg" alt="Лава-пол">
+      <img src="lava-pol-real-1.jpg" alt="Лава-пол — светящийся интерактивный пол">
     </div>
   </div>
 </section>
 
-<section class="section">
+<section class="section" id="extras">
   <div class="section-inner">
     <span class="badge blue">Дополнительно</span>
-    <h2 style="font-size:2.2rem;margin-bottom:30px;">Шоу, квизы и мастер-классы</h2>
-    <div class="extras">
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M12 2v6M12 16v6M2 12h6M16 12h6" stroke="#e2231a" stroke-width="2.4" stroke-linecap="round"/></svg><h4>Азот-шоу</h4><div class="extra-price">13 000 ₽</div></div>
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#1f5fd6" stroke-width="2.4"/><circle cx="12" cy="12" r="2" fill="#1f5fd6"/></svg><h4>Неоновое шоу</h4><div class="extra-price">10 000 ₽</div></div>
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="9" r="3" stroke="#28a745" stroke-width="2"/><circle cx="16" cy="14" r="4" stroke="#28a745" stroke-width="2"/></svg><h4>Мыльные пузыри</h4><div class="extra-price">10 000 ₽</div></div>
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M4 12h16M4 12l4-4M4 12l4 4M20 12l-4-4M20 12l-4 4" stroke="#ffc72c" stroke-width="2.4" stroke-linecap="round"/></svg><h4>Челлендж-пати</h4><div class="extra-price">8 500 ₽</div></div>
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.5 5 5.5.8-4 4 1 5.5L12 16l-5 2.3 1-5.5-4-4 5.5-.8L12 3z" stroke="#e2231a" stroke-width="1.8" stroke-linejoin="round"/></svg><h4>Пиньята</h4><div class="extra-price">от 4 000 ₽</div></div>
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="#1f5fd6" stroke-width="2"/><path d="M8 9h8M8 13h5" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/></svg><h4>Квизы (до 25 чел.)</h4><div class="extra-price">по запросу</div></div>
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M12 2a5 5 0 015 5c0 3-2 4-2 6H9c0-2-2-3-2-6a5 5 0 015-5z" stroke="#28a745" stroke-width="2"/><path d="M9 18h6M10 21h4" stroke="#28a745" stroke-width="2" stroke-linecap="round"/></svg><h4>Мастер-класс</h4><div class="extra-price">9 000 ₽</div></div>
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#ffc72c" stroke-width="2"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6" stroke="#ffc72c" stroke-width="2"/></svg><h4>Аниматор</h4><div class="extra-price">8 000 ₽</div></div>
-      <div class="extra-card"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7l3-7z" stroke="#e2231a" stroke-width="1.8" stroke-linejoin="round"/></svg><h4>Фокусник</h4><div class="extra-price">15 000 ₽</div></div>
+    <h2 style="font-size:2.2rem;margin-bottom:10px;">Шоу, квесты и мастер-классы</h2>
+    <p style="max-width:600px;margin-bottom:30px;font-weight:600;color:#42506e;">Нажмите на карточку, чтобы увидеть подробности и варианты — там же можно сразу добавить услугу в заявку.</p>
+    <div class="extras" id="extrasGrid"></div>
+    <div class="extras-cta">
+      <a href="javascript:void(0)" class="btn btn-primary" onclick="openOrder()">Заказать праздник</a>
     </div>
   </div>
 </section>
 
-<section class="section" id="history">
-  <div class="section-inner">
-    <span class="badge red">История</span>
-    <h2 style="font-size:2.2rem;margin-bottom:30px;">Как рос наш центр</h2>
-    <div class="timeline">
-      <div class="t-item"><strong>Начало пути</strong><p style="color:#42506e;">Первые центры «Планета Игр» открылись в Санкт-Петербурге и быстро стали любимым местом семейного отдыха.</p></div>
-      <div class="t-item"><strong>Рост сети</strong><p style="color:#42506e;">Сеть расширилась до филиалов в ТРК «Континент», «Норд», «Меркурий», «Родео Драйв» и «Vokzal 1853».</p></div>
-      <div class="t-item"><strong>Открытие в Купчино</strong><p style="color:#42506e;">Филиал в ТРК «Балкания Nova» на Балканской площади стал одним из самых посещаемых — рейтинг 4.8 по данным 2ГИС.</p></div>
-      <div class="t-item"><strong>Сегодня</strong><p style="color:#42506e;">2 700 м² игровых зон, лазертаг «Кузар», «Лава-пол» и праздничная комната — всё для незабываемого дня рождения.</p></div>
-    </div>
-    <div class="stat-row">
-      <div class="stat"><div class="big-num" data-count="2700">0</div><small>м² площади</small></div>
-      <div class="stat"><div class="big-num" data-count="7">0</div><small>филиалов сети</small></div>
-      <div class="stat"><div class="big-num" data-count="100">0</div><small>+ аппаратов</small></div>
+<section class="section" id="quest">
+  <div class="section-inner" style="text-align:center;">
+    <span class="badge green">Мини-квест</span>
+    <h2 style="font-size:2.2rem;margin-bottom:10px;">Пройдите квест — получите скидку 10%</h2>
+    <p style="max-width:560px;margin:0 auto 26px;font-weight:600;color:#42506e;">Ответьте на 3 простых вопроса о «Планете Игр» и получите промокод на скидку 10% на заказ праздника.</p>
+    <div class="quest-box">
+      <div class="quest-progress"><span id="qp1"></span><span id="qp2"></span><span id="qp3"></span></div>
+
+      <div class="quest-q active" id="q1">
+        <h3 style="margin-bottom:6px;">Вопрос 1 из 3</h3>
+        <p style="font-weight:700;color:#42506e;">Сколько квадратных метров развлечений в «Планете Игр» Купчино?</p>
+        <div class="quest-opts">
+          <button onclick="questAnswer(this,true,2)">2 700 м²</button>
+          <button onclick="questAnswer(this,false,2)">500 м²</button>
+          <button onclick="questAnswer(this,false,2)">10 000 м²</button>
+        </div>
+      </div>
+
+      <div class="quest-q" id="q2">
+        <h3 style="margin-bottom:6px;">Вопрос 2 из 3</h3>
+        <p style="font-weight:700;color:#42506e;">Как называется наш лазертаг?</p>
+        <div class="quest-opts">
+          <button onclick="questAnswer(this,false,3)">«Штурм»</button>
+          <button onclick="questAnswer(this,true,3)">«Кузар»</button>
+          <button onclick="questAnswer(this,false,3)">«Атака»</button>
+        </div>
+      </div>
+
+      <div class="quest-q" id="q3">
+        <h3 style="margin-bottom:6px;">Вопрос 3 из 3</h3>
+        <p style="font-weight:700;color:#42506e;">Сколько банкетных комнат предлагает «Планета Игр» в Купчино?</p>
+        <div class="quest-opts">
+          <button onclick="questAnswer(this,false,4)">Одна</button>
+          <button onclick="questAnswer(this,true,4)">Две — «Джунгли» и «Лофт»</button>
+          <button onclick="questAnswer(this,false,4)">Пять</button>
+        </div>
+      </div>
+
+      <div class="quest-result" id="qResult">
+        <h3 style="margin-bottom:6px;">🎉 Квест пройден!</h3>
+        <p style="font-weight:700;color:#42506e;">Ваш промокод на скидку 10%:</p>
+        <div class="promo-code" id="promoCodeBox">PLANETA10</div>
+        <div><a href="javascript:void(0)" class="btn btn-primary" onclick="usePromoInOrder()">Использовать в заявке</a></div>
+      </div>
     </div>
   </div>
 </section>
@@ -453,22 +535,123 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
     <div class="contact-grid">
       <iframe class="map-frame" loading="lazy" src="https://www.google.com/maps?q=Балканская+площадь+5,+Санкт-Петербург&output=embed"></iframe>
       <div class="form-box">
-        <form onsubmit="event.preventDefault();alert('Спасибо! Мы свяжемся с вами для подтверждения даты.');">
-          <input type="text" placeholder="Ваше имя" required>
-          <input type="tel" placeholder="Телефон" required>
-          <textarea rows="3" placeholder="Дата праздника, количество гостей"></textarea>
-          <button type="submit" class="btn btn-primary" style="width:100%;">Отправить заявку</button>
-        </form>
-        <p style="margin-top:16px;font-weight:800;">📍 Балканская пл., 5, ТРК «Балкания Nova» (м. Купчино)</p>
+        <p style="font-weight:900;font-size:1.2rem;margin-bottom:10px;">Готовы обсудить праздник?</p>
+        <p style="font-weight:600;color:#42506e;margin-bottom:20px;">Заполните короткую заявку — выберите пакет, комнату и допуслуги, а мы сразу посчитаем примерное время и стоимость.</p>
+        <a href="javascript:void(0)" class="btn btn-primary" style="width:100%;text-align:center;" onclick="openOrder()">Оставить заявку</a>
+        <p style="margin-top:20px;font-weight:800;">📍 Балканская пл., 5, ТРК «Балкания Nova» (м. Купчино)</p>
         <p style="font-weight:800;">📞 +7 (981) 818-01-34 · ⏰ 10:00–22:00 ежедневно</p>
       </div>
     </div>
   </div>
 </section>
 
-<footer>© Планета Игр — Купчино, ТРК «Балкания Nova». Все цены актуальны на дату публикации сайта.</footer>
+<footer>© Планета Игр — Купчино, ТРК «Балкания Nova». Все цены актуальны на дату публикации сайта и могут быть уточнены при подтверждении заявки.</footer>
+
+<!-- Extra service modal -->
+<div class="modal-bg" id="extraModal">
+  <div class="modal-box extra-box">
+    <span class="modal-close" onclick="closeExtraModal()">&times;</span>
+    <h3 id="extraModalTitle"></h3>
+    <div class="extra-modal-media" id="extraModalMedia"></div>
+    <div class="extra-modal-body" id="extraModalBody"></div>
+  </div>
+</div>
+
+<!-- Order form modal -->
+<div class="modal-bg" id="orderModal">
+  <div class="modal-box order-box">
+    <span class="modal-close" onclick="closeOrder()">&times;</span>
+    <h3>Заказать праздник</h3>
+    <p>Оставьте заявку — мы свяжемся и подтвердим все детали</p>
+    <form id="orderForm" onsubmit="submitOrder(event)">
+      <div class="order-grid">
+        <div>
+          <label>Ваше ФИО</label><input required name="fio" type="text" placeholder="Иванова Анна">
+          <label>Телефон</label><input required name="phone" type="tel" placeholder="+7 (___) ___-__-__">
+          <label>Имя именинника</label><input required name="childName" type="text" placeholder="Тимофей">
+          <label>Дата рождения именинника</label><input name="childBday" type="date">
+        </div>
+        <div>
+          <label>Желаемая дата праздника</label><input required name="eventDate" type="date" oninput="recalc()">
+          <label>Время начала</label><input required name="eventTime" type="time" oninput="recalc()">
+          <label>Комментарий</label><textarea name="comment" rows="4" placeholder="Пожелания к празднику"></textarea>
+        </div>
+      </div>
+
+      <div class="order-section">
+        <h4>Пакет праздника</h4>
+        <div class="order-options" id="packOptions"></div>
+      </div>
+      <div class="order-section">
+        <h4>Банкетная комната</h4>
+        <div class="order-options" id="roomOptions"></div>
+      </div>
+      <div class="order-section">
+        <h4>Дополнительные услуги</h4>
+        <div class="order-options" id="extraCheckOptions"></div>
+      </div>
+
+      <div class="order-summary" id="orderSummary">
+        <div>⏱ Длительность: <b id="sumDuration">—</b></div>
+        <div>🕐 Ориентировочное окончание: <b id="sumEnd">—</b></div>
+        <div>💰 Ориентировочная стоимость: <b id="sumPrice">—</b></div>
+        <div class="order-note">* Стоимость и время окончания — примерные и могут измениться. Точные условия подтвердит менеджер.</div>
+      </div>
+
+      <label>Промокод (если есть)</label><input name="promo" id="promoInput" type="text" placeholder="Например, PLANETA10" oninput="recalc()">
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:14px;">Отправить заявку</button>
+      <p id="orderSentMsg" style="display:none;margin-top:12px;font-weight:800;color:var(--green);text-align:center;">Спасибо! Заявка отправлена, мы свяжемся с вами для подтверждения.</p>
+    </form>
+  </div>
+</div>
 
 <script>
+/* ===== Data ===== */
+const PACKS = {
+  malysh:{name:'Малыш JO', price:24500, guests:'До 6 гостей', duration:180},
+  jungle:{name:'Гости в джунглях', price:33000, guests:'До 8 гостей', duration:180},
+  king:{name:'Король саванны', price:50500, guests:'До 10 гостей', duration:240},
+  cyber:{name:'Кибер Пати', price:36500, guests:'До 10 гостей', duration:180},
+};
+const ROOMS = {
+  'jungle-room':{name:'Банкетная комната «Джунгли»'},
+  'loft-room':{name:'Банкетная комната «Лофт»'},
+};
+const EXTRAS = {
+  azot:{name:'Азот-шоу', price:13000, duration:20, emoji:'🧊', c1:'#e2231a', c2:'#ff8a65',
+    desc:'Эффектное шоу с жидким азотом — облака холодного пара, яркие эффекты и восторг у детей и взрослых.'},
+  neon:{name:'Неоновое шоу', price:10000, duration:20, emoji:'💡', c1:'#1f5fd6', c2:'#63e6ff',
+    desc:'Световое шоу в неоновых красках с интерактивом для гостей — эффектно смотрится в затемнённой комнате.'},
+  bubbles:{name:'Мыльные пузыри', price:10000, duration:20, emoji:'🫧', c1:'#28a745', c2:'#8fe3a6', photo:'extra-bubbles.jpg',
+    desc:'Шоу гигантских мыльных пузырей — можно забраться внутрь пузыря и сделать эффектные фото.'},
+  challenge:{name:'Челлендж-пати', price:8500, duration:30, emoji:'🏆', c1:'#ffc72c', c2:'#ffe27a',
+    desc:'Командные конкурсы и весёлые челленджи для всей компании — соревновательный формат праздника.'},
+  pinata:{name:'Пиньята', price:4000, priceFrom:true, duration:15, emoji:'🪅', c1:'#e2231a', c2:'#ffc72c',
+    desc:'Яркая пиньята со сладкими сюрпризами внутри — весёлая традиция для завершения праздника.'},
+  masterclass:{name:'Мастер-класс', price:10000, duration:40, emoji:'🎨', c1:'#28a745', c2:'#63e6ff', upto:'до 10 человек',
+    desc:'Творческий мастер-класс на выбор — 40 минут, всё оборудование и материалы включены.',
+    options:[
+      {name:'Слайм-лаборатория', meta:'5+ лет · 30–40 мин'},
+      {name:'Пушистый Монстрик', meta:'4+ лет · 30–40 мин'},
+      {name:'Свеча из вощины', meta:'5+ лет · 25–30 мин'},
+      {name:'Роспись шопера', meta:'6+ лет · 40–60 мин'},
+      {name:'Магнитик на память', meta:'4+ лет · 25–30 мин'},
+    ]},
+  quest:{name:'Квест', price:8000, duration:40, emoji:'🗝️', c1:'#1f5fd6', c2:'#111a3b', upto:'до 12 человек',
+    desc:'Квест с ведущим на выбор — 40 минут ярких приключений для команды именинника.',
+    options:[
+      {name:'Академия Супергероев', meta:'5–8 лет · 40 мин'},
+      {name:'Форт Боярд', meta:'6–10 лет · 45 мин'},
+      {name:'Алиса в Стране Чудес', meta:'5–8 лет · 40 мин'},
+      {name:'Мультиквест', meta:'5–6 лет · 40 мин'},
+    ]},
+  animator:{name:'Аниматор', price:8000, duration:60, emoji:'🎭', c1:'#ffc72c', c2:'#e2231a',
+    desc:'Аниматор в костюме любимого персонажа на 1 час — игры, конкурсы и хорошее настроение для всех гостей.'},
+  magician:{name:'Фокусник', price:15000, duration:30, emoji:'🎩', c1:'#111a3b', c2:'#1f5fd6', photo:'extra-magician.jpg',
+    desc:'Эффектное шоу фокусника с участием гостей — трюки, магия и восторженные лица детей.'},
+};
+
+/* ===== Background blobs / particles ===== */
 function sizeGlobalFields(){
   const h=document.documentElement.scrollHeight+'px';
   const b=document.getElementById('b-global');
@@ -514,7 +697,7 @@ makeParticles('p-global',28);
 window.addEventListener('load',sizeGlobalFields);
 window.addEventListener('resize',sizeGlobalFields);
 
-// Balloon pop mini-game
+/* ===== Balloon mini-game ===== */
 const balloonEmojis=['🎈','🎈','🎈','🎈','🎈','🎈'];
 const balloonSpots=[
   {top:'10%',left:'4%'},{top:'62%',left:'2%'},{top:'8%',left:'44%'},
@@ -567,7 +750,7 @@ document.querySelectorAll('.btn-primary').forEach(btn=>{
   });
 });
 
-// Gentle tilt on price cards
+/* Gentle tilt on price cards */
 document.querySelectorAll('.pack').forEach(card=>{
   card.addEventListener('mousemove',(e)=>{
     const r=card.getBoundingClientRect();
@@ -604,24 +787,179 @@ document.querySelectorAll('.fade-up,.section-inner,.pack').forEach(el=>{
 });
 document.querySelectorAll('.pack').forEach((el,i)=>{el.style.transitionDelay=(i*0.1)+'s';});
 
-const galleryImages=['1000062457.jpg','1000062459.jpg','1000062460.jpg'];
-function openGallery(idx){
-  document.getElementById('galleryModal').classList.add('active');
-  setImg(idx);
-  const thumbs=document.getElementById('modalThumbs');
-  thumbs.innerHTML='';
-  galleryImages.forEach((src,i)=>{
-    const im=document.createElement('img');
-    im.src=src; im.onclick=()=>setImg(i);
-    if(i===idx)im.classList.add('active');
-    thumbs.appendChild(im);
+/* ===== Extras grid render ===== */
+function renderExtras(){
+  const grid=document.getElementById('extrasGrid');
+  grid.innerHTML='';
+  Object.keys(EXTRAS).forEach(id=>{
+    const ex=EXTRAS[id];
+    const card=document.createElement('div');
+    card.className='extra-card';
+    card.onclick=()=>openExtraModal(id);
+    const priceLabel=(ex.priceFrom?'от ':'')+ex.price.toLocaleString('ru-RU')+' ₽';
+    card.innerHTML=`<div style="font-size:2rem;">${ex.emoji}</div><h4>${ex.name}</h4><div class="extra-price">${priceLabel}</div><div class="extra-hint">~${ex.duration} мин${ex.upto?' · '+ex.upto:''}</div>`;
+    grid.appendChild(card);
   });
 }
-function setImg(idx){
-  document.getElementById('modalImg').src=galleryImages[idx];
-  document.querySelectorAll('.modal-thumbs img').forEach((im,i)=>im.classList.toggle('active',i===idx));
+renderExtras();
+
+/* ===== Extra modal ===== */
+function openExtraModal(id){
+  const ex=EXTRAS[id];
+  document.getElementById('extraModalTitle').textContent=ex.name;
+  const media=document.getElementById('extraModalMedia');
+  if(ex.photo){
+    media.innerHTML=`<img src="${ex.photo}" alt="${ex.name}">`;
+  }else{
+    media.innerHTML=`<div class="icon-block" style="background:linear-gradient(135deg,${ex.c1},${ex.c2});">${ex.emoji}</div>`;
+  }
+  let body=`<p>${ex.desc}</p>`;
+  if(ex.options){
+    body+='<div style="margin-top:6px;">';
+    ex.options.forEach(o=>{
+      body+=`<div class="tier-row"><span>${o.name}<br><span style="font-weight:600;color:#8a93ab;font-size:.78rem;">${o.meta}</span></span><span class="tier-price">${ex.price.toLocaleString('ru-RU')} ₽</span></div>`;
+    });
+    body+='</div>';
+  } else {
+    const priceLabel=(ex.priceFrom?'от ':'')+ex.price.toLocaleString('ru-RU')+' ₽';
+    body+=`<div class="tier-row"><span>Стоимость услуги · ~${ex.duration} мин</span><span class="tier-price">${priceLabel}</span></div>`;
+  }
+  body+=`<a href="javascript:void(0)" class="btn btn-primary" style="width:100%;margin-top:16px;text-align:center;" onclick="closeExtraModal();openOrder(null,null,'${id}')">Заказать праздник</a>`;
+  document.getElementById('extraModalBody').innerHTML=body;
+  document.getElementById('extraModal').classList.add('active');
 }
-function closeGallery(){document.getElementById('galleryModal').classList.remove('active');}
+function closeExtraModal(){document.getElementById('extraModal').classList.remove('active');}
+
+/* ===== Order form render & logic ===== */
+function renderOrderOptions(){
+  const packBox=document.getElementById('packOptions');
+  packBox.innerHTML='<label class="order-opt"><input type="radio" name="pack" value=""> <span class="oo-name">Без пакета (только комната / услуги)</span></label>';
+  Object.keys(PACKS).forEach(id=>{
+    const p=PACKS[id];
+    packBox.innerHTML+=`<label class="order-opt"><input type="radio" name="pack" value="${id}" onchange="recalc()"> <span class="oo-name">${p.name} — ${p.guests}</span><span class="oo-meta">${p.price.toLocaleString('ru-RU')} ₽</span></label>`;
+  });
+
+  const roomBox=document.getElementById('roomOptions');
+  roomBox.innerHTML='<label class="order-opt"><input type="radio" name="room" value="" checked> <span class="oo-name">Не выбрано / определим по пакету</span></label>';
+  Object.keys(ROOMS).forEach(id=>{
+    const r=ROOMS[id];
+    roomBox.innerHTML+=`<label class="order-opt"><input type="radio" name="room" value="${id}" onchange="recalc()"> <span class="oo-name">${r.name}</span></label>`;
+  });
+
+  const exBox=document.getElementById('extraCheckOptions');
+  exBox.innerHTML='';
+  Object.keys(EXTRAS).forEach(id=>{
+    const ex=EXTRAS[id];
+    const priceLabel=(ex.priceFrom?'от ':'')+ex.price.toLocaleString('ru-RU')+' ₽';
+    exBox.innerHTML+=`<label class="order-opt"><input type="checkbox" name="extra" value="${id}" onchange="recalc()"> <span class="oo-name">${ex.name}</span><span class="oo-meta">${priceLabel} · ~${ex.duration} мин</span></label>`;
+  });
+}
+renderOrderOptions();
+
+function recalc(){
+  const form=document.getElementById('orderForm');
+  const packId=form.pack.value;
+  const roomVal=form.room.value;
+  const extraChecks=[...form.querySelectorAll('input[name="extra"]:checked')].map(c=>c.value);
+
+  let duration=0, price=0;
+  if(packId && PACKS[packId]){
+    duration+=PACKS[packId].duration;
+    price+=PACKS[packId].price;
+  } else if(roomVal){
+    duration+=120; price+=5000; // базовая аренда комнаты 2 часа
+  }
+  extraChecks.forEach(id=>{
+    duration+=EXTRAS[id].duration;
+    price+=EXTRAS[id].price;
+  });
+
+  const promo=(form.promo.value||'').trim().toUpperCase();
+  let discount=0;
+  if(promo==='PLANETA10' && price>0){
+    discount=Math.round(price*0.1);
+    price-=discount;
+  }
+
+  const hrs=Math.floor(duration/60), mins=duration%60;
+  const durationText= duration>0 ? (hrs>0?hrs+' ч ':'')+(mins>0?mins+' мин':'').trim() : '—';
+  document.getElementById('sumDuration').textContent=durationText||'—';
+
+  let endText='—';
+  if(form.eventTime.value && duration>0){
+    const [h,m]=form.eventTime.value.split(':').map(Number);
+    const totalMin=h*60+m+duration;
+    const eh=Math.floor((totalMin%1440)/60), em=totalMin%60;
+    endText=String(eh).padStart(2,'0')+':'+String(em).padStart(2,'0');
+  }
+  document.getElementById('sumEnd').textContent=endText;
+
+  let priceText = price>0 ? price.toLocaleString('ru-RU')+' ₽' : '—';
+  if(discount>0){priceText+=` <span class="order-discount">(скидка 10%: −${discount.toLocaleString('ru-RU')} ₽)</span>`;}
+  document.getElementById('sumPrice').innerHTML=priceText;
+}
+
+function openOrder(packId,roomId,extraId){
+  const form=document.getElementById('orderForm');
+  document.getElementById('orderSentMsg').style.display='none';
+  form.style.display='';
+  if(packId){
+    const r=form.querySelector(`input[name="pack"][value="${packId}"]`);
+    if(r)r.checked=true;
+  }
+  if(roomId){
+    const r=form.querySelector(`input[name="room"][value="${roomId}"]`);
+    if(r)r.checked=true;
+  }
+  if(extraId){
+    const c=form.querySelector(`input[name="extra"][value="${extraId}"]`);
+    if(c)c.checked=true;
+  }
+  recalc();
+  document.getElementById('orderModal').classList.add('active');
+}
+function closeOrder(){document.getElementById('orderModal').classList.remove('active');}
+
+/* Placeholder — will POST to Google Apps Script Web App once deployed */
+const SHEET_WEBHOOK_URL="";
+function submitOrder(e){
+  e.preventDefault();
+  const form=e.target;
+  const data=new FormData(form);
+  const payload={};
+  data.forEach((v,k)=>{ if(payload[k]===undefined){payload[k]=v;} else if(Array.isArray(payload[k])){payload[k].push(v);} else {payload[k]=[payload[k],v];} });
+  if(SHEET_WEBHOOK_URL){
+    fetch(SHEET_WEBHOOK_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
+  }
+  document.getElementById('orderSentMsg').style.display='block';
+  burstConfetti(window.innerWidth/2, window.innerHeight/2, 26);
+  setTimeout(()=>{ closeOrder(); form.reset(); document.getElementById('orderSentMsg').style.display='none'; renderOrderOptions(); recalc(); },1800);
+}
+
+/* ===== Quest ===== */
+function questAnswer(btn,correct,nextStep){
+  const group=btn.parentElement;
+  [...group.children].forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'correct':'wrong');
+  if(!correct){
+    const right=[...group.children].find(b=>b!==btn);
+  }
+  document.getElementById('qp'+(nextStep-1)).classList.add('done');
+  setTimeout(()=>{
+    document.querySelectorAll('.quest-q').forEach(q=>q.classList.remove('active'));
+    if(nextStep<=3){
+      document.getElementById('q'+nextStep).classList.add('active');
+    } else {
+      document.getElementById('qResult').classList.add('active');
+      burstConfetti(window.innerWidth/2, 300, 30);
+    }
+  },700);
+}
+function usePromoInOrder(){
+  openOrder();
+  document.getElementById('promoInput').value='PLANETA10';
+  recalc();
+}
 </script>
 </body>
 </html>
