@@ -599,6 +599,12 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
       </div>
 
       <label>Промокод (если есть)</label><input name="promo" id="promoInput" type="text" placeholder="Например, PLANETA10" oninput="recalc()">
+      <input type="hidden" name="packName" id="hPackName">
+      <input type="hidden" name="roomName" id="hRoomName">
+      <input type="hidden" name="extrasNames" id="hExtrasNames">
+      <input type="hidden" name="durationText" id="hDurationText">
+      <input type="hidden" name="endTimeText" id="hEndTimeText">
+      <input type="hidden" name="priceText" id="hPriceText">
       <button type="submit" class="btn btn-primary" style="width:100%;margin-top:14px;">Отправить заявку</button>
       <p id="orderSentMsg" style="display:none;margin-top:12px;font-weight:800;color:var(--green);text-align:center;">Спасибо! Заявка отправлена, мы свяжемся с вами для подтверждения.</p>
     </form>
@@ -895,8 +901,20 @@ function recalc(){
   document.getElementById('sumEnd').textContent=endText;
 
   let priceText = price>0 ? price.toLocaleString('ru-RU')+' ₽' : '—';
-  if(discount>0){priceText+=` <span class="order-discount">(скидка 10%: −${discount.toLocaleString('ru-RU')} ₽)</span>`;}
+  let priceTextPlain = price>0 ? price.toLocaleString('ru-RU')+' ₽' : '';
+  if(discount>0){
+    priceText+=` <span class="order-discount">(скидка 10%: −${discount.toLocaleString('ru-RU')} ₽)</span>`;
+    priceTextPlain+=` (со скидкой 10%, без скидки: ${(price+discount).toLocaleString('ru-RU')} ₽)`;
+  }
   document.getElementById('sumPrice').innerHTML=priceText;
+
+  /* mirror computed values into hidden fields for the sheet webhook */
+  document.getElementById('hPackName').value = packId && PACKS[packId] ? PACKS[packId].name+' — '+PACKS[packId].price.toLocaleString('ru-RU')+' ₽' : '';
+  document.getElementById('hRoomName').value = roomVal && ROOMS[roomVal] ? ROOMS[roomVal].name : '';
+  document.getElementById('hExtrasNames').value = extraChecks.map(id=>EXTRAS[id].name).join(', ');
+  document.getElementById('hDurationText').value = durationText||'';
+  document.getElementById('hEndTimeText').value = endText==='—'?'':endText;
+  document.getElementById('hPriceText').value = priceTextPlain;
 }
 
 function openOrder(packId,roomId,extraId){
@@ -920,7 +938,7 @@ function openOrder(packId,roomId,extraId){
 }
 function closeOrder(){document.getElementById('orderModal').classList.remove('active');}
 
-/* Placeholder — will POST to Google Apps Script Web App once deployed */
+/* POSTs to the Google Apps Script Web App once SHEET_WEBHOOK_URL is filled in below */
 const SHEET_WEBHOOK_URL="";
 function submitOrder(e){
   e.preventDefault();
@@ -929,7 +947,8 @@ function submitOrder(e){
   const payload={};
   data.forEach((v,k)=>{ if(payload[k]===undefined){payload[k]=v;} else if(Array.isArray(payload[k])){payload[k].push(v);} else {payload[k]=[payload[k],v];} });
   if(SHEET_WEBHOOK_URL){
-    fetch(SHEET_WEBHOOK_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
+    /* text/plain avoids a CORS preflight that Apps Script Web Apps don't answer; Apps Script still reads e.postData.contents as JSON */
+    fetch(SHEET_WEBHOOK_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
   }
   document.getElementById('orderSentMsg').style.display='block';
   burstConfetti(window.innerWidth/2, window.innerHeight/2, 26);
