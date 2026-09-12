@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="premium.css">
+<link rel="stylesheet" href="validation.css?v=2">
 <style>
 :root{
   --red:#e2231a; --blue:#1f5fd6; --green:#28a745; --yellow:#ffc72c; --dark:#111a3b;
@@ -564,17 +565,34 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
     <h3>Заказать праздник</h3>
     <p>Оставьте заявку — мы свяжемся и подтвердим все детали</p>
     <form id="orderForm" onsubmit="submitOrder(event)">
+      <details class="form-rules">
+        <summary>Правила заполнения</summary>
+        <ul>
+          <li>Фамилия и имя, телефон, имя и дата рождения именинника, дата и время праздника обязательны.</li>
+          <li>В именах допустимы буквы, пробелы, дефис и апостроф. В телефоне: +7 и 10 цифр; начало с 8 тоже принимается.</li>
+          <li>Дата рождения не может быть в будущем. Праздник нельзя заказать на прошедшие дату и время.</li>
+          <li>Начало и примерное окончание праздника должны попадать в часы работы: 10:00–22:00, по Москве.</li>
+          <li>Выберите хотя бы пакет, комнату или услугу. Промокод необязателен; комментарий до 1 000 символов.</li>
+        </ul>
+      </details>
       <div class="order-grid">
         <div>
-          <label>Ваше ФИО</label><input required name="fio" type="text" placeholder="Иванова Анна">
-          <label>Телефон</label><input required name="phone" type="tel" placeholder="+7 (___) ___-__-__">
-          <label>Имя именинника</label><input required name="childName" type="text" placeholder="Тимофей">
-          <label>Дата рождения именинника</label><input name="childBday" type="date">
+          <label for="orderFio">Ваше ФИО</label><input id="orderFio" required name="fio" type="text" maxlength="120" autocomplete="name" aria-describedby="error-fio" placeholder="Фамилия и имя">
+          <div class="field-error" id="error-fio" aria-live="polite"></div>
+          <label for="orderPhone">Телефон</label><input id="orderPhone" required name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="32" aria-describedby="error-phone" placeholder="+7 (___) ___-__-__">
+          <div class="field-error" id="error-phone" aria-live="polite"></div>
+          <label for="orderChild">Имя именинника</label><input id="orderChild" required name="childName" type="text" maxlength="80" aria-describedby="error-childName" placeholder="Имя">
+          <div class="field-error" id="error-childName" aria-live="polite"></div>
+          <label for="orderBirth">Дата рождения именинника</label><input id="orderBirth" required name="childBday" type="date" min="1900-01-01" aria-describedby="error-childBday">
+          <div class="field-error" id="error-childBday" aria-live="polite"></div>
         </div>
         <div>
-          <label>Желаемая дата праздника</label><input required name="eventDate" type="date" oninput="recalc()">
-          <label>Время начала</label><input required name="eventTime" type="time" oninput="recalc()">
-          <label>Комментарий</label><textarea name="comment" rows="4" placeholder="Пожелания к празднику"></textarea>
+          <label for="orderDate">Желаемая дата праздника</label><input id="orderDate" required name="eventDate" type="date" oninput="recalc()" aria-describedby="error-eventDate">
+          <div class="field-error" id="error-eventDate" aria-live="polite"></div>
+          <label for="orderTime">Время начала, по Москве</label><input id="orderTime" required name="eventTime" type="time" min="10:00" max="21:59" oninput="recalc()" aria-describedby="error-eventTime">
+          <div class="field-error" id="error-eventTime" aria-live="polite"></div>
+          <label for="orderComment">Комментарий (необязательно)</label><textarea id="orderComment" name="comment" rows="4" maxlength="1000" aria-describedby="error-comment" placeholder="Пожелания к празднику"></textarea>
+          <div class="field-error" id="error-comment" aria-live="polite"></div>
         </div>
       </div>
 
@@ -590,6 +608,7 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
         <h4>Дополнительные услуги</h4>
         <div class="order-options" id="extraCheckOptions"></div>
       </div>
+      <div class="field-error" id="error-selection" role="alert"></div>
 
       <div class="order-summary" id="orderSummary">
         <div>⏱ Длительность: <b id="sumDuration">—</b></div>
@@ -598,7 +617,9 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
         <div class="order-note">* Стоимость и время окончания — примерные и могут измениться. Точные условия подтвердит менеджер.</div>
       </div>
 
-      <label>Промокод (если есть)</label><input name="promo" id="promoInput" type="text" placeholder="Например, PLANETA10" oninput="recalc()">
+      <label for="promoInput">Промокод (если есть)</label><input name="promo" id="promoInput" type="text" maxlength="32" autocomplete="off" spellcheck="false" aria-describedby="error-promo" oninput="recalc()">
+      <div class="field-error" id="error-promo" aria-live="polite"></div>
+      <div class="form-honeypot" aria-hidden="true"><label>Сайт<input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
       <input type="hidden" name="packName" id="hPackName">
       <input type="hidden" name="roomName" id="hRoomName">
       <input type="hidden" name="extrasNames" id="hExtrasNames">
@@ -606,7 +627,7 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
       <input type="hidden" name="endTimeText" id="hEndTimeText">
       <input type="hidden" name="priceText" id="hPriceText">
       <button type="submit" class="btn btn-primary" style="width:100%;margin-top:14px;">Отправить заявку</button>
-      <p id="orderSentMsg" style="display:none;margin-top:12px;font-weight:800;color:var(--green);text-align:center;">Спасибо! Заявка отправлена, мы свяжемся с вами для подтверждения.</p>
+      <p id="orderSentMsg" role="status" aria-live="polite" style="display:none;margin-top:12px;font-weight:800;color:var(--green);text-align:center;"></p>
     </form>
   </div>
 </div>
@@ -751,6 +772,7 @@ function burstConfetti(x,y,count){
 }
 document.querySelectorAll('.btn-primary').forEach(btn=>{
   btn.addEventListener('click',(e)=>{
+    if(btn.type==='submit')return;
     const r=btn.getBoundingClientRect();
     burstConfetti(r.left+r.width/2, r.top+r.height/2, 18);
   });
@@ -942,17 +964,11 @@ function closeOrder(){document.getElementById('orderModal').classList.remove('ac
 const SHEET_WEBHOOK_URL="https://script.google.com/macros/s/AKfycbyERsFLMP_S2xWNi6AgDJHZPU6Mh6t_TogQkTTECva4zWDif140dh3yt3R2pwpmCUCKJA/exec";
 function submitOrder(e){
   e.preventDefault();
-  const form=e.target;
-  const data=new FormData(form);
-  const payload={};
-  data.forEach((v,k)=>{ if(payload[k]===undefined){payload[k]=v;} else if(Array.isArray(payload[k])){payload[k].push(v);} else {payload[k]=[payload[k],v];} });
-  if(SHEET_WEBHOOK_URL){
-    /* text/plain avoids a CORS preflight that Apps Script Web Apps don't answer; Apps Script still reads e.postData.contents as JSON */
-    fetch(SHEET_WEBHOOK_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
-  }
-  document.getElementById('orderSentMsg').style.display='block';
-  burstConfetti(window.innerWidth/2, window.innerHeight/2, 26);
-  setTimeout(()=>{ closeOrder(); form.reset(); document.getElementById('orderSentMsg').style.display='none'; renderOrderOptions(); recalc(); },1800);
+  // Fail closed if validation.js has not loaded; never claim an unsent order succeeded.
+  const message=document.getElementById('orderSentMsg');
+  message.textContent='Проверка формы не загрузилась. Обновите страницу и попробуйте снова.';
+  message.style.color='#a91616';
+  message.style.display='block';
 }
 
 /* ===== Quest ===== */
@@ -961,7 +977,11 @@ function questAnswer(btn,correct,nextStep){
   [...group.children].forEach(b=>b.disabled=true);
   btn.classList.add(correct?'correct':'wrong');
   if(!correct){
-    const right=[...group.children].find(b=>b!==btn);
+    setTimeout(()=>{
+      btn.classList.remove('wrong');
+      [...group.children].forEach(b=>b.disabled=false);
+    },700);
+    return;
   }
   document.getElementById('qp'+(nextStep-1)).classList.add('done');
   setTimeout(()=>{
@@ -980,5 +1000,7 @@ function usePromoInOrder(){
   recalc();
 }
 </script>
+<script src="order-rules.js?v=2"></script>
+<script src="validation.js?v=2"></script>
 </body>
 </html>

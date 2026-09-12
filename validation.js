@@ -1,174 +1,107 @@
-/**
- * Планета Игр — Купчино
- * Валидация формы заявки (#orderForm).
- *
- * Как подключить (один раз, 10 секунд):
- * 1. Откройте index.html на GitHub в режиме редактирования (карандаш).
- * 2. Найдите строку "</body>" в самом конце файла.
- * 3. Прямо ПЕРЕД ней вставьте одну строку:
- *      <script src="validation.js" defer></script>
- * 4. Сохраните (Commit changes).
- * Всё — правила заработают сразу, ничего больше не нужно менять.
- */
+/* Connected after the page's catalogue and shared rules. */
 (function () {
-  function onReady(fn) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', fn);
-    } else {
-      fn();
-    }
+  'use strict';
+  const form = document.getElementById('orderForm');
+  const fields = ['fio', 'phone', 'childName', 'childBday', 'eventDate', 'eventTime', 'comment', 'promo'];
+  const catalog = { packs: PACKS, rooms: ROOMS, extras: EXTRAS };
+  const touched = new Set();
+  let attempted = false, busy = false, requestId = '', lastPayload = '';
+  const status = document.getElementById('orderSentMsg');
+  const button = form.querySelector('[type=submit]');
+  function values() {
+    const data = {};
+    new FormData(form).forEach((v, k) => { if (k !== 'extra') data[k] = v; });
+    data.extra = [...form.querySelectorAll('[name=extra]:checked')].map(c => c.value);
+    return data;
   }
-
-  onReady(function () {
-    var form = document.getElementById('orderForm');
-    if (!form) return;
-
-    var fioInput = form.querySelector('[name="fio"]');
-    var phoneInput = form.querySelector('[name="phone"]');
-    var childNameInput = form.querySelector('[name="childName"]');
-    var childBdayInput = form.querySelector('[name="childBday"]');
-    var eventDateInput = form.querySelector('[name="eventDate"]');
-    var eventTimeInput = form.querySelector('[name="eventTime"]');
-
-    var OPEN_HOUR = 10;
-    var CLOSE_HOUR = 22;
-
-    var today = new Date();
-    var todayStr = today.toISOString().slice(0, 10);
-    if (eventDateInput) eventDateInput.min = todayStr;
-    if (childBdayInput) childBdayInput.max = todayStr;
-
-    function formatPhone(value) {
-      var digits = value.replace(/\D/g, '');
-      if (digits.startsWith('8')) digits = '7' + digits.slice(1);
-      if (!digits.startsWith('7')) digits = '7' + digits;
-      digits = digits.slice(0, 11);
-      var d = digits.slice(1);
-      var out = '+7';
-      if (d.length > 0) out += ' (' + d.slice(0, 3);
-      if (d.length >= 3) out += ')';
-      if (d.length > 3) out += ' ' + d.slice(3, 6);
-      if (d.length > 6) out += '-' + d.slice(6, 8);
-      if (d.length > 8) out += '-' + d.slice(8, 10);
-      return out;
-    }
-    if (phoneInput) {
-      phoneInput.addEventListener('input', function () {
-        var pos = phoneInput.selectionStart;
-        var before = phoneInput.value.length;
-        phoneInput.value = formatPhone(phoneInput.value);
-        var after = phoneInput.value.length;
-        try { phoneInput.setSelectionRange(pos + (after - before), pos + (after - before)); } catch (e) {}
-        clearError(phoneInput);
-      });
-    }
-
-    function showError(input, message) {
-      if (!input) return;
-      input.style.borderColor = '#e2231a';
-      var next = input.nextElementSibling;
-      if (!(next && next.classList && next.classList.contains('field-error'))) {
-        var span = document.createElement('div');
-        span.className = 'field-error';
-        span.style.cssText = 'color:#e2231a;font-size:.78rem;font-weight:700;margin:-10px 0 8px;';
-        input.insertAdjacentElement('afterend', span);
-        next = span;
-      }
-      next.textContent = message;
-    }
-    function clearError(input) {
-      if (!input) return;
-      input.style.borderColor = '';
-      var next = input.nextElementSibling;
-      if (next && next.classList && next.classList.contains('field-error')) {
-        next.remove();
-      }
-    }
-    [fioInput, phoneInput, childNameInput, eventDateInput, eventTimeInput].forEach(function (el) {
-      if (el) el.addEventListener('input', function () { clearError(el); });
+  function render(errors, all) {
+    fields.forEach(name => {
+      const el = form.elements.namedItem(name);
+      const message = (all || touched.has(name)) ? errors[name] || '' : '';
+      el.setAttribute('aria-invalid', message ? 'true' : 'false');
+      document.getElementById('error-' + name).textContent = message;
     });
-
-    var NAME_RE = /^[A-Za-zА-Яа-яЁё\s-]+$/;
-    var PHONE_DIGITS_RE = /^7\d{10}$/;
-
-    function validateOrder() {
-      var ok = true;
-
-      var fio = (fioInput.value || '').trim();
-      if (fio.length < 5 || fio.split(/\s+/).length < 2) {
-        showError(fioInput, 'Введите фамилию и имя полностью');
-        ok = false;
-      } else if (!NAME_RE.test(fio)) {
-        showError(fioInput, 'ФИО может содержать только буквы, пробел и дефис');
-        ok = false;
+    document.getElementById('error-selection').textContent = all ? errors.selection || errors.pack || errors.room || errors.extra || '' : '';
+  }
+  function result() {
+    const today = OrderRules.clock().date;
+    form.eventDate.min = today;
+    form.childBday.max = today;
+    return OrderRules.validate(values(), catalog);
+  }
+  function showStatus(text, error) {
+    status.textContent = text;
+    status.style.display = text ? 'block' : 'none';
+    status.style.color = error ? '#a91616' : '#24633a';
+  }
+  fields.forEach(name => {
+    const el = form.elements.namedItem(name);
+    el.addEventListener('blur', () => {
+      touched.add(name);
+      if (name === 'phone') {
+        const p = OrderRules.phone(el.value);
+        if (p) el.value = `${p.slice(0, 2)} (${p.slice(2, 5)}) ${p.slice(5, 8)}-${p.slice(8, 10)}-${p.slice(10)}`;
       }
-
-      var phoneDigits = (phoneInput.value || '').replace(/\D/g, '');
-      if (phoneDigits.startsWith('8')) phoneDigits = '7' + phoneDigits.slice(1);
-      if (!PHONE_DIGITS_RE.test(phoneDigits)) {
-        showError(phoneInput, 'Введите номер телефона полностью, например +7 (900) 123-45-67');
-        ok = false;
-      }
-
-      var childName = (childNameInput.value || '').trim();
-      if (childName.length < 2) {
-        showError(childNameInput, 'Укажите имя именинника');
-        ok = false;
-      } else if (!NAME_RE.test(childName)) {
-        showError(childNameInput, 'Имя может содержать только буквы, пробел и дефис');
-        ok = false;
-      }
-
-      if (childBdayInput.value) {
-        var bday = new Date(childBdayInput.value);
-        var minBday = new Date();
-        minBday.setFullYear(minBday.getFullYear() - 100);
-        if (bday > today) {
-          showError(childBdayInput, 'Дата рождения не может быть в будущем');
-          ok = false;
-        } else if (bday < minBday) {
-          showError(childBdayInput, 'Проверьте дату рождения');
-          ok = false;
-        }
-      }
-
-      if (!eventDateInput.value) {
-        showError(eventDateInput, 'Укажите желаемую дату праздника');
-        ok = false;
-      } else {
-        var eDate = new Date(eventDateInput.value + 'T00:00:00');
-        var todayZero = new Date(todayStr + 'T00:00:00');
-        if (eDate < todayZero) {
-          showError(eventDateInput, 'Дата праздника не может быть в прошлом');
-          ok = false;
-        }
-      }
-
-      if (!eventTimeInput.value) {
-        showError(eventTimeInput, 'Укажите время начала праздника');
-        ok = false;
-      } else {
-        var parts = eventTimeInput.value.split(':').map(Number);
-        var h = parts[0], m = parts[1];
-        var mins = h * 60 + m;
-        if (mins < OPEN_HOUR * 60 || mins > (CLOSE_HOUR - 1) * 60) {
-          showError(eventTimeInput, 'Мы работаем с ' + OPEN_HOUR + ':00 до ' + CLOSE_HOUR + ':00 — выберите время в этом диапазоне');
-          ok = false;
-        }
-      }
-
-      return ok;
-    }
-
-    var originalSubmitOrder = window.submitOrder;
-    window.submitOrder = function (e) {
-      if (!validateOrder()) {
-        e.preventDefault();
-        var firstError = form.querySelector('.field-error');
-        if (firstError) firstError.previousElementSibling.focus();
-        return false;
-      }
-      return originalSubmitOrder(e);
-    };
+      render(result().errors, attempted);
+    });
   });
+  form.addEventListener('input', () => {
+    recalc();
+    render(result().errors, attempted);
+    if (!busy) showStatus('', false);
+  });
+  form.addEventListener('change', () => { recalc(); render(result().errors, attempted); });
+  function focusError() {
+    const first = form.querySelector('[aria-invalid=true]');
+    if (first) { first.focus(); first.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    else document.getElementById('error-selection').scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+  window.submitOrder = async function (e) {
+    e.preventDefault();
+    if (busy) return;
+    attempted = true;
+    const checked = result();
+    render(checked.errors, true);
+    if (!checked.ok) { showStatus('Проверьте отмеченные поля. Заявка ещё не отправлена.', true); focusError(); return; }
+    recalc();
+    const payload = { ...checked.data, website: form.website.value };
+    const signature = JSON.stringify(payload);
+    if (signature !== lastPayload || !requestId) {
+      requestId = crypto.randomUUID();
+      lastPayload = signature;
+    }
+    payload.requestId = requestId;
+    busy = true; button.disabled = true; button.textContent = 'Отправляем…';
+    form.setAttribute('aria-busy', 'true');
+    showStatus('', false);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 25000);
+    try {
+      if (!SHEET_WEBHOOK_URL) throw new Error('unconfigured');
+      const response = await fetch(SHEET_WEBHOOK_URL, {
+        method: 'POST', mode: 'cors', credentials: 'omit',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload), signal: controller.signal
+      });
+      if (!response.ok) throw new Error('http');
+      const reply = await response.json();
+      if (reply.status === 'invalid') {
+        render(reply.errors || {}, true);
+        showStatus('Проверьте отмеченные поля. Заявка не отправлена.', true);
+        focusError(); return;
+      }
+      if (reply.status !== 'ok') throw new Error('server');
+      showStatus('Заявка записана. Мы свяжемся с вами для подтверждения праздника.', false);
+      form.reset(); touched.clear(); attempted = false; requestId = ''; lastPayload = '';
+      renderOrderOptions(); recalc(); render({}, true);
+    } catch (err) {
+      showStatus('Не удалось подтвердить запись заявки. Данные сохранены в форме. Проверьте интернет и повторите отправку; если проблема останется, позвоните нам.', true);
+    } finally {
+      clearTimeout(timer); busy = false; button.disabled = false;
+      button.textContent = 'Отправить заявку'; form.removeAttribute('aria-busy');
+    }
+  };
+  // No native English tooltips: all validation messages are inline, in Russian.
+  form.noValidate = true;
+  result();
 })();
