@@ -265,3 +265,134 @@
   if (typeof renderOrderOptions === 'function') renderOrderOptions();
   if (typeof recalc === 'function') recalc();
 })();
+
+/* Rich programme details for quests, master-classes and shows (posters, Sep 2026). */
+(function () {
+  'use strict';
+  var PROGRAMS = {
+    quest: [
+      { name: 'Академия Супергероев', emoji: '🦸', age: '5–8 лет', time: '40 минут',
+        desc: 'Настало время стать настоящими супергероями! Под руководством любимого героя ребятам предстоит пройти обучение в секретной Академии, выполнить самые сложные миссии, проявить ловкость, смекалку и командный дух.',
+        list: ['любимый Супергерой', 'личная Лицензия Супергероя', 'секретные спецгаджеты', 'карта тайной базы', '«блокбастерные» испытания', 'задания на ловкость, скорость и смекалку', 'торжественное посвящение в супергерои'] },
+      { name: 'Форт Боярд', emoji: '🗝️', age: '6–10 лет', time: '45 минут',
+        desc: 'Только настоящая команда сможет открыть сокровищницу и завладеть главным кладом!',
+        list: ['таинственный Мастер Теней', 'уникальный тематический реквизит', 'поиск ключей и подсказок', 'захватывающие испытания', 'задания на силу, ловкость и смекалку', 'оригинальная сокровищница', 'сладкие подарки каждому участнику'] },
+      { name: 'Алиса в Стране Чудес', emoji: '🐰', age: '5–8 лет', time: '40 минут',
+        desc: '«Я опаздываю! Ох, как я опаздываю!» Белый Кролик уже ждёт своих друзей, ведь впереди удивительное путешествие в волшебное Зазеркалье.',
+        list: ['любимый герой Зазеркалья', 'сказочные испытания', 'скачки на фламинго', 'загадки Красной Королевы', '«Безумное чаепитие»', 'измеритель Счастья', 'яркий праздничный финал'] },
+      { name: 'Мультиквест', emoji: '🎁', age: '5–6 лет', time: '40 минут',
+        desc: 'Сокровища нашего парка ждут самых смелых и весёлых ребят!',
+        list: ['задания на самых популярных аттракционах', 'весёлые танцевальные активности', 'динамичные испытания', 'интересные головоломки', 'Измеритель Счастья', 'сладкий подарок каждому ребёнку'] }
+    ],
+    masterclass: [
+      { name: 'Слайм-лаборатория', emoji: '🧪', age: '5+ лет', time: '30–40 минут',
+        desc: 'Создадим настоящий слайм своими руками!',
+        list: ['приготовление слайма с нуля', 'выбор цвета и аромата', 'добавление блёсток и декоративных элементов', 'эксперименты с текстурой', 'индивидуальный контейнер', 'готовый слайм каждому участнику'] },
+      { name: 'Пушистый Монстрик', emoji: '👾', age: '4+ лет', time: '30–40 минут',
+        desc: 'Каждый ребёнок создаст собственного забавного монстра в необычной объёмной технике!',
+        list: ['создание объёмной основы', 'необычная техника рисования с помощью трубочки', 'оформление глазок и мордочки', 'создание причёски из ярких ленточек', 'украшение декоративными элементами', 'готовая поделка каждому ребёнку'] },
+      { name: 'Свеча из вощины', emoji: '🕯️', age: '5+ лет', time: '25–30 минут',
+        desc: 'Создадим красивую свечу из натуральной пчелиной вощины!',
+        list: ['изготовление свечи из натуральной вощины', 'украшение лентами и декоративными элементами', 'красивое оформление', 'готовая свеча каждому участнику'] },
+      { name: 'Роспись шопера', emoji: '👜', age: '6+ лет', time: '40–60 минут',
+        desc: 'Каждый ребёнок создаст собственную дизайнерскую сумку!',
+        list: ['хлопковый шопер', 'специальные краски по ткани', 'трафареты и авторские рисунки', 'создание собственного дизайна', 'готовый шопер каждому участнику'] },
+      { name: 'Магнитик на память', emoji: '🧲', age: '4+ лет', time: '25–30 минут',
+        desc: 'Создадим яркий магнитик, который будет каждый день напоминать о весёлом празднике!',
+        list: ['деревянная фигурка на выбор', 'роспись безопасными акриловыми красками', 'украшение блёстками, стразами и декоративными элементами', 'крепление магнитной основы', 'готовый магнитик каждому ребёнку'] }
+    ],
+    bubbles: [
+      { name: 'Шоу мыльных пузырей', emoji: '🫧', age: 'для всех', time: '30 минут',
+        desc: 'Яркое пузырьковое шоу с гигантскими мыльными пузырями и эффектными трюками.',
+        list: ['гигантские мыльные пузыри', 'эффектные трюки ведущего', 'пузырь вокруг именинника', 'фото и видео на память'] },
+      { name: 'Крио-шоу', emoji: '❄️', age: 'для всех', time: '30 минут',
+        desc: 'Зрелищное шоу с холодными эффектами, дымом и необычными экспериментами.',
+        list: ['облака холодного пара', 'эффектные ледяные эксперименты', 'интерактив с гостями', 'впечатляющие кадры для фото'] }
+    ],
+    sciShow: [
+      { name: 'Научное шоу', emoji: '🔬', age: 'до 15 человек', time: '40 минут',
+        desc: 'Увлекательные эксперименты, неожиданные реакции и настоящая магия науки.',
+        list: ['яркие химические опыты', 'неожиданные реакции', 'участие детей в экспериментах', 'объяснения простым языком'] },
+      { name: 'Тесла-шоу', emoji: '⚡', age: 'до 15 человек', time: '40 минут',
+        desc: 'Электрические разряды, молнии и впечатляющие эксперименты с электричеством.',
+        list: ['работа катушки Тесла', 'настоящие молнии', 'эксперименты с электричеством', 'безопасная демонстрация с ведущим'] },
+      { name: 'Жонглёр-шоу', emoji: '🤹', age: 'до 15 человек', time: '40 минут',
+        desc: 'Весёлое цирковое представление с жонглированием, трюками и интерактивом.',
+        list: ['цирковые трюки', 'жонглирование разными предметами', 'интерактив с гостями', 'весёлый финал с детьми'] }
+    ]
+  };
+
+  var style = document.createElement('style');
+  style.textContent =
+    '@keyframes pgIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}' +
+    '.pg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin-top:16px}' +
+    '.pg-card{position:relative;cursor:pointer;background:#fff;border:2px solid #eef0f6;border-radius:16px;padding:14px 16px;opacity:0;animation:pgIn .45s both;animation-delay:var(--d);transition:border-color .2s,box-shadow .3s,transform .2s}' +
+    '.pg-card:hover{transform:translateY(-4px);border-color:var(--blue);box-shadow:0 14px 28px rgba(17,26,59,.12)}' +
+    '.pg-card.open{border-color:var(--red);box-shadow:0 16px 32px rgba(226,35,26,.14)}' +
+    '.pg-emoji{display:block;font-size:1.8rem;line-height:1;margin-bottom:6px;transition:transform .3s}' +
+    '.pg-card:hover .pg-emoji{transform:scale(1.18) rotate(-8deg)}' +
+    '.pg-name{display:block;font-weight:900;font-size:1rem;color:var(--dark)}' +
+    '.pg-meta{display:block;font-size:.78rem;font-weight:700;color:#8a93ab;margin-top:2px}' +
+    '.pg-more{display:inline-block;margin-top:8px;font-size:.78rem;font-weight:800;color:var(--blue)}' +
+    '.pg-card.open .pg-more{color:var(--red)}' +
+    '.pg-body{display:block;max-height:0;overflow:hidden;transition:max-height .45s ease}' +
+    '.pg-card.open .pg-body{max-height:640px}' +
+    '.pg-desc{display:block;font-size:.85rem;font-weight:600;color:#42506e;margin:10px 0 8px}' +
+    '.pg-list{list-style:none;margin:0;padding:0}' +
+    '.pg-list li{position:relative;font-size:.82rem;font-weight:700;color:#42506e;padding:3px 0 3px 18px;opacity:0}' +
+    '.pg-card.open .pg-list li{animation:pgIn .35s forwards;animation-delay:calc(var(--li) * 45ms)}' +
+    '.pg-list li:before{content:"★";position:absolute;left:0;color:var(--yellow)}';
+  document.head.appendChild(style);
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  window.openExtraModal = function (id) {
+    var ex = EXTRAS[id];
+    if (!ex) return;
+    document.getElementById('extraModalTitle').textContent = ex.name;
+    var media = document.getElementById('extraModalMedia');
+    media.innerHTML = ex.photo
+      ? '<img src="' + ex.photo + '" alt="' + esc(ex.name) + '">'
+      : '<div class="icon-block" style="background:linear-gradient(135deg,' + ex.c1 + ',' + ex.c2 + ')">' + ex.emoji + '</div>';
+
+    var priceLabel = (ex.priceFrom ? 'от ' : '') + ex.price.toLocaleString('ru-RU') + ' ₽';
+    var html = '<p>' + esc(ex.desc) + '</p>';
+    var prog = PROGRAMS[id];
+
+    if (prog) {
+      html += '<div class="tier-row"><span>' + (ex.upto ? esc(ex.upto) + ' · ' : '') + ex.duration + ' мин</span>' +
+        '<span class="tier-price">' + priceLabel + '</span></div>';
+      html += '<div class="pg-grid">';
+      prog.forEach(function (o, i) {
+        html += '<div class="pg-card" data-pg="' + i + '" style="--d:' + (i * 70) + 'ms">' +
+          '<span class="pg-emoji">' + o.emoji + '</span>' +
+          '<span class="pg-name">' + esc(o.name) + '</span>' +
+          '<span class="pg-meta">' + esc(o.age) + ' · ' + esc(o.time) + '</span>' +
+          '<span class="pg-more">Что внутри →</span>' +
+          '<span class="pg-body"><span class="pg-desc">' + esc(o.desc) + '</span><ul class="pg-list">' +
+          o.list.map(function (li, k) { return '<li style="--li:' + k + '">' + esc(li) + '</li>'; }).join('') +
+          '</ul></span></div>';
+      });
+      html += '</div>';
+    } else if (ex.options) {
+      html += '<div style="margin-top:6px">';
+      ex.options.forEach(function (o) {
+        html += '<div class="tier-row"><span>' + esc(o.name) + '<br><span style="font-weight:600;color:#8a93ab;font-size:.78rem">' + esc(o.meta) + '</span></span>' +
+          '<span class="tier-price">' + priceLabel + '</span></div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="tier-row"><span>' + ex.duration + ' мин</span><span class="tier-price">' + priceLabel + '</span></div>';
+    }
+
+    html += '<a href="javascript:void(0)" class="btn btn-primary" style="width:100%;margin-top:16px;text-align:center" ' +
+      'onclick="closeExtraModal();openOrder(null,null,\'' + id + '\')">Добавить в заявку</a>';
+
+    var body = document.getElementById('extraModalBody');
+    body.innerHTML = html;
+    Array.prototype.forEach.call(body.querySelectorAll('.pg-card'), function (card) {
+      card.addEventListener('click', function () { card.classList.toggle('open'); });
+    });
+    document.getElementById('extraModal').classList.add('active');
+  };
+})();
