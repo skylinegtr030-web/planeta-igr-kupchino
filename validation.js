@@ -206,7 +206,44 @@
   };
 
   var note = document.querySelector('.room-note');
-  if (note) note.textContent = 'Аренда банкетной комнаты — 7 000 ₽ / 2 часа · продление — 3 500 ₽ / час · аренда двух комнат одновременно — 10 000 ₽ / 2 часа';
+  if (note && !document.getElementById('roomPriceBlock')) {
+    var block = document.createElement('div');
+    block.className = 'room-price-block';
+    block.id = 'roomPriceBlock';
+    block.innerHTML =
+      '<div class="rp-card rp-card-single">' +
+        '<span class="rp-label">Аренда банкетной комнаты</span>' +
+        '<span class="rp-value">7 000 \u20bd</span>' +
+        '<span class="rp-unit">за 2 часа</span>' +
+      '</div>' +
+      '<div class="rp-card rp-card-duo">' +
+        '<div class="rp-photos">' +
+          '<img src="room-jungle-1.jpg" alt="Банкетная комната «Джунгли»" loading="lazy" decoding="async">' +
+          '<img src="room-loft-1.jpg" alt="Банкетная комната «Лофт»" loading="lazy" decoding="async">' +
+        '</div>' +
+        '<span class="rp-label">Две комнаты одновременно</span>' +
+        '<span class="rp-value rp-value-duo">10 000 \u20bd</span>' +
+        '<span class="rp-unit">за 2 часа · «Джунгли» + «Лофт»</span>' +
+      '</div>' +
+      '<span class="rp-footnote">Продление — 3 500 \u20bd за каждый следующий час</span>';
+    note.parentNode.replaceChild(block, note);
+    var css = document.createElement('style');
+    css.textContent =
+      '.room-price-block{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;align-items:stretch;margin-top:22px;text-align:center}' +
+      '.rp-card{background:rgba(255,255,255,.96);border-radius:20px;padding:22px 28px;box-shadow:0 12px 28px rgba(17,26,59,.1);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:260px;transition:transform .25s,box-shadow .3s}' +
+      '.rp-card:hover{transform:translateY(-6px);box-shadow:0 20px 38px rgba(17,26,59,.16)}' +
+      '.rp-card-single{border:2px solid var(--yellow)}' +
+      '.rp-card-duo{border:2px solid var(--blue)}' +
+      '.rp-label{font-weight:800;font-size:.95rem;color:#42506e}' +
+      '.rp-value{font-weight:900;font-size:2.9rem;line-height:1.05;color:var(--red);text-shadow:0 4px 14px rgba(226,35,26,.28)}' +
+      '.rp-value-duo{color:var(--blue);text-shadow:0 4px 14px rgba(31,95,214,.28)}' +
+      '.rp-unit{font-weight:700;font-size:.85rem;color:#8a93ab}' +
+      '.rp-photos{display:flex;gap:8px;margin-bottom:12px}' +
+      '.rp-photos img{width:112px;height:78px;object-fit:cover;border-radius:12px;box-shadow:0 8px 18px rgba(17,26,59,.16)}' +
+      '.rp-footnote{flex:1 1 100%;font-weight:700;font-size:.82rem;color:#8a93ab}' +
+      '@media(max-width:600px){.rp-value{font-size:2.2rem}.rp-photos img{width:88px;height:62px}}';
+    document.head.appendChild(css);
+  }
   if (typeof renderExtras === 'function') renderExtras();
   if (typeof renderOrderOptions === 'function') renderOrderOptions();
   if (typeof recalc === 'function') recalc();
