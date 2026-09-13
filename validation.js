@@ -77,8 +77,10 @@
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 25000);
     try {
-      if (!SHEET_WEBHOOK_URL) throw new Error('unconfigured');
-      const response = await fetch(SHEET_WEBHOOK_URL, {
+      const ENDPOINT = (window.PLANETA_CONFIG && window.PLANETA_CONFIG.sheetWebhookUrl) ||
+        'https://script.google.com/macros/s/AKfycbxyNdqz_-U_DDZRGyIF-2y_sITJwBbsH7Q5CHRtBs2e8lMFGB532Ne10q99xbeRi4m9Vw/exec';
+      if (!ENDPOINT) throw new Error('unconfigured');
+      const response = await fetch(ENDPOINT, {
         method: 'POST', mode: 'cors', credentials: 'omit',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload), signal: controller.signal
