@@ -211,37 +211,36 @@
     block.className = 'room-price-block';
     block.id = 'roomPriceBlock';
     block.innerHTML =
-      '<div class="rp-card rp-card-single">' +
-        '<span class="rp-label">Аренда банкетной комнаты</span>' +
-        '<span class="rp-value">7 000 \u20bd</span>' +
-        '<span class="rp-unit">за 2 часа</span>' +
+      '<div class="rp-card">' +
+        '<div class="rp-photos"><img src="room-jungle-2.jpg" alt="Банкетная комната" loading="lazy" decoding="async"></div>' +
+        '<span class="badge blue rp-badge">Одна комната</span>' +
+        '<div class="rp-price">7 000 \u20bd</div>' +
+        '<div class="rp-unit">за 2 часа · «Джунгли» или «Лофт»</div>' +
       '</div>' +
-      '<div class="rp-card rp-card-duo">' +
-        '<div class="rp-photos">' +
-          '<img src="room-jungle-1.jpg" alt="Банкетная комната «Джунгли»" loading="lazy" decoding="async">' +
-          '<img src="room-loft-1.jpg" alt="Банкетная комната «Лофт»" loading="lazy" decoding="async">' +
+      '<div class="rp-card">' +
+        '<div class="rp-photos two">' +
+          '<img src="room-jungle-1.jpg" alt="Комната «Джунгли»" loading="lazy" decoding="async">' +
+          '<img src="room-loft-1.jpg" alt="Комната «Лофт»" loading="lazy" decoding="async">' +
         '</div>' +
-        '<span class="rp-label">Две комнаты одновременно</span>' +
-        '<span class="rp-value rp-value-duo">10 000 \u20bd</span>' +
-        '<span class="rp-unit">за 2 часа · «Джунгли» + «Лофт»</span>' +
+        '<span class="badge green rp-badge">Две комнаты сразу</span>' +
+        '<div class="rp-price">10 000 \u20bd</div>' +
+        '<div class="rp-unit">за 2 часа · «Джунгли» + «Лофт»</div>' +
       '</div>' +
-      '<span class="rp-footnote">Продление — 3 500 \u20bd за каждый следующий час</span>';
+      '<div class="rp-foot">Продление — 3 500 \u20bd за каждый следующий час</div>';
     note.parentNode.replaceChild(block, note);
     var css = document.createElement('style');
     css.textContent =
-      '.room-price-block{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;align-items:stretch;margin-top:22px;text-align:center}' +
-      '.rp-card{background:rgba(255,255,255,.96);border-radius:20px;padding:22px 28px;box-shadow:0 12px 28px rgba(17,26,59,.1);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:260px;transition:transform .25s,box-shadow .3s}' +
-      '.rp-card:hover{transform:translateY(-6px);box-shadow:0 20px 38px rgba(17,26,59,.16)}' +
-      '.rp-card-single{border:2px solid var(--yellow)}' +
-      '.rp-card-duo{border:2px solid var(--blue)}' +
-      '.rp-label{font-weight:800;font-size:.95rem;color:#42506e}' +
-      '.rp-value{font-weight:900;font-size:2.9rem;line-height:1.05;color:var(--red);text-shadow:0 4px 14px rgba(226,35,26,.28)}' +
-      '.rp-value-duo{color:var(--blue);text-shadow:0 4px 14px rgba(31,95,214,.28)}' +
-      '.rp-unit{font-weight:700;font-size:.85rem;color:#8a93ab}' +
-      '.rp-photos{display:flex;gap:8px;margin-bottom:12px}' +
-      '.rp-photos img{width:112px;height:78px;object-fit:cover;border-radius:12px;box-shadow:0 8px 18px rgba(17,26,59,.16)}' +
-      '.rp-footnote{flex:1 1 100%;font-weight:700;font-size:.82rem;color:#8a93ab}' +
-      '@media(max-width:600px){.rp-value{font-size:2.2rem}.rp-photos img{width:88px;height:62px}}';
+      '.room-price-block{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;max-width:760px;margin:28px auto 0}' +
+      '.rp-card{background:rgba(255,255,255,.9);border:1px solid rgba(17,26,59,.06);border-radius:20px;padding:20px 22px 24px;box-shadow:0 12px 28px rgba(17,26,59,.08);text-align:center;transition:transform .15s ease,box-shadow .3s}' +
+      '.rp-card:hover{transform:translateY(-6px);box-shadow:0 22px 40px rgba(17,26,59,.16)}' +
+      '.rp-photos{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px}' +
+      '.rp-photos.two{grid-template-columns:1fr 1fr}' +
+      '.rp-photos img{width:100%;height:128px;object-fit:cover;border-radius:16px}' +
+      '.rp-badge{margin-bottom:10px}' +
+      '.rp-price{font-size:1.8rem;font-weight:900;color:var(--red);margin:2px 0 4px}' +
+      '.rp-unit{font-size:.85rem;font-weight:700;color:#8a93ab}' +
+      '.rp-foot{grid-column:1/-1;text-align:center;border-top:2px dashed #e4e7f0;padding-top:14px;font-size:.85rem;font-weight:800;color:#6b7690}' +
+      '@media(max-width:600px){.rp-photos img{height:112px}}';
     document.head.appendChild(css);
   }
   if (typeof renderExtras === 'function') renderExtras();
