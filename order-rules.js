@@ -59,7 +59,7 @@
     let duration = 0, price = 0;
     const p = catalog.packs[d.pack];
     if (p && !errors.pack) { duration = p.duration; price = p.price; }
-    else if (d.room && !errors.room) { duration = 120; price = 5000; }
+    else if (d.room && !errors.room) { duration = 120; price = 7000; }
     if (!errors.extra) d.extra.forEach(id => { duration += catalog.extras[id].duration; price += catalog.extras[id].price; });
     const discount = d.promo === 'PLANETA10' ? Math.round(price * .1) : 0;
     const start = /^\d{2}:\d{2}$/.test(d.eventTime) ? d.eventTime.split(':').map(Number) : [];
