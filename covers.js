@@ -1,4 +1,4 @@
-/* Planeta Igr — photo covers for service cards. Loaded after programs.js. */
+/* Planeta Igr — photo covers for service cards + rotating duo-room collage. */
 (function () {
   'use strict';
 
@@ -20,6 +20,11 @@
     timeCards: 'generated-image%20(11).jpg'
   };
 
+  var DUO = [
+    ['room-jungle-1.jpg', 'room-jungle-2.jpg'],
+    ['room-loft-1.jpg', 'room-loft-2.jpg']
+  ];
+
   var st = document.createElement('style');
   st.textContent =
     '.ec-cover img.pi-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;transition:transform .45s}' +
@@ -31,7 +36,8 @@
     '.extra-modal-body{position:relative;z-index:2;margin-top:-46px}' +
     '.extra-modal-body p{color:#111a3b;font-weight:700}' +
     '.extra-modal-body .tier-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:6px 0 2px;padding:0 0 12px;background:none;border:0;border-bottom:1px solid rgba(17,26,59,.1);border-radius:0;font-size:1rem;font-weight:700;color:#42506e}' +
-    '.extra-modal-body .tier-price{flex:none;background:none;box-shadow:none;padding:0;border-radius:0;font-size:1.15rem;font-weight:900;color:#e2231a;white-space:nowrap}';
+    '.extra-modal-body .tier-price{flex:none;background:none;box-shadow:none;padding:0;border-radius:0;font-size:1.15rem;font-weight:900;color:#e2231a;white-space:nowrap}' +
+    '.rm-duo img{opacity:1;transition:opacity .6s ease,transform .4s}';
   document.head.appendChild(st);
 
   function put(host, src, alt) {
@@ -55,6 +61,38 @@
       if (ph) put(cards[i].querySelector('.ec-cover'), ph, EXTRAS[keys[i]].name);
     }
   }
+
+  function rotate(img, list, offset) {
+    if (!img || list.length < 2) return;
+    list.forEach(function (src) { var pre = new Image(); pre.src = src; });
+    var i = 0;
+    setTimeout(function () {
+      setInterval(function () {
+        i = (i + 1) % list.length;
+        var next = list[i];
+        img.style.opacity = '0';
+        setTimeout(function () {
+          img.src = next;
+          img.style.opacity = '1';
+        }, 600);
+      }, 5000);
+    }, offset);
+  }
+
+  var tries = 0;
+  function startDuo() {
+    var imgs = document.querySelectorAll('#roomDuo .rm-duo img');
+    if (imgs.length < 2) {
+      if (tries++ < 20) setTimeout(startDuo, 400);
+      return;
+    }
+    if (imgs[0].dataset.piRotate) return;
+    imgs[0].dataset.piRotate = '1';
+    imgs[1].dataset.piRotate = '1';
+    rotate(imgs[0], DUO[0], 0);
+    rotate(imgs[1], DUO[1], 2500);
+  }
+  startDuo();
 
   var origRender = window.renderExtras;
   window.renderExtras = function () {
