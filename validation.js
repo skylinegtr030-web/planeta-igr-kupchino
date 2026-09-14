@@ -170,7 +170,11 @@
     const form = document.getElementById('orderForm');
     const packId = form.pack.value;
     const roomVal = form.room.value;
-    const extraChecks = values().extra;
+    const extraChecks = [...form.querySelectorAll('[name=extra]:checked')].map(c => c.value);
+    form.querySelectorAll('[data-extra-qty]').forEach(row => {
+      const n = parseInt(row.dataset.count || '0', 10);
+      for (let i = 0; i < n; i++) extraChecks.push(row.dataset.extraQty);
+    });
     let duration = 0, price = 0;
     if (packId && PACKS[packId]) {
       duration += PACKS[packId].duration;
