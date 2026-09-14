@@ -48,7 +48,6 @@
   function adminApi(action, options) {
     options = options || {};
     var headers = { 'Content-Type': 'application/json' };
-    if (session()) headers['Authorization'] = 'Bearer ' + session();
     var qs = 'action=' + encodeURIComponent(action);
     if (options.params) Object.keys(options.params).forEach(function (k) {
       qs += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(options.params[k]);
@@ -60,51 +59,16 @@
     }).then(function (response) {
       return response.text().then(function (text) {
         var body = text ? JSON.parse(text) : {};
-        if (response.status === 401 && body.error === 'auth') {
-          localStorage.removeItem(KEY);
-          throw new Error('Сессия истекла — войдите заново');
-        }
+        if (response.status === 401) throw new Error('Сессия истекла — войдите заново');
         if (!response.ok) throw new Error(body.error || ('HTTP ' + response.status));
         return body;
       });
     });
   }
 
-  // ---------- Вход ----------
-  function login() {
-    var user = el('loginUser').value.trim();
-    var pass = el('loginPass').value;
-    if (!user || !pass) { setStatus(el('authStatus'), 'Введите логин и пароль.', false); return; }
-    el('loginBtn').disabled = true;
-    setStatus(el('authStatus'), 'Проверяю…');
-    fetch('/api/admin?action=login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'login', user: user, password: pass })
-    }).then(function (response) {
-      return response.json().then(function (body) {
-        if (!response.ok) throw new Error(body.error === 'Неверный логин или пароль' ? 'Неверный логин или пароль' : (body.error || 'Ошибка входа'));
-        return body;
-      });
-    }).then(function (body) {
-      localStorage.setItem(KEY, body.session || body.token);
-      localStorage.setItem('pg-admin-user', user);
-      el('loginPass').value = '';
-      el('whoami').textContent = user;
-      el('loginCard').hidden = true;
-      el('editor').hidden = false;
-      setStatus(el('authStatus'), '');
-      loadAll();
-    }).catch(function (err) {
-      setStatus(el('authStatus'), err.message, false);
-    }).then(function () { el('loginBtn').disabled = false; });
-  }
-
+  // ---------- Вход: форму отправляет браузер (POST-форма в index.html), JS не нужен ----------
   function logout() {
-    localStorage.removeItem(KEY);
-    el('editor').hidden = true;
-    el('loginCard').hidden = false;
-    setStatus(el('authStatus'), 'Вы вышли. До встречи.', true);
+    window.location.href = '/api/admin?action=logout';
   }
 
   function loadAll() {
@@ -475,9 +439,8 @@
     b.addEventListener('click', function () { switchTab(b.dataset.tab); });
   });
 
-  el('loginBtn').onclick = login;
-  el('logout').onclick = logout;
-  el('loginPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
+  var logoutBtn = document.getElementById('logout');
+  if (logoutBtn) logoutBtn.addEventListener('click', function (e) { e.preventDefault(); logout(); });
   el('save').onclick = save;
   el('collagePhotos').addEventListener('input', renderThumbs);
   el('upload').addEventListener('change', function (event) {
@@ -497,23 +460,15 @@
     }
   });
 
-  // Автовход, если в браузере живая сессия
-  if (session()) {
-    adminApi('content').then(function (body) {
-      state.sha = body.sha;
-      state.data = body.content;
-      fillContent(body.content);
-      el('loginCard').hidden = true;
-      el('editor').hidden = false;
-      el('whoami').textContent = localStorage.getItem('pg-admin-user') || '';
-      loadOrders();
-    }).catch(function () {
-      logout();
-    });
-  }
-  var savedUser = localStorage.getItem('pg-admin-user');
-  if (savedUser) {
-    el('whoami').textContent = savedUser;
-    el('loginUser').value = savedUser;
-  }
+  // Если сессия жива (в куке) — открываем панель молча
+  adminApi('content').then(function (body) {
+    state.sha = body.sha;
+    state.data = body.content;
+    fillContent(body.content);
+    el('loginCard').hidden = true;
+    el('editor').hidden = false;
+    el('whoami').textContent = 'Админ';
+    loadOrders();
+  }).catch(function () { /* нет сессии — показываем форму входа */ });
+  window.__appLoaded = true;
 })();

@@ -18,6 +18,29 @@
 */
 
 const crypto = require('crypto');
+const querystring = require('querystring');
+
+async function readBody(req) {
+  if (req.body !== undefined && req.body !== null) return req.body;
+  return new Promise(function (resolve) {
+    var chunks = [];
+    req.on('data', function (c) { chunks.push(c); });
+    req.on('end', function () { resolve(Buffer.concat(chunks).toString('utf8')); });
+  });
+}
+function parseBody(raw) {
+  if (raw && typeof raw === 'object') return raw; // Vercel уже распарсил JSON
+  var text = String(raw || '');
+  text = text.trim();
+  if (!text) return {};
+  if (text.charAt(0) === '{') { try { return JSON.parse(text); } catch (e) { return {}; } }
+  return querystring.parse(text); // обычная HTML-форма
+}
+function cookieSession(req) {
+  var raw = req.headers.cookie || '';
+  var m = raw.match(/pg_session=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : '';
+}
 
 const OWNER = process.env.GH_OWNER || 'skylinegtr030-web';
 const REPO = process.env.GH_REPO || 'planeta-igr-kupchino';
@@ -189,21 +212,41 @@ module.exports = async function (req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') return jsonRes(res, 405, { status: 'error', error: 'method' });
 
   try {
-    var body = (req.method === 'POST' && typeof req.body === 'string') ? JSON.parse(req.body || '{}') : (req.body || {});
+    var body = req.method === 'POST' ? parseBody(await readBody(req)) : (req.body || {});
     var action = String((req.query && req.query.action) || body.action || '');
 
     // ---- вход по логину и паролю (admin/auth.json) ----
     if (action === 'login') {
-      var auth = await loadAuthFile();
-      if (!auth || !auth.salt || !auth.hash) {
+      var authCfg = await loadAuthFile();
+      if (!authCfg || !authCfg.salt || !authCfg.hash) {
         return jsonRes(res, 500, { status: 'error', error: 'admin/auth.json не найден в репозитории' });
       }
-      var givenHash = hashPassword(auth.salt, String(body.password || ''));
-      if (!safeEqual(String(body.user || ''), String(auth.login || '')) ||
-          !safeEqual(givenHash, String(auth.hash || ''))) {
-        return jsonRes(res, 401, { status: 'error', error: 'Неверный логин или пароль' });
+      var givenHash = hashPassword(authCfg.salt, String(body.password || ''));
+      var okUser = safeEqual(String(body.user || ''), String(authCfg.login || ''));
+      var okPass = safeEqual(givenHash, String(authCfg.hash || ''));
+      var sessionToken = issue('session', { id: authCfg.login, kind: 'password' }, SESSION_TTL);
+      var isForm = String(req.headers['content-type'] || '').indexOf('json') === -1;
+      var cookie = 'pg_session=' + encodeURIComponent(sessionToken) +
+        '; Path=/; HttpOnly; SameSite=Lax; Max-Age=' + Math.floor(SESSION_TTL / 1000) + (process.env.NODE_ENV === 'production' ? '; Secure' : '');
+      if (isForm) {
+        // обычная HTML-форма без JS: ставим куку и возвращаем на страницу
+        if (okUser && okPass) {
+          res.setHeader('Set-Cookie', cookie);
+          res.setHeader('Location', '/admin/?ok=1');
+          return res.status(303).end();
+        }
+        res.setHeader('Location', '/admin/?e=1');
+        return res.status(303).end();
       }
-      return jsonRes(res, 200, { status: 'ok', session: issue('session', { id: auth.login, kind: 'password' }, SESSION_TTL) });
+      if (!(okUser && okPass)) return jsonRes(res, 401, { status: 'error', error: 'Неверный логин или пароль' });
+      return jsonRes(res, 200, { status: 'ok', session: sessionToken });
+    }
+
+    // ---- выход ----
+    if (action === 'logout') {
+      res.setHeader('Set-Cookie', 'pg_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+      res.setHeader('Location', '/admin/');
+      return res.status(303).end();
     }
 
     // ---- запрос ссылки на почту ----
@@ -232,7 +275,7 @@ module.exports = async function (req, res) {
     // ---- всё остальное требует сессию ----
     if (!process.env.GH_TOKEN) return jsonRes(res, 500, { status: 'error', error: 'GH_TOKEN не задан в переменных окружения Vercel' });
     var auth = req.headers['authorization'] || '';
-    var session = verify('session', auth.startsWith('Bearer ') ? auth.slice(7).trim() : '');
+    var session = verify('session', (auth.startsWith('Bearer ') ? auth.slice(7).trim() : '') || cookieSession(req));
     if (!session) return jsonRes(res, 401, { status: 'error', error: 'auth' });
     if (session.kind === 'link' && !isAllowed(session.id)) return jsonRes(res, 401, { status: 'error', error: 'auth' });
 

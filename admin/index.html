@@ -72,15 +72,19 @@ button:disabled{opacity:.5;cursor:default}
 
 <div class="card" id="loginCard">
 <h2>Вход</h2>
+<form action="/api/admin" method="POST" style="margin:0">
+<input type="hidden" name="action" value="login">
 <div class="row">
-<div><label for="loginUser">Логин</label><input id="loginUser" type="text" autocomplete="username"></div>
-<div><label for="loginPass">Пароль</label><input id="loginPass" type="password" autocomplete="current-password"></div>
+<div><label for="loginUser">Логин</label><input id="loginUser" name="user" type="text" autocomplete="username"></div>
+<div><label for="loginPass">Пароль</label><input id="loginPass" name="password" type="password" autocomplete="current-password"></div>
 </div>
 <div class="actions">
-<button id="loginBtn" class="primary">Войти</button>
+<button type="submit" id="loginBtn" class="primary">Войти</button>
 </div>
+</form>
 <p id="authStatus" class="status"></p>
-<p class="hint">Логин и пароль задаются в переменных окружения Vercel: ADMIN_LOGIN и ADMIN_PASSWORD.</p>
+<p class="hint">Обычная форма — работает в любом браузере, даже без JavaScript.</p>
+<p class="hint" style="margin-top:2px">Сборка №5</p>
 </div>
 
 <div id="editor" hidden>
@@ -92,7 +96,7 @@ button:disabled{opacity:.5;cursor:default}
 </div>
 <div style="display:flex;gap:8px;align-items:center">
 <span class="who" id="whoami"></span>
-<button id="logout" class="ghost">Выйти</button>
+<a id="logout" class="ghost" href="/api/admin?action=logout" style="display:inline-block;text-decoration:none">Выйти</a>
 </div>
 </div>
 
@@ -227,6 +231,35 @@ button:disabled{opacity:.5;cursor:default}
 </div>
 </div>
 
-<script src="app.js?v=4"></script>
+<script>
+(function () {
+  var q = window.location.search || '';
+  var st = document.getElementById('authStatus');
+  if (/[?&]ok=1/.test(q)) {
+    document.getElementById('loginCard').hidden = true;
+    document.getElementById('editor').hidden = false;
+    if (st) { st.textContent = 'Вход выполнен, открываю панель…'; st.className = 'status ok'; }
+    history.replaceState({}, '', '/admin/');
+  }
+  if (/[?&]e=1/.test(q) && st) {
+    st.textContent = 'Неверный логин или пароль';
+    st.className = 'status err';
+    history.replaceState({}, '', '/admin/');
+  }
+  setTimeout(function () {
+    if (!window.__appLoaded) {
+      var card = document.getElementById('loginCard');
+      if (card && !card.hidden) {
+        var s = document.getElementById('authStatus');
+        if (s && !s.textContent) {
+          s.textContent = 'Скрипт панели не загрузился. Обновите страницу (Ctrl+F5); не помогло — отключите блокировщик рекламы для этого сайта.';
+          s.className = 'status err';
+        }
+      }
+    }
+  }, 2500);
+})();
+</script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
