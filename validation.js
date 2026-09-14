@@ -12,6 +12,10 @@
     const data = {};
     new FormData(form).forEach((v, k) => { if (k !== 'extra') data[k] = v; });
     data.extra = [...form.querySelectorAll('[name=extra]:checked')].map(c => c.value);
+    form.querySelectorAll('[data-extra-qty]').forEach(row => {
+      const n = parseInt(row.dataset.count || '0', 10);
+      for (let i = 0; i < n; i++) data.extra.push(row.dataset.extraQty);
+    });
     return data;
   }
   function render(errors, all) {
@@ -166,7 +170,7 @@
     const form = document.getElementById('orderForm');
     const packId = form.pack.value;
     const roomVal = form.room.value;
-    const extraChecks = [...form.querySelectorAll('input[name="extra"]:checked')].map(c => c.value);
+    const extraChecks = values().extra;
     let duration = 0, price = 0;
     if (packId && PACKS[packId]) {
       duration += PACKS[packId].duration;
@@ -200,7 +204,9 @@
     document.getElementById('sumPrice').innerHTML = priceText;
     document.getElementById('hPackName').value = packId && PACKS[packId] ? PACKS[packId].name + ' — ' + PACKS[packId].price.toLocaleString('ru-RU') + ' ₽' : '';
     document.getElementById('hRoomName').value = roomVal && ROOMS[roomVal] ? ROOMS[roomVal].name : '';
-    document.getElementById('hExtrasNames').value = extraChecks.map(id => EXTRAS[id].name).join(', ');
+    const extraTimes = {};
+    extraChecks.forEach(id => { extraTimes[id] = (extraTimes[id] || 0) + 1; });
+    document.getElementById('hExtrasNames').value = Object.keys(extraTimes).map(id => EXTRAS[id].name + (extraTimes[id] > 1 ? ' ×' + extraTimes[id] : '')).join(', ');
     document.getElementById('hDurationText').value = durationText || '';
     document.getElementById('hEndTimeText').value = endText === '—' ? '' : endText;
     document.getElementById('hPriceText').value = priceTextPlain;

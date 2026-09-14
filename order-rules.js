@@ -52,9 +52,10 @@
     if (d.promo && d.promo !== 'PLANETA10') errors.promo = 'Промокод не найден. Проверьте его или оставьте поле пустым.';
     if (d.pack && !Object.prototype.hasOwnProperty.call(catalog.packs, d.pack)) errors.pack = 'Выберите пакет из списка.';
     if (d.room && !Object.prototype.hasOwnProperty.call(catalog.rooms, d.room)) errors.room = 'Выберите комнату из списка.';
-    if (d.extra.length > Object.keys(catalog.extras).length ||
-        d.extra.some(id => typeof id !== 'string' || !Object.prototype.hasOwnProperty.call(catalog.extras, id)) ||
-        new Set(d.extra).size !== d.extra.length) errors.extra = 'Выберите дополнительные услуги из списка.';
+    const extraCounts = {};
+    d.extra.forEach(id => { extraCounts[id] = (extraCounts[id] || 0) + 1; });
+    if (d.extra.some(id => typeof id !== 'string' || !Object.prototype.hasOwnProperty.call(catalog.extras, id)) ||
+        Object.keys(extraCounts).some(id => extraCounts[id] > 30)) errors.extra = 'Выберите дополнительные услуги из списка — не более 30 шт каждой.';
     if (!d.pack && !d.room && !d.extra.length) errors.selection = 'Выберите хотя бы пакет, банкетную комнату или услугу.';
     let duration = 0, price = 0;
     const p = catalog.packs[d.pack];

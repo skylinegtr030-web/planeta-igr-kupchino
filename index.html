@@ -872,6 +872,17 @@ function openExtraModal(id){
 }
 function closeExtraModal(){document.getElementById('extraModal').classList.remove('active');}
 
+<style>
+.oo-qty{display:inline-flex;align-items:center;gap:6px;margin-left:auto}
+.oo-qty .q-btn{width:26px;height:26px;border-radius:8px;border:0;background:#eef2fb;color:#1f5fd6;font-weight:900;cursor:pointer;font-size:1rem;line-height:1}
+.oo-qty .q-btn:hover{background:#dbe6fb}
+.oo-qty b{min-width:18px;text-align:center;font-size:.95rem}
+.order-opt[data-extra-qty]{flex-wrap:wrap}
+</style>
+<script>
+const QTY_EXTRAS = ['timeCards','timeCards60','unlimitedTicket','unlimitedTicketWeekend','invite','serving','tables','balloonFountain','surpriseBalloon'];
+function extraQtyOf(id){ return QTY_EXTRAS.indexOf(id) !== -1; }
+</script>
 /* ===== Order form render & logic ===== */
 function renderOrderOptions(){
   // запоминаем текущий выбор — перерисовка не должна его сбрасывать
@@ -879,6 +890,8 @@ function renderOrderOptions(){
   const prevPack=form0.querySelector('input[name="pack"]:checked')?.value||'';
   const prevRoom=form0.querySelector('input[name="room"]:checked')?.value||'';
   const prevExtras=[...form0.querySelectorAll('input[name="extra"]:checked')].map(c=>c.value);
+  const prevCounts={};
+  form0.querySelectorAll('[data-extra-qty]').forEach(r=>{prevCounts[r.dataset.extraQty]=parseInt(r.dataset.count||'0',10);});
   const packBox=document.getElementById('packOptions');
   packBox.innerHTML='<label class="order-opt"><input type="radio" name="pack" value=""> <span class="oo-name">Без пакета (только комната / услуги)</span></label>';
   Object.keys(PACKS).forEach(id=>{
@@ -900,13 +913,33 @@ function renderOrderOptions(){
   Object.keys(EXTRAS).forEach(id=>{
     const ex=EXTRAS[id];
     const priceLabel=(ex.priceFrom?'от ':'')+ex.price.toLocaleString('ru-RU')+' ₽';
-    exBox.innerHTML+=`<label class="order-opt"><input type="checkbox" name="extra" value="${id}" onchange="recalc()"> <span class="oo-name">${ex.name}</span><span class="oo-meta">${priceLabel} · ~${ex.duration} мин</span></label>`;
+    if(extraQtyOf(id)){
+      exBox.innerHTML+=`<label class="order-opt" data-extra-qty="${id}" data-count="0"><span class="oo-name">${ex.name}</span><span class="oo-meta">${priceLabel} · ~${ex.duration} мин · за 1 шт</span><span class="oo-qty"><button type="button" class="q-btn" data-d="-1">−</button><b class="q-n">0</b><button type="button" class="q-btn" data-d="1">+</button></span></label>`;
+    } else {
+      exBox.innerHTML+=`<label class="order-opt"><input type="checkbox" name="extra" value="${id}" onchange="recalc()"> <span class="oo-name">${ex.name}</span><span class="oo-meta">${priceLabel} · ~${ex.duration} мин</span></label>`;
+    }
+  });
+  exBox.querySelectorAll('.q-btn').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.preventDefault();e.stopPropagation();
+      const row=btn.closest('[data-extra-qty]');
+      const d=parseInt(btn.dataset.d,10);
+      const cur=parseInt(row.dataset.count||'0',10);
+      const next=Math.max(0,Math.min(30,cur+d));
+      row.dataset.count=String(next);
+      row.querySelector('.q-n').textContent=String(next);
+      recalc();
+    });
   });
 
   // восстанавливаем выбор
   if(prevPack){const p=form0.querySelector(`input[name="pack"][value="${prevPack}"]`);if(p)p.checked=true;}
   if(prevRoom){const r=form0.querySelector(`input[name="room"][value="${prevRoom}"]`);if(r)r.checked=true;}
   prevExtras.forEach(id=>{const c=form0.querySelector(`input[name="extra"][value="${id}"]`);if(c)c.checked=true;});
+  Object.keys(prevCounts).forEach(id=>{
+    const row=form0.querySelector(`[data-extra-qty="${id}"]`);
+    if(row&&prevCounts[id]>0){row.dataset.count=String(prevCounts[id]);row.querySelector('.q-n').textContent=String(prevCounts[id]);}
+  });
 }
 renderOrderOptions();
 
@@ -1026,9 +1059,9 @@ function usePromoInOrder(){
   recalc();
 }
 </script>
-<script src="order-rules.js?v=2"></script>
-<script src="validation.js?v=4"></script>
-<script src="cart.js?v=1"></script>
+<script src="order-rules.js?v=3"></script>
+<script src="validation.js?v=5"></script>
+<script src="cart.js?v=2"></script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ChildrensEntertainment","name":"Планета Игр — Купчино","telephone":"+79818180134","address":{"@type":"PostalAddress","streetAddress":"Балканская площадь, 5, ТРК «Балкания Nova»","addressLocality":"Санкт-Петербург","addressCountry":"RU"},"openingHours":"Mo-Su 10:00-22:00","url":"https://planeta-igr-kupchino.vercel.app/"}
 </script>

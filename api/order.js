@@ -101,9 +101,10 @@ function validate(raw) {
   if (d.promo && d.promo !== 'PLANETA10') errors.promo = 'Промокод не найден. Проверьте его или оставьте поле пустым.';
   if (d.pack && !CATALOG.packs[d.pack]) errors.pack = 'Выберите пакет из списка.';
   if (d.room && !CATALOG.rooms[d.room]) errors.room = 'Выберите комнату из списка.';
-  if (d.extra.length > Object.keys(CATALOG.extras).length ||
-      d.extra.some(id => !CATALOG.extras[id]) ||
-      new Set(d.extra).size !== d.extra.length) errors.extra = 'Выберите дополнительные услуги из списка.';
+  const extraCounts = {};
+  d.extra.forEach(id => { extraCounts[id] = (extraCounts[id] || 0) + 1; });
+  if (d.extra.some(id => !CATALOG.extras[id]) ||
+      Object.keys(extraCounts).some(id => extraCounts[id] > 30)) errors.extra = 'Выберите дополнительные услуги из списка — не более 30 шт каждой.';
   if (!d.pack && !d.room && !d.extra.length) errors.selection = 'Выберите хотя бы пакет, банкетную комнату или услугу.';
 
   // Время в часы работы
@@ -228,7 +229,11 @@ module.exports = async function (req, res) {
       room: d.room,
       roomName: room ? room.name : '',
       extra: d.extra,
-      extraNames: d.extra.map(id => CATALOG.extras[id].name),
+      extraNames: (function () {
+        const times = {};
+        d.extra.forEach(id => { times[id] = (times[id] || 0) + 1; });
+        return Object.keys(times).map(id => CATALOG.extras[id].name + (times[id] > 1 ? ' ×' + times[id] : ''));
+      })(),
       durationText: checked.durationText,
       endTimeText: checked.endTimeText,
       priceText: priceText || '',

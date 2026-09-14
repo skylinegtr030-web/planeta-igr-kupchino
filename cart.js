@@ -46,6 +46,11 @@
     return out;
   }
   function count() { return (cart.pack ? 1 : 0) + (cart.room ? 1 : 0) + cart.extras.length; }
+  function groups() {
+    var map = {};
+    cart.extras.forEach(function (id) { map[id] = (map[id] || 0) + 1; });
+    return map;
+  }
   function total() {
     return items().reduce(function (sum, x) { return sum + (x.price || 0); }, 0);
   }
@@ -111,10 +116,20 @@
       popup.innerHTML = '<h4>Корзина пуста</h4><div class="pg-cart-empty">Добавьте пакет, комнату или услуги — карточки по всему сайту.</div>';
       return;
     }
+    var QTY = ['timeCards', 'timeCards60', 'unlimitedTicket', 'unlimitedTicketWeekend', 'invite', 'serving', 'tables', 'balloonFountain', 'surpriseBalloon'];
+    var g = groups();
     var rows = list.map(function (x) {
+      var n = x.kind === 'extra' ? (g[x.id] || 1) : 1;
+      var isQty = x.kind === 'extra' && QTY.indexOf(x.id) !== -1;
+      var priceLine = isQty ? fmt(x.price) + ' × ' + n + ' = <b>' + fmt(x.price * n) + '</b>' : '<b>' + fmt(x.price) + '</b>';
+      var controls = isQty
+        ? '<span style="display:flex;gap:6px;align-items:center">' +
+          '<button class="pg-cart-rm pg-qty" data-kind="' + x.kind + '" data-id="' + escapeHtml(x.id) + '" data-d="-1">−</button>' +
+          '<b style="min-width:16px;text-align:center">' + n + '</b>' +
+          '<button class="pg-cart-rm pg-qty" data-kind="' + x.kind + '" data-id="' + escapeHtml(x.id) + '" data-d="1">+</button></span>'
+        : '<button class="pg-cart-rm" data-kind="' + x.kind + '" data-id="' + escapeHtml(x.id) + '" aria-label="Убрать">×</button>';
       return '<div class="pg-cart-row"><span>' + escapeHtml(x.name) + '</span>' +
-        '<span style="display:flex;gap:8px;align-items:center"><b>' + fmt(x.price) + '</b>' +
-        '<button class="pg-cart-rm" data-kind="' + x.kind + '" data-id="' + escapeHtml(x.id) + '" aria-label="Убрать">×</button></span></div>';
+        '<span style="display:flex;gap:8px;align-items:center">' + priceLine + controls + '</span></div>';
     }).join('');
     popup.innerHTML = '<h4>Ваша заявка</h4>' + rows +
       '<div class="pg-cart-total"><span>Примерная сумма</span><span>' + fmt(total()) + '</span></div>' +
@@ -123,7 +138,14 @@
       '<button class="pg-cart-go">Оформить заявку</button></div>';
     Array.prototype.forEach.call(popup.querySelectorAll('.pg-cart-rm'), function (btn) {
       btn.addEventListener('click', function () {
-        remove(btn.dataset.kind, btn.dataset.id);
+        if (btn.classList.contains('pg-qty')) {
+          var d = parseInt(btn.dataset.d, 10);
+          if (d > 0) add('extra', btn.dataset.id);
+          else removeOne('extra', btn.dataset.id);
+          renderPopup();
+        } else {
+          remove(btn.dataset.kind, btn.dataset.id);
+        }
       });
     });
     popup.querySelector('.pg-cart-wipe').addEventListener('click', function () {
@@ -157,22 +179,33 @@
     if (kind === 'pack') cart.pack = id;
     else if (kind === 'room') cart.room = id;
     else if (kind === 'extra') {
-      var at = cart.extras.indexOf(id);
-      if (at !== -1) { cart.extras.splice(at, 1); save(); renderAll(); showToast('Убрано из корзины'); return; }
+      var QTY = ['timeCards', 'timeCards60', 'unlimitedTicket', 'unlimitedTicketWeekend', 'invite', 'serving', 'tables', 'balloonFountain', 'surpriseBalloon'];
+      var copies = cart.extras.filter(function (x) { return x === id; }).length;
+      if (QTY.indexOf(id) === -1 && copies >= 1) {
+        showToast('Уже в корзине: ' + (info('extra', id) ? info('extra', id).name : ''));
+        return;
+      }
+      if (copies >= 30) { showToast('Больше 30 шт одного и того же не нужно'); return; }
       cart.extras.push(id);
     }
     save();
     renderAll();
     var i = info(kind, id);
-    showToast('Добавлено в корзину: ' + (i ? i.name : ''));
+    var howMany = kind === 'extra' ? cart.extras.filter(function (x) { return x === id; }).length : 0;
+    showToast('Добавлено в корзину: ' + (i ? i.name : '') + (howMany > 1 ? ' ×' + howMany : ''));
   }
   function remove(kind, id) {
     if (kind === 'pack' && cart.pack === id) cart.pack = '';
     if (kind === 'room' && cart.room === id) cart.room = '';
     if (kind === 'extra') {
-      var at = cart.extras.indexOf(id);
-      if (at !== -1) cart.extras.splice(at, 1);
+      cart.extras = cart.extras.filter(function (x) { return x !== id; });
     }
+    save();
+    renderAll();
+  }
+  function removeOne(kind, id) {
+    var at = cart.extras.indexOf(id);
+    if (at !== -1) cart.extras.splice(at, 1);
     save();
     renderAll();
   }
@@ -188,9 +221,17 @@
       var r = form.querySelector('input[name="room"][value="' + cart.room + '"]');
       if (r) r.checked = true;
     }
-    cart.extras.forEach(function (id) {
-      var c = form.querySelector('input[name="extra"][value="' + id + '"]');
-      if (c) c.checked = true;
+    var counts = {};
+    cart.extras.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });
+    Object.keys(counts).forEach(function (id) {
+      var row = form.querySelector('[data-extra-qty="' + id + '"]');
+      if (row) {
+        row.dataset.count = String(counts[id]);
+        row.querySelector('.q-n').textContent = String(counts[id]);
+      } else {
+        var c = form.querySelector('input[name="extra"][value="' + id + '"]');
+        if (c) c.checked = true;
+      }
     });
     if (typeof window.recalc === 'function') window.recalc();
   }

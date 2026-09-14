@@ -354,7 +354,10 @@
       if (o.status === 'Подтверждена') counts.confirmed++;
       if (o.status === 'Отклонена') counts.rejected++;
       if (o.packName) packMap[o.packName] = (packMap[o.packName] || 0) + 1;
-      (o.extraNames || []).forEach(function (name) { extraMap[name] = (extraMap[name] || 0) + 1; });
+      (o.extraNames || []).forEach(function (name) {
+        var clean = String(name).replace(/ *×\d+$/, '');
+        extraMap[clean] = (extraMap[clean] || 0) + 1;
+      });
       var priceNum = parseInt(String(o.priceText || '').replace(/\D/g, ''), 10);
       if (Number.isFinite(priceNum) && priceNum > 0) { counts.priceSum += priceNum; counts.priceCount++; }
     });
