@@ -3,15 +3,21 @@
   'use strict';
 
   var PHOTO = {
-    azot: 'generated-image%20(1).jpg',
-    neon: 'generated-image%20(11).jpg',
-    bubbles: 'generated-image%20(10).jpg',
-    challenge: 'generated-image.jpg',
-    pinata: 'generated-image%20(13).jpg',
+    animator: 'generated-image%20(13).jpg',
+    quest: 'generated-image%20(8).jpg',
     masterclass: 'generated-image%20(9).jpg',
-    quest: 'generated-image%20(7).jpg',
-    animator: 'generated-image%20(8).jpg',
-    magician: 'extra-magician.jpg'
+    sciShow: 'generated-image%20(1).jpg',
+    bubbles: 'generated-image%20(10).jpg',
+    pinata: 'generated-image%20(7).jpg',
+    qzar: 'generated-image%20(14).jpg',
+    lavaFloor: 'generated-image%20(12).jpg',
+    unlimitedTicket: 'generated-image%20(6).jpg',
+    invite: 'generated-image.jpg',
+    tables: 'generated-image%20(5).jpg',
+    balloonFountain: 'generated-image%20(4).jpg',
+    surpriseBalloon: 'generated-image%20(3).jpg',
+    serving: 'generated-image%20(2).jpg',
+    timeCards: 'generated-image%20(11).jpg'
   };
 
   var st = document.createElement('style');
@@ -36,7 +42,7 @@
     if (typeof EXTRAS === 'undefined' || !EXTRAS) return;
     var keys = Object.keys(EXTRAS);
     var cards = document.querySelectorAll('#extrasGrid .extra-card');
-    for (var i = 0; i < cards.length; i++) {
+    for (var i = 0; i < cards.length && i < keys.length; i++) {
       var ph = PHOTO[keys[i]];
       if (ph) put(cards[i].querySelector('.ec-cover'), ph, EXTRAS[keys[i]].name);
     }
