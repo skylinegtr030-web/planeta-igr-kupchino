@@ -72,15 +72,13 @@ button:disabled{opacity:.5;cursor:default}
 
 <div class="card" id="loginCard">
 <h2>Вход</h2>
-<div class="row">
-<div><label for="loginUser">Логин</label><input id="loginUser" type="text" autocomplete="username"></div>
-<div><label for="loginPass">Пароль</label><input id="loginPass" type="password" autocomplete="current-password"></div>
-</div>
+<label for="loginEmail">Ваша почта</label>
+<input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com">
 <div class="actions">
-<button id="loginBtn" class="primary">Войти</button>
+<button id="loginBtn" class="primary">Прислать ссылку</button>
 </div>
 <p id="authStatus" class="status"></p>
-<p class="hint">Логин и пароль задаются в переменных окружения Vercel: ADMIN_LOGIN и ADMIN_PASSWORD.</p>
+<p class="hint">Введите почту, разрешённую в настройках. На неё придёт ссылка для входа — действует 15 минут. Пароль не нужен.</p>
 </div>
 
 <div id="editor" hidden>
@@ -227,6 +225,6 @@ button:disabled{opacity:.5;cursor:default}
 </div>
 </div>
 
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

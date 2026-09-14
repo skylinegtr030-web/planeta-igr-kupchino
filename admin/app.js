@@ -4,6 +4,7 @@
   'use strict';
 
   var KEY = 'pg-admin-session';
+  var USER_KEY = 'pg-admin-user';
 
   var TIERS = [
     ['timeCards30', 'Тайм-карта 30 минут'],
@@ -70,34 +71,61 @@
     });
   }
 
-  // ---------- Вход ----------
-  function login() {
-    var user = el('loginUser').value.trim();
-    var pass = el('loginPass').value;
-    if (!user || !pass) { setStatus(el('authStatus'), 'Введите логин и пароль.', false); return; }
+  // ---------- Вход по ссылке ----------
+  function requestLink() {
+    var email = el('loginEmail').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus(el('authStatus'), 'Введите корректный email.', false);
+      return;
+    }
     el('loginBtn').disabled = true;
-    setStatus(el('authStatus'), 'Проверяю…');
-    fetch('/api/admin?action=login', {
+    setStatus(el('authStatus'), 'Отправляю ссылку…');
+    fetch('/api/admin?action=request-link', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'login', user: user, password: pass })
+      body: JSON.stringify({ action: 'request-link', email: email })
     }).then(function (response) {
       return response.json().then(function (body) {
-        if (!response.ok) throw new Error(body.error === 'Неверный логин или пароль' ? 'Неверный логин или пароль' : (body.error || 'Ошибка входа'));
+        if (!response.ok) throw new Error(body.error || 'Ошибка отправки');
         return body;
       });
-    }).then(function (body) {
-      localStorage.setItem(KEY, body.token);
-      localStorage.setItem('pg-admin-user', user);
-      el('loginPass').value = '';
-      el('whoami').textContent = user;
-      el('loginCard').hidden = true;
-      el('editor').hidden = false;
-      setStatus(el('authStatus'), '');
-      loadAll();
+    }).then(function () {
+      localStorage.setItem(USER_KEY, email);
+      setStatus(el('authStatus'), 'Ссылка ушла на почту. Откройте письмо и нажмите «Войти в панель» (действует 15 минут).', true);
     }).catch(function (err) {
       setStatus(el('authStatus'), err.message, false);
     }).then(function () { el('loginBtn').disabled = false; });
+  }
+
+  function verifyLinkToken(token) {
+    setStatus(el('authStatus'), 'Проверяю ссылку…');
+    return fetch('/api/admin?action=verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'verify', token: token })
+    }).then(function (response) {
+      return response.json().then(function (body) {
+        if (!response.ok) throw new Error(body.error || 'Не удалось войти');
+        return body;
+      });
+    }).then(function (body) {
+      localStorage.setItem(KEY, body.session);
+      if (body.email) localStorage.setItem(USER_KEY, body.email);
+      // убираем ?token= / #token= из адресной строки
+      var clean = window.location.pathname;
+      history.replaceState({}, '', clean);
+      enterPanel(body.email);
+    }).catch(function (err) {
+      setStatus(el('authStatus'), err.message, false);
+    });
+  }
+
+  function enterPanel(user) {
+    if (user) el('whoami').textContent = user;
+    el('loginCard').hidden = true;
+    el('editor').hidden = false;
+    setStatus(el('authStatus'), '');
+    loadAll();
   }
 
   function logout() {
@@ -105,6 +133,15 @@
     el('editor').hidden = true;
     el('loginCard').hidden = false;
     setStatus(el('authStatus'), 'Вы вышли. До встречи.', true);
+  }
+
+  function extractLinkToken() {
+    var hash = window.location.hash || '';
+    var m = hash.match(/token=([^&]+)/);
+    if (m) return decodeURIComponent(m[1]);
+    var search = window.location.search || '';
+    var s = search.match(/[?&]token=([^&]+)/);
+    return s ? decodeURIComponent(s[1]) : '';
   }
 
   function loadAll() {
@@ -475,9 +512,9 @@
     b.addEventListener('click', function () { switchTab(b.dataset.tab); });
   });
 
-  el('loginBtn').onclick = login;
+  el('loginBtn').onclick = requestLink;
   el('logout').onclick = logout;
-  el('loginPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
+  el('loginEmail').addEventListener('keydown', function (e) { if (e.key === 'Enter') requestLink(); });
   el('save').onclick = save;
   el('collagePhotos').addEventListener('input', renderThumbs);
   el('upload').addEventListener('change', function (event) {
@@ -497,23 +534,22 @@
     }
   });
 
-  // Автовход, если в браузере живая сессия
-  if (session()) {
+  // 1) Если в адресе есть token из письма — сразу меняем его на сессию.
+  var linkToken = extractLinkToken();
+  if (linkToken) {
+    verifyLinkToken(linkToken);
+  } else if (session()) {
+    // 2) Сессия уже есть — входим молча.
     adminApi('content').then(function (body) {
       state.sha = body.sha;
       state.data = body.content;
       fillContent(body.content);
-      el('loginCard').hidden = true;
-      el('editor').hidden = false;
-      el('whoami').textContent = localStorage.getItem('pg-admin-user') || '';
-      loadOrders();
-    }).catch(function () {
-      logout();
-    });
+      enterPanel(localStorage.getItem(USER_KEY) || '');
+    }).catch(function () { logout(); });
   }
-  var savedUser = localStorage.getItem('pg-admin-user');
+  var savedUser = localStorage.getItem(USER_KEY);
   if (savedUser) {
     el('whoami').textContent = savedUser;
-    el('loginUser').value = savedUser;
+    el('loginEmail').value = savedUser;
   }
 })();
