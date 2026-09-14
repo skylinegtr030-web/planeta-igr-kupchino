@@ -38,6 +38,8 @@
       var paragraph = card.querySelector('h3 + p');
       if (paragraph) paragraph.textContent = descriptions[index];
     });
+    var duoParagraph = document.querySelector('#roomDuo h3 + p');
+    if (duoParagraph) duoParagraph.textContent = '«Джунгли» + «Лофт» для большой компании.';
     var note = document.querySelector('#rooms .room-note');
     if (note) note.textContent = 'Аренда банкетной комнаты — 5 000 ₽ / 2 часа · продление одной комнаты — 2 500 ₽ / час · продление двух комнат — 5 000 ₽ / час · безлимит в день праздника — 750 ₽ будни / 1 000 ₽ выходные';
   }
