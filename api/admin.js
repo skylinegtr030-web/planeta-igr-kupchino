@@ -28,8 +28,19 @@ const SESSION_TTL = 30 * 24 * 60 * 60 * 1000; // сессия — 30 дней
 const STATUSES = new Set(['Новая', 'В работе', 'Подтверждена', 'Отклонена']);
 
 function secretKey() {
-  // Секрет для подписи ссылок и сессий. Меняется, если поменять список адресов.
-  return 'pg-admin-v2:' + String(process.env.ADMIN_EMAILS || '') + ':' + String(process.env.GH_TOKEN || '').slice(0, 12);
+  // Секрет для подписи ссылок и сессий. Смена пароля или списка почт завершает все сессии.
+  return ['pg-admin-v3',
+    String(process.env.ADMIN_LOGIN || ''),
+    String(process.env.ADMIN_PASSWORD || ''),
+    String(process.env.ADMIN_EMAILS || ''),
+    String(process.env.GH_TOKEN || '').slice(0, 12)
+  ].join(':');
+}
+function safeEqual(a, b) {
+  var ba = Buffer.from(String(a));
+  var bb = Buffer.from(String(b));
+  if (ba.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ba, bb);
 }
 function sign(kind, payload) {
   return crypto.createHmac('sha256', secretKey() + ':' + kind).update(payload).digest('hex');
@@ -169,6 +180,18 @@ module.exports = async function (req, res) {
     var body = (req.method === 'POST' && typeof req.body === 'string') ? JSON.parse(req.body || '{}') : (req.body || {});
     var action = String((req.query && req.query.action) || body.action || '');
 
+    // ---- вход по логину и паролю ----
+    if (action === 'login') {
+      if (!(process.env.ADMIN_LOGIN && process.env.ADMIN_PASSWORD)) {
+        return jsonRes(res, 500, { status: 'error', error: 'ADMIN_LOGIN и ADMIN_PASSWORD не заданы в переменных окружения Vercel' });
+      }
+      if (!safeEqual(body.user || '', process.env.ADMIN_LOGIN) ||
+          !safeEqual(body.password || '', process.env.ADMIN_PASSWORD)) {
+        return jsonRes(res, 401, { status: 'error', error: 'Неверный логин или пароль' });
+      }
+      return jsonRes(res, 200, { status: 'ok', session: issue('session', { id: process.env.ADMIN_LOGIN, kind: 'password' }, SESSION_TTL) });
+    }
+
     // ---- запрос ссылки на почту ----
     if (action === 'request-link') {
       if (!configured()) return jsonRes(res, 500, { status: 'error', error: 'Не настроены ADMIN_EMAILS, RESEND_API_KEY или GH_TOKEN' });
@@ -188,7 +211,7 @@ module.exports = async function (req, res) {
     if (action === 'verify') {
       var linkData = verify('link', String(body.token || ''));
       if (!linkData || !isAllowed(linkData.e)) return jsonRes(res, 401, { status: 'error', error: 'Ссылка недействительна или устарела' });
-      var sessionToken = issue('session', { e: linkData.e }, SESSION_TTL);
+      var sessionToken = issue('session', { id: linkData.e, kind: 'link' }, SESSION_TTL);
       return jsonRes(res, 200, { status: 'ok', session: sessionToken, email: linkData.e });
     }
 
@@ -196,7 +219,8 @@ module.exports = async function (req, res) {
     if (!configured()) return jsonRes(res, 500, { status: 'error', error: 'сервер не настроен' });
     var auth = req.headers['authorization'] || '';
     var session = verify('session', auth.startsWith('Bearer ') ? auth.slice(7).trim() : '');
-    if (!session || !isAllowed(session.e)) return jsonRes(res, 401, { status: 'error', error: 'auth' });
+    if (!session) return jsonRes(res, 401, { status: 'error', error: 'auth' });
+    if (session.kind === 'link' && !isAllowed(session.id)) return jsonRes(res, 401, { status: 'error', error: 'auth' });
 
     if (req.method === 'GET' && action === 'content') {
       var file = await ghApi('/contents/' + CONTENT_FILE + '?ref=' + BRANCH);
