@@ -62,7 +62,12 @@
   }
 
   function swap() {
-    var free = pool.filter(function (src) { return shown.indexOf(src) === -1; });
+    // Учитываем и уходящие кадры во время затухания, чтобы повтор не мелькал даже на миг.
+    var visible = Array.prototype.map.call(
+      document.querySelectorAll('.collage .collage-slot img'),
+      function (img) { return img.getAttribute('src'); }
+    );
+    var free = pool.filter(function (src) { return visible.indexOf(src) === -1; });
     if (!free.length) return;
     var index = cursor % slots.length;
     cursor++;
