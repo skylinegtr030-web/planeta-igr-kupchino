@@ -14,13 +14,17 @@ document.head.appendChild(siteUiFixes);
 
 document.addEventListener('DOMContentLoaded', function () {
   var logo = document.querySelector('header .logo');
-  if (!logo) return;
-  var link = document.createElement('a');
-  link.className = 'logo';
-  link.href = '#hero';
-  link.setAttribute('aria-label', 'Планета Игр — к началу страницы');
-  link.innerHTML = '<img class="logo-img" src="ff3b350d-00e4-4dfe-83cb-491fb9e1f366.jpeg" alt="Логотип Планета Игр"><span>Планета Игр</span>';
-  logo.replaceWith(link);
+  if (logo) {
+    var link = document.createElement('a');
+    link.className = 'logo';
+    link.href = '#hero';
+    link.setAttribute('aria-label', 'Планета Игр — к началу страницы');
+    link.innerHTML = '<img class="logo-img" src="ff3b350d-00e4-4dfe-83cb-491fb9e1f366.jpeg" alt="Логотип Планета Игр"><span>Планета Игр</span>';
+    logo.replaceWith(link);
+  }
+  var bg = document.createElement('script');
+  bg.src = 'background.js?v=1';
+  document.head.appendChild(bg);
 });
 
 window.addEventListener('load', function () {
