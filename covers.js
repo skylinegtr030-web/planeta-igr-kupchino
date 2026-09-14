@@ -30,8 +30,8 @@
     '.extra-modal-media:after{z-index:1;height:88%;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.92) 55%,#fff 82%)}' +
     '.extra-modal-body{position:relative;z-index:2;margin-top:-46px}' +
     '.extra-modal-body p{color:#111a3b;font-weight:700}' +
-    '.extra-modal-body .tier-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 2px;padding:12px 16px;border-bottom:0;background:#f4f6fb;border:1px solid rgba(17,26,59,.08);border-radius:16px;font-size:.85rem;color:#42506e}' +
-    '.extra-modal-body .tier-price{flex:none;font-size:1.3rem;font-weight:900;color:#e2231a;background:#fff;border-radius:12px;padding:6px 14px;box-shadow:0 6px 16px rgba(226,35,26,.18)}';
+    '.extra-modal-body .tier-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:6px 0 2px;padding:0 0 12px;background:none;border:0;border-bottom:1px solid rgba(17,26,59,.1);border-radius:0;font-size:1rem;font-weight:700;color:#42506e}' +
+    '.extra-modal-body .tier-price{flex:none;background:none;box-shadow:none;padding:0;border-radius:0;font-size:1.15rem;font-weight:900;color:#e2231a;white-space:nowrap}';
   document.head.appendChild(st);
 
   function put(host, src, alt) {
@@ -66,6 +66,12 @@
   var origOpen = window.openExtraModal;
   window.openExtraModal = function (id) {
     if (origOpen) origOpen.apply(this, arguments);
+
+    var row = document.querySelector('#extraModalBody .tier-row');
+    if (row && row.firstElementChild && !row.firstElementChild.textContent.trim()) {
+      row.firstElementChild.textContent = 'Стоимость услуги';
+    }
+
     var ph = PHOTO[id];
     var media = document.getElementById('extraModalMedia');
     if (!ph || !media) return;
