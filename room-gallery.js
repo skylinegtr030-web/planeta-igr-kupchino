@@ -41,7 +41,7 @@
     var duoParagraph = document.querySelector('#roomDuo h3 + p');
     if (duoParagraph) duoParagraph.textContent = '«Джунгли» + «Лофт» для большой компании.';
     var note = document.querySelector('#rooms .room-note');
-    if (note) note.textContent = 'Аренда банкетной комнаты — 5 000 ₽ / 1 час · продление одной комнаты — 2 500 ₽ / час · продление двух комнат — 5 000 ₽ / час';
+    if (note) note.textContent = 'Продление одной комнаты — 2 500 ₽ / час · продление двух комнат — 5 000 ₽ / час';
   }
 
   var attempts = 0;
