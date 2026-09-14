@@ -1,14 +1,19 @@
-/* Grid layout and render safety net for the services block. */
+/* Grid layout, spacing and render safety net for the services block. */
 (function () {
   'use strict';
 
   var style = document.createElement('style');
   style.textContent = [
-    '#extrasGrid.extras{columns:auto!important;column-gap:normal!important;display:grid!important;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;align-items:stretch}',
-    '#extrasGrid .extra-card{break-inside:auto!important;margin-bottom:0!important;display:flex;flex-direction:column;opacity:1!important;visibility:visible!important;transform:none}',
-    '#extrasGrid .extra-card .ec-body{flex:1}',
+    '#extrasGrid.extras{columns:auto!important;column-gap:normal!important;display:grid!important;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:34px 30px;align-items:stretch;margin-top:8px}',
+    '#extrasGrid .extra-card{break-inside:auto!important;margin-bottom:0!important;display:flex;flex-direction:column;opacity:1!important;visibility:visible!important;transform:none;border-radius:20px;overflow:hidden}',
+    '#extrasGrid .extra-card .ec-body{flex:1;padding:20px 22px 24px!important}',
+    '#extrasGrid .extra-card h4{font-size:1.02rem;line-height:1.35;margin:0 0 10px!important}',
+    '#extrasGrid .extra-card .extra-price{font-size:1.28rem;margin-top:0!important;margin-bottom:6px}',
+    '#extrasGrid .extra-card .extra-hint{margin-top:0!important;line-height:1.5}',
     '#extras .section-inner{opacity:1!important;transform:none!important}',
-    '@media(max-width:520px){#extrasGrid.extras{grid-template-columns:1fr}}'
+    '#extras .extras-cta{margin-top:38px}',
+    '@media(max-width:900px){#extrasGrid.extras{gap:28px 22px}}',
+    '@media(max-width:520px){#extrasGrid.extras{grid-template-columns:1fr;gap:22px}}'
   ].join('');
   document.head.appendChild(style);
 
