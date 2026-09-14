@@ -20,7 +20,7 @@
     timeCards: 'generated-image%20(11).jpg'
   };
 
-  var DUO = [
+  var DUO_FALLBACK = [
     [
       'room-jungle-1.jpg',
       'room-jungle-2.jpg',
@@ -34,6 +34,12 @@
       'a1f34b81-2c83-43d4-beb4-c847afdeb72c.jpeg'
     ]
   ];
+  function duoLists() {
+    var photos = (window.PG_CONTENT && window.PG_CONTENT.photos) || {};
+    var left = photos.jungle && photos.jungle.length ? photos.jungle : DUO_FALLBACK[0];
+    var right = photos.loft && photos.loft.length ? photos.loft : DUO_FALLBACK[1];
+    return [left.slice(), right.slice()];
+  }
 
   var st = document.createElement('style');
   st.textContent =
@@ -99,8 +105,9 @@
     if (imgs[0].dataset.piRotate) return;
     imgs[0].dataset.piRotate = '1';
     imgs[1].dataset.piRotate = '1';
-    rotate(imgs[0], DUO[0], 0);
-    rotate(imgs[1], DUO[1], 2500);
+    var duo = duoLists();
+    rotate(imgs[0], duo[0], 0);
+    rotate(imgs[1], duo[1], 2500);
   }
   startDuo();
 

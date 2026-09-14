@@ -172,7 +172,9 @@
       duration += PACKS[packId].duration;
       price += PACKS[packId].price;
     } else if (roomVal) {
-      duration += 120; price += 7000;
+      const rc = (window.PG_CONTENT && window.PG_CONTENT.rooms) || {};
+      duration += 120;
+      price += roomVal === 'duo-room' ? (rc.duoBase || 10000) : (rc.roomBase || 7000);
     }
     extraChecks.forEach(id => { duration += EXTRAS[id].duration; price += EXTRAS[id].price; });
     const promo = (form.promo.value || '').trim().toUpperCase();
@@ -218,7 +220,8 @@
       '@media(max-width:900px){.rm-duo img{height:200px}}';
     document.head.appendChild(css);
 
-    var priceHtml = '7 000 \u20bd<small>за 2 часа \u00b7 любая из двух комнат</small>';
+    var rc = (window.PG_CONTENT && window.PG_CONTENT.rooms) || {};
+    var priceHtml = String(rc.roomBase || 7000).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' \u20bd<small>за 2 часа \u00b7 любая из комнат</small>';
     var singles = rooms.querySelectorAll('.activity');
     Array.prototype.forEach.call(singles, function (row) {
       var link = row.querySelector('a.btn');
@@ -240,11 +243,11 @@
       var text = duo.querySelector('p');
       if (text) text.textContent = 'Забираете «Джунгли» и «Лофт» целиком: в одной комнате накрытый стол, в другой фотозона и активности. Удобно, когда гостей много или взрослые хотят посидеть отдельно от детей.';
       var duoPrice = duo.querySelector('.rm-price');
-      if (duoPrice) duoPrice.innerHTML = '10 000 \u20bd<small>за 2 часа \u00b7 «Джунгли» + «Лофт»</small>';
+      if (duoPrice) duoPrice.innerHTML = String(rc.duoBase || 10000).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' \u20bd<small>за 2 часа \u00b7 «Джунгли» + «Лофт»</small>';
       var duoLink = duo.querySelector('a.btn');
       if (duoLink) {
         duoLink.textContent = 'Забронировать две комнаты';
-        duoLink.setAttribute('onclick', 'openOrder()');
+        duoLink.setAttribute('onclick', "openOrder(null,'duo-room')");
       }
       var oldImg = duo.querySelector('img');
       if (oldImg) {
@@ -260,6 +263,21 @@
 
     note.textContent = 'Продление — 3 500 \u20bd за каждый следующий час';
   }
+  // Обновление цен комнат при поступлении данных из панели
+  function refreshRoomPrices() {
+    var rc = (window.PG_CONTENT && window.PG_CONTENT.rooms) || {};
+    function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+    var single = rc.roomBase || 7000;
+    var duoP = rc.duoBase || 10000;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#rooms .activity:not(#roomDuo) .rm-price'),
+      function (el) { el.innerHTML = fmt(single) + ' \u20bd<small>за 2 часа \u00b7 любая из комнат</small>'; }
+    );
+    var dp = document.querySelector('#roomDuo .rm-price');
+    if (dp) dp.innerHTML = fmt(duoP) + ' \u20bd<small>за 2 часа \u00b7 «Джунгли» + «Лофт»</small>';
+  }
+  window.addEventListener('pg:content', refreshRoomPrices);
+
   if (typeof renderExtras === 'function') renderExtras();
   if (typeof renderOrderOptions === 'function') renderOrderOptions();
   if (typeof recalc === 'function') recalc();

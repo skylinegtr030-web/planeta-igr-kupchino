@@ -14,7 +14,9 @@
   },
   "rooms": {
     "extendOne": 2500,
-    "extendTwo": 5000
+    "extendTwo": 5000,
+    "roomBase": 7000,
+    "duoBase": 10000
   },
   "packs": {
     "malysh": {

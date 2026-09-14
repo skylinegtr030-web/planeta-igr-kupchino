@@ -16,7 +16,8 @@ const CATALOG = {
   },
   rooms: {
     'jungle-room': { name: 'Банкетная комната «Джунгли»' },
-    'loft-room':   { name: 'Банкетная комната «Лофт»' }
+    'loft-room':   { name: 'Банкетная комната «Лофт»' },
+    'duo-room':    { name: '«Джунгли» + «Лофт» — две комнаты сразу' }
   },
   extras: {
     animator:               { name: 'Анимационная программа',                duration: 60 },
@@ -108,8 +109,10 @@ function validate(raw) {
   // Время в часы работы
   let duration = 0;
   const p = CATALOG.packs[d.pack];
-  if (p && !errors.pack) duration = p.duration;
-  else if (d.room && !errors.room) duration = 120;
+  let price = 0;
+  if (p && !errors.pack) { duration = p.duration; price = 0; }
+  else if (d.room && !errors.room) { duration = 120; price = d.room === 'duo-room' ? 10000 : 7000; }
+  else price = 0;
   if (!errors.extra) d.extra.forEach(id => { duration += CATALOG.extras[id].duration; });
   const start = /^\d{2}:\d{2}$/.test(d.eventTime) ? d.eventTime.split(':').map(Number) : [];
   const minutes = start.length ? start[0] * 60 + start[1] : NaN;
