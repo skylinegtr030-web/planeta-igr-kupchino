@@ -14,7 +14,7 @@
   },
   "rooms": {
     "roomBase": 7000,
-    "duoBase": 12000,
+    "duoBase": 10000,
     "extendOne": 2500,
     "extendTwo": 5000
   },
