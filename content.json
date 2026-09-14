@@ -1,53 +1,53 @@
 {
   "version": 2,
   "contacts": {
-    "addressShort": "ТЕСТОВАЯ пл., 17",
-    "addressFull": "Тестовая улица, 17",
-    "phone": "+7 999 000-00-00",
-    "hours": "11:00–21:00"
+    "addressShort": "Балканская пл., 17",
+    "addressFull": "Балканская площадь, 17",
+    "phone": "+7 981 818-01-34",
+    "hours": "10:00–22:00"
   },
   "tiers": {
-    "timeCards30": 1390,
-    "timeCards60": 2290,
-    "unlimitedWeekday": 1600,
-    "unlimitedWeekend": 1900
+    "timeCards30": 1290,
+    "timeCards60": 2190,
+    "unlimitedWeekday": 1500,
+    "unlimitedWeekend": 1800
   },
   "rooms": {
-    "extendOne": 2600,
-    "extendTwo": 5100
+    "extendOne": 2500,
+    "extendTwo": 5000
   },
   "packs": {
     "malysh": {
-      "weekday": 25000,
-      "weekend": 28000
+      "weekday": 24000,
+      "weekend": 27000
     },
     "jungle": {
-      "weekday": 38900,
-      "weekend": 42900
+      "weekday": 37900,
+      "weekend": 41900
     },
     "king": {
-      "weekday": 85100,
-      "weekend": 89100
+      "weekday": 84100,
+      "weekend": 88100
     },
     "cyber": {
-      "weekday": 46900,
-      "weekend": 46900
+      "weekday": 45900,
+      "weekend": 45900
     }
   },
   "extras": {
-    "animator": 7600,
-    "quest": 8600,
-    "masterclass": 10100,
-    "sciShow": 12100,
-    "bubbles": 9100,
-    "pinata": 4100,
-    "qzar": 17100,
-    "lavaFloor": 2600,
-    "invite": 600,
-    "tables": 1100,
-    "balloonFountain": 2700,
-    "surpriseBalloon": 2600,
-    "serving": 1100
+    "animator": 7500,
+    "quest": 8500,
+    "masterclass": 10000,
+    "sciShow": 12000,
+    "bubbles": 9000,
+    "pinata": 4000,
+    "qzar": 17000,
+    "lavaFloor": 2500,
+    "invite": 500,
+    "tables": 1000,
+    "balloonFountain": 2600,
+    "surpriseBalloon": 2500,
+    "serving": 1000
   },
   "photos": {
     "collage": [
