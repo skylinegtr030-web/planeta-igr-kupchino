@@ -131,11 +131,17 @@ async function listMonth(month) {
   return results.filter(Boolean);
 }
 function recentMonths(count) {
+  // Заявки хранятся в папке месяца проведения праздника, поэтому смотрим
+  // и назад (count месяцев), и вперёд (12 месяцев — праздник бронируют заранее).
   var now = new Date();
   var out = [];
   for (var i = 0; i < count; i++) {
     var d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
     out.push(d.toISOString().slice(0, 7));
+  }
+  for (var j = 1; j <= 12; j++) {
+    var f = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + j, 1));
+    out.push(f.toISOString().slice(0, 7));
   }
   return out;
 }
