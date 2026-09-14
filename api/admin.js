@@ -224,7 +224,7 @@ module.exports = async function (req, res) {
     }
 
     // ---- всё остальное требует сессию ----
-    if (!configured()) return jsonRes(res, 500, { status: 'error', error: 'сервер не настроен' });
+    if (!process.env.GH_TOKEN) return jsonRes(res, 500, { status: 'error', error: 'GH_TOKEN не задан в переменных окружения Vercel' });
     var auth = req.headers['authorization'] || '';
     var session = verify('session', auth.startsWith('Bearer ') ? auth.slice(7).trim() : '');
     if (!session) return jsonRes(res, 401, { status: 'error', error: 'auth' });
