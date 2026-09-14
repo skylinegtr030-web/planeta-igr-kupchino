@@ -21,8 +21,18 @@
   };
 
   var DUO = [
-    ['room-jungle-1.jpg', 'room-jungle-2.jpg'],
-    ['room-loft-1.jpg', 'room-loft-2.jpg']
+    [
+      'room-jungle-1.jpg',
+      'room-jungle-2.jpg',
+      'f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg',
+      'fe0f8752-696e-4f60-9c88-fcea23ef4103.jpeg'
+    ],
+    [
+      'room-loft-1.jpg',
+      'room-loft-2.jpg',
+      '9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg',
+      'a1f34b81-2c83-43d4-beb4-c847afdeb72c.jpeg'
+    ]
   ];
 
   var st = document.createElement('style');
