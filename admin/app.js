@@ -421,6 +421,9 @@
           .then(function (body) { uploaded.push(body.name || name); next(); })
           .catch(function (err) { setStatus(el('uploadStatus'), 'Файл ' + name + ': ' + err.message, false); });
       };
+      reader.onerror = function () {
+        setStatus(el('uploadStatus'), 'Не удалось прочитать файл ' + name + '. Попробуйте ещё раз.', false);
+      };
       reader.readAsDataURL(file);
     }
     next();
@@ -444,8 +447,10 @@
   el('save').onclick = save;
   el('collagePhotos').addEventListener('input', renderThumbs);
   el('upload').addEventListener('change', function (event) {
-    if (event.target.files && event.target.files.length) uploadFiles(event.target.files);
+    var picked = event.target.files && event.target.files.length
+      ? Array.prototype.slice.call(event.target.files) : [];
     event.target.value = '';
+    if (picked.length) uploadFiles(picked);
   });
   el('ordersRefresh').addEventListener('click', loadOrders);
   el('ordersExport').addEventListener('click', exportCsv);
