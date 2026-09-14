@@ -57,7 +57,9 @@
   }
   start();
 
-  var game = document.createElement('script');
-  game.src = 'balloon-game.js?v=1';
-  document.head.appendChild(game);
+  ['balloon-game.js?v=1', 'party-art.js?v=1'].forEach(function (src) {
+    var script = document.createElement('script');
+    script.src = src;
+    document.head.appendChild(script);
+  });
 })();
