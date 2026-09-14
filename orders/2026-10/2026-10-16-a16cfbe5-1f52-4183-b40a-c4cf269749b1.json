@@ -1,0 +1,26 @@
+{
+  "requestId": "a16cfbe5-1f52-4183-b40a-c4cf269749b1",
+  "createdAt": "2026-09-14T14:54:31.301Z",
+  "status": "Новая",
+  "fio": "Тестов Тест",
+  "phone": "+79991112233",
+  "childName": "Маша",
+  "childBday": "2019-03-03",
+  "eventDate": "2026-10-16",
+  "eventTime": "15:00",
+  "pack": "king",
+  "packName": "Король саванны",
+  "room": "",
+  "roomName": "",
+  "extra": [
+    "masterclass"
+  ],
+  "extraNames": [
+    "Мастер-класс"
+  ],
+  "durationText": "3 ч 40 мин",
+  "endTimeText": "18:40",
+  "priceText": "94 100 ₽",
+  "promo": "",
+  "comment": "Проверка формы после переезда, заказ не оформлять"
+}
