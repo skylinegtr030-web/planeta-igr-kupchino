@@ -1,7 +1,7 @@
 {
   "requestId": "246c9ba7-ac4f-421d-a7df-5e1f8ab3a167",
   "createdAt": "2026-09-14T19:14:26.597Z",
-  "status": "Подтверждена",
+  "status": "Новая",
   "fio": "Михаил Щапо",
   "phone": "+79219126498",
   "childName": "Тимофей",
@@ -23,5 +23,5 @@
   "priceText": "33 000 ₽",
   "promo": "",
   "comment": "",
-  "updatedAt": "2026-09-14T20:46:04.588Z"
+  "updatedAt": "2026-09-14T20:46:14.417Z"
 }
