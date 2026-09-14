@@ -57,7 +57,7 @@
   }
   start();
 
-  ['balloon-game.js?v=1', 'party-art.js?v=1', 'reviews-rotator.js?v=2'].forEach(function (src) {
+  ['balloon-game.js?v=1', 'party-art.js?v=1', 'reviews-rotator.js?v=2', 'copy-polish.js?v=1'].forEach(function (src) {
     var script = document.createElement('script');
     script.src = src;
     document.head.appendChild(script);
