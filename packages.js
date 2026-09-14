@@ -98,7 +98,7 @@
     var items = d.items.map(function (x) { return '<li class="' + (/подарок/i.test(x) ? 'pk-gift' : '') + '">' + x + '</li>'; }).join('');
     return '<div class="pack" data-theme="' + d.theme + '" onclick="openOrder(\'' + id + '\')">' +
       '<div class="pk-head"><span class="pk-mark">' + d.mark + '</span><h3>' + d.name + '</h3><div class="pk-guests">' + d.guests + '</div><div class="pk-prices">' + prices + '</div></div>' +
-      '<div class="pk-body"><ul class="pk-list">' + items + '</ul><div class="pk-cta">Выбрать пакет →</div></div></div>';
+      '<div class="pk-body"><ul class="pk-list">' + items + '</ul><div class="pk-cta">Добавить в корзину →</div></div></div>';
   }
 
   function renderGrid() {

@@ -225,7 +225,7 @@
     }
 
     html += '<a href="javascript:void(0)" class="btn btn-primary" style="width:100%;margin-top:16px;text-align:center" ' +
-      'onclick="closeExtraModal();openOrder(null,null,\'' + id + '\')">Добавить в заявку</a>';
+      'onclick="closeExtraModal();openOrder(null,null,\'' + id + '\')">Добавить в корзину</a>';
 
     var body = document.getElementById('extraModalBody');
     body.innerHTML = html;

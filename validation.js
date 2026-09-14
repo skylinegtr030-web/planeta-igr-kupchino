@@ -246,7 +246,7 @@
       if (duoPrice) duoPrice.innerHTML = String(rc.duoBase || 10000).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' \u20bd<small>за 2 часа \u00b7 «Джунгли» + «Лофт»</small>';
       var duoLink = duo.querySelector('a.btn');
       if (duoLink) {
-        duoLink.textContent = 'Забронировать две комнаты';
+        duoLink.textContent = 'Добавить в корзину';
         duoLink.setAttribute('onclick', "openOrder(null,'duo-room')");
       }
       var oldImg = duo.querySelector('img');

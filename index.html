@@ -390,7 +390,7 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
         <span class="badge green">Банкетная комната</span>
         <h3 style="font-size:1.8rem;margin-bottom:12px;">«Джунгли»</h3>
         <p style="font-weight:600;color:#42506e;margin-bottom:16px;">Зелёная комната с настенными джунглями — жираф, зебра, слон и обезьянки среди листвы, живые нотки декора и неоновая надпись «С Днём Рождения». Уютно и атмосферно для компании до 20 человек.</p>
-        <a href="javascript:void(0)" class="btn btn-primary btn-sm" onclick="openOrder(null,'jungle-room')">Забронировать «Джунгли»</a>
+        <a href="javascript:void(0)" class="btn btn-primary btn-sm" onclick="openOrder(null,'jungle-room')">Добавить в корзину</a>
       </div>
       <img loading="lazy" decoding="async" src="room-jungle-2.jpg" alt="Банкетная комната Джунгли">
     </div>
@@ -401,7 +401,7 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
         <span class="badge red">Банкетная комната</span>
         <h3 style="font-size:1.8rem;margin-bottom:12px;">«Лофт»</h3>
         <p style="font-weight:600;color:#42506e;margin-bottom:16px;">Стильная чёрно-золотая комната в индустриальном стиле — белый кирпич, деревянные панели, светящаяся звезда и гирлянда лампочек. Отличный выбор для эффектных фото и взрослой компании.</p>
-        <a href="javascript:void(0)" class="btn btn-primary btn-sm" onclick="openOrder(null,'loft-room')">Забронировать «Лофт»</a>
+        <a href="javascript:void(0)" class="btn btn-primary btn-sm" onclick="openOrder(null,'loft-room')">Добавить в корзину</a>
       </div>
       <img loading="lazy" decoding="async" src="room-loft-1.jpg" alt="Банкетная комната Лофт">
     </div>
@@ -885,7 +885,9 @@ function renderOrderOptions(){
   roomBox.innerHTML='<label class="order-opt"><input type="radio" name="room" value="" checked> <span class="oo-name">Не выбрано / определим по пакету</span></label>';
   Object.keys(ROOMS).forEach(id=>{
     const r=ROOMS[id];
-    roomBox.innerHTML+=`<label class="order-opt"><input type="radio" name="room" value="${id}" onchange="recalc()"> <span class="oo-name">${r.name}</span></label>`;
+    const rc=(window.PG_CONTENT&&window.PG_CONTENT.rooms)||{};
+    const roomPrice=id==='duo-room'?(rc.duoBase||10000):(rc.roomBase||7000);
+    roomBox.innerHTML+=`<label class="order-opt"><input type="radio" name="room" value="${id}" onchange="recalc()"> <span class="oo-name">${r.name}</span><span class="oo-meta">${roomPrice.toLocaleString('ru-RU')} ₽ · 2 ч</span></label>`;
   });
 
   const exBox=document.getElementById('extraCheckOptions');
@@ -1015,7 +1017,8 @@ function usePromoInOrder(){
 }
 </script>
 <script src="order-rules.js?v=2"></script>
-<script src="validation.js?v=3"></script>
+<script src="validation.js?v=4"></script>
+<script src="cart.js?v=1"></script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ChildrensEntertainment","name":"Планета Игр — Купчино","telephone":"+79818180134","address":{"@type":"PostalAddress","streetAddress":"Балканская площадь, 5, ТРК «Балкания Nova»","addressLocality":"Санкт-Петербург","addressCountry":"RU"},"openingHours":"Mo-Su 10:00-22:00","url":"https://planeta-igr-kupchino.vercel.app/"}
 </script>

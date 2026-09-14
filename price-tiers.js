@@ -171,7 +171,7 @@
       var button = document.createElement('button');
       button.type = 'button';
       button.className = 'pg-tier-btn';
-      button.textContent = 'Добавить в заявку';
+      button.textContent = 'Добавить в корзину';
       button.onclick = function () {
         if (typeof window.closeExtraModal === 'function') window.closeExtraModal();
         if (typeof window.openOrder === 'function') window.openOrder(null, null, tier.id);

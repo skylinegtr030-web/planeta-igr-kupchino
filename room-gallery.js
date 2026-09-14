@@ -95,7 +95,7 @@
     }
   });
 
-  ['content-apply.js?v=1', 'balloon-game.js?v=1', 'party-art.js?v=2', 'reviews-rotator.js?v=2', 'copy-polish.js?v=1', 'pack-readability.js?v=1', 'extras-fix.js?v=2', 'price-tiers.js?v=4', 'address-fix.js?v=2', 'collage-unique.js?v=2'].forEach(function (src) {
+  ['content-apply.js?v=1', 'balloon-game.js?v=1', 'party-art.js?v=2', 'reviews-rotator.js?v=2', 'copy-polish.js?v=1', 'pack-readability.js?v=1', 'extras-fix.js?v=2', 'price-tiers.js?v=5', 'address-fix.js?v=2', 'collage-unique.js?v=2'].forEach(function (src) {
     var script = document.createElement('script');
     script.src = src;
     document.head.appendChild(script);
