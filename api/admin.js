@@ -28,13 +28,19 @@ const SESSION_TTL = 30 * 24 * 60 * 60 * 1000; // сессия — 30 дней
 const STATUSES = new Set(['Новая', 'В работе', 'Подтверждена', 'Отклонена']);
 
 function secretKey() {
-  // Секрет для подписи ссылок и сессий. Смена пароля или списка почт завершает все сессии.
-  return ['pg-admin-v3',
-    String(process.env.ADMIN_LOGIN || ''),
-    String(process.env.ADMIN_PASSWORD || ''),
-    String(process.env.ADMIN_EMAILS || ''),
-    String(process.env.GH_TOKEN || '').slice(0, 12)
-  ].join(':');
+  // Секрет для подписи сессий. Живёт, пока не сменят GH_TOKEN в Vercel.
+  return 'pg-admin-v4:' + String(process.env.GH_TOKEN || '').slice(0, 12);
+}
+
+// Пароль админки хранится в репозитории: admin/auth.json (salt + sha256).
+// Меняется коммитом — без настройки Vercel.
+async function loadAuthFile() {
+  var file = await ghApi('/contents/admin/auth.json?ref=' + BRANCH);
+  if (file.__missing) return null;
+  try { return JSON.parse(decodeBase64(file.content)); } catch (e) { return null; }
+}
+function hashPassword(salt, password) {
+  return crypto.createHash('sha256').update(String(salt) + ':' + String(password)).digest('hex');
 }
 function safeEqual(a, b) {
   var ba = Buffer.from(String(a));
@@ -180,16 +186,18 @@ module.exports = async function (req, res) {
     var body = (req.method === 'POST' && typeof req.body === 'string') ? JSON.parse(req.body || '{}') : (req.body || {});
     var action = String((req.query && req.query.action) || body.action || '');
 
-    // ---- вход по логину и паролю ----
+    // ---- вход по логину и паролю (admin/auth.json) ----
     if (action === 'login') {
-      if (!(process.env.ADMIN_LOGIN && process.env.ADMIN_PASSWORD)) {
-        return jsonRes(res, 500, { status: 'error', error: 'ADMIN_LOGIN и ADMIN_PASSWORD не заданы в переменных окружения Vercel' });
+      var auth = await loadAuthFile();
+      if (!auth || !auth.salt || !auth.hash) {
+        return jsonRes(res, 500, { status: 'error', error: 'admin/auth.json не найден в репозитории' });
       }
-      if (!safeEqual(body.user || '', process.env.ADMIN_LOGIN) ||
-          !safeEqual(body.password || '', process.env.ADMIN_PASSWORD)) {
+      var givenHash = hashPassword(auth.salt, String(body.password || ''));
+      if (!safeEqual(String(body.user || ''), String(auth.login || '')) ||
+          !safeEqual(givenHash, String(auth.hash || ''))) {
         return jsonRes(res, 401, { status: 'error', error: 'Неверный логин или пароль' });
       }
-      return jsonRes(res, 200, { status: 'ok', session: issue('session', { id: process.env.ADMIN_LOGIN, kind: 'password' }, SESSION_TTL) });
+      return jsonRes(res, 200, { status: 'ok', session: issue('session', { id: auth.login, kind: 'password' }, SESSION_TTL) });
     }
 
     // ---- запрос ссылки на почту ----
