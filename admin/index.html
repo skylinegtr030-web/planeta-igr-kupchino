@@ -61,6 +61,8 @@ button:disabled{opacity:.5;cursor:default}
 .breakdown-row:last-child{border-bottom:0}
 .breakdown-row b{color:#111a3b}
 .empty{color:#8a93ab;font-weight:700;padding:20px;text-align:center;background:#f4f6fb;border-radius:12px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.who{color:#6b7690;font-weight:800;font-size:.85rem}
 </style>
 </head>
 <body>
@@ -68,23 +70,30 @@ button:disabled{opacity:.5;cursor:default}
 <h1>Панель управления</h1>
 <p class="lead">Заявки, цены, адрес и фотографии сайта.</p>
 
-<div class="card">
-<h2>Доступ</h2>
-<label for="token">GitHub-токен с правом записи</label>
-<input id="token" type="password" autocomplete="off" placeholder="github_pat_...">
-<div class="actions">
-<button id="load" class="primary">Войти</button>
-<button id="forget" class="ghost">Забыть токен</button>
+<div class="card" id="loginCard">
+<h2>Вход</h2>
+<div class="row">
+<div><label for="loginUser">Логин</label><input id="loginUser" type="text" autocomplete="username"></div>
+<div><label for="loginPass">Пароль</label><input id="loginPass" type="password" autocomplete="current-password"></div>
 </div>
-<p class="hint">Токен хранится только в этом браузере. Он даёт доступ к репозиторию сайта и списку заявок.</p>
+<div class="actions">
+<button id="loginBtn" class="primary">Войти</button>
+</div>
 <p id="authStatus" class="status"></p>
+<p class="hint">Логин и пароль задаются в переменных окружения Vercel: ADMIN_LOGIN и ADMIN_PASSWORD.</p>
 </div>
 
 <div id="editor" hidden>
+<div class="topbar">
 <div class="tabs">
 <button data-tab="orders" class="active">Заявки</button>
 <button data-tab="stats">Статистика</button>
 <button data-tab="content">Цены и контент</button>
+</div>
+<div style="display:flex;gap:8px;align-items:center">
+<span class="who" id="whoami"></span>
+<button id="logout" class="ghost">Выйти</button>
+</div>
 </div>
 
 <!-- ЗАЯВКИ -->

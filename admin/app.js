@@ -1,12 +1,9 @@
-/* Планета Игр — админ-панель. Заявки, статистика и контент. */
+/* Планета Игр — админ-панель. Вход по логину и паролю (проверка на сервере),
+   заявки, статистика и контент. GitHub-токен в браузере не хранится. */
 (function () {
   'use strict';
 
-  var OWNER = 'skylinegtr030-web';
-  var REPO = 'planeta-igr-kupchino';
-  var BRANCH = 'main';
-  var FILE = 'content.json';
-  var KEY = 'pg-admin-token';
+  var KEY = 'pg-admin-session';
 
   var TIERS = [
     ['timeCards30', 'Тайм-карта 30 минут'],
@@ -46,58 +43,76 @@
     node.textContent = message;
     node.className = 'status ' + (ok === undefined ? '' : (ok ? 'ok' : 'err'));
   }
-  function token() { return el('token').value.trim(); }
+  function session() { return localStorage.getItem(KEY) || ''; }
 
-  function ghApi(path, options) {
+  function adminApi(action, options) {
     options = options || {};
-    var headers = {
-      Authorization: 'Bearer ' + token(),
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    };
-    if (options.body) headers['Content-Type'] = 'application/json';
-    return fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + path, {
-      method: options.method || 'GET',
-      headers: headers,
-      body: options.body ? JSON.stringify(options.body) : undefined
-    }).then(function (response) {
-      return response.text().then(function (text) {
-        var body = text ? JSON.parse(text) : {};
-        if (!response.ok) throw new Error(body.message || ('HTTP ' + response.status));
-        return body;
-      });
+    var headers = { 'Content-Type': 'application/json' };
+    if (session()) headers['Authorization'] = 'Bearer ' + session();
+    var qs = 'action=' + encodeURIComponent(action);
+    if (options.params) Object.keys(options.params).forEach(function (k) {
+      qs += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(options.params[k]);
     });
-  }
-
-  function apiOrders(path, options) {
-    options = options || {};
-    var headers = { Authorization: 'Bearer ' + token() };
-    if (options.body) headers['Content-Type'] = 'application/json';
-    return fetch(path, {
+    return fetch('/api/admin?' + qs, {
       method: options.method || 'GET',
       headers: headers,
       body: options.body ? JSON.stringify(options.body) : undefined
     }).then(function (response) {
       return response.text().then(function (text) {
         var body = text ? JSON.parse(text) : {};
+        if (response.status === 401 && body.error === 'auth') {
+          localStorage.removeItem(KEY);
+          throw new Error('Сессия истекла — войдите заново');
+        }
         if (!response.ok) throw new Error(body.error || ('HTTP ' + response.status));
         return body;
       });
     });
   }
 
-  function decode(base64) {
-    var clean = base64.replace(/\n/g, '');
-    var binary = atob(clean);
-    var bytes = new Uint8Array(binary.length);
-    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    return new TextDecoder('utf-8').decode(bytes);
+  // ---------- Вход ----------
+  function login() {
+    var user = el('loginUser').value.trim();
+    var pass = el('loginPass').value;
+    if (!user || !pass) { setStatus(el('authStatus'), 'Введите логин и пароль.', false); return; }
+    el('loginBtn').disabled = true;
+    setStatus(el('authStatus'), 'Проверяю…');
+    fetch('/api/admin?action=login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', user: user, password: pass })
+    }).then(function (response) {
+      return response.json().then(function (body) {
+        if (!response.ok) throw new Error(body.error === 'Неверный логин или пароль' ? 'Неверный логин или пароль' : (body.error || 'Ошибка входа'));
+        return body;
+      });
+    }).then(function (body) {
+      localStorage.setItem(KEY, body.token);
+      localStorage.setItem('pg-admin-user', user);
+      el('loginPass').value = '';
+      el('whoami').textContent = user;
+      el('loginCard').hidden = true;
+      el('editor').hidden = false;
+      setStatus(el('authStatus'), '');
+      loadAll();
+    }).catch(function (err) {
+      setStatus(el('authStatus'), err.message, false);
+    }).then(function () { el('loginBtn').disabled = false; });
   }
-  function encode(text) {
-    var bytes = new TextEncoder().encode(text);
-    var binary = '';
-    bytes.forEach(function (b) { binary += String.fromCharCode(b); });
-    return btoa(binary);
+
+  function logout() {
+    localStorage.removeItem(KEY);
+    el('editor').hidden = true;
+    el('loginCard').hidden = false;
+    setStatus(el('authStatus'), 'Вы вышли. До встречи.', true);
+  }
+
+  function loadAll() {
+    return Promise.all([loadContent(), loadOrders()])
+      .then(function () { setStatus(el('ordersStatus'), 'Готово.', true); })
+      .catch(function (err) {
+        setStatus(el('ordersStatus'), 'Не получилось: ' + err.message, false);
+      });
   }
 
   // ---------- Контент ----------
@@ -224,6 +239,13 @@
       }
     };
   }
+  function loadContent() {
+    return adminApi('content').then(function (body) {
+      state.sha = body.sha;
+      state.data = body.content;
+      fillContent(body.content);
+    });
+  }
 
   // ---------- Заявки ----------
   var STATUS_CLASSES = { 'Новая': 'st-new', 'В работе': 'st-work', 'Подтверждена': 'st-ok', 'Отклонена': 'st-cancel' };
@@ -292,7 +314,7 @@
   function loadOrders() {
     setStatus(el('ordersStatus'), 'Загружаю заявки…');
     var months = el('filterMonths').value;
-    return apiOrders('/api/orders?months=' + encodeURIComponent(months))
+    return adminApi('orders', { params: { months: months } })
       .then(function (body) {
         state.orders = body.orders || [];
         renderOrders();
@@ -306,7 +328,7 @@
 
   function changeStatus(path, status) {
     setStatus(el('ordersStatus'), 'Обновляю статус…');
-    return apiOrders('/api/orders', { method: 'PATCH', body: { path: path, status: status } })
+    return adminApi('status', { method: 'POST', body: { action: 'status', path: path, status: status } })
       .then(function () {
         var idx = state.orders.findIndex(function (o) { return o.__path === path; });
         if (idx !== -1) { state.orders[idx].status = status; state.orders[idx].updatedAt = new Date().toISOString(); }
@@ -392,49 +414,19 @@
     return entries.map(function (e) { return '<div class="breakdown-row"><span>' + escape(e[0]) + '</span><b>' + e[1] + '</b></div>'; }).join('');
   }
 
-  // ---------- Загрузка данных ----------
-  function loadContent() {
-    return ghApi('/contents/' + FILE + '?ref=' + BRANCH)
-      .then(function (body) {
-        state.sha = body.sha;
-        state.data = JSON.parse(decode(body.content));
-        fillContent(state.data);
-      });
-  }
-
-  function login() {
-    if (!token()) { setStatus(el('authStatus'), 'Вставьте токен.', false); return; }
-    localStorage.setItem(KEY, token());
-    setStatus(el('authStatus'), 'Проверяю доступ…');
-    Promise.all([loadContent(), loadOrders()])
-      .then(function () {
-        el('editor').hidden = false;
-        setStatus(el('authStatus'), 'Данные загружены.', true);
-      })
-      .catch(function (err) {
-        setStatus(el('authStatus'), 'Не получилось: ' + err.message, false);
-      });
-  }
-
+  // ---------- Сохранение контента ----------
   function save() {
     var data = collectContent();
     if (data.photos.collage.length < 5) { setStatus(el('saveStatus'), 'В коллаже нужно минимум 5 фотографий.', false); return; }
     el('save').disabled = true;
     setStatus(el('saveStatus'), 'Сохраняю…');
-    ghApi('/contents/' + FILE, {
-      method: 'PUT',
-      body: {
-        message: 'content: обновление через панель',
-        content: encode(JSON.stringify(data, null, 2) + '\n'),
-        sha: state.sha,
-        branch: BRANCH
-      }
-    })
-      .then(function (body) {
-        state.sha = body.content.sha;
+    adminApi('save', { method: 'POST', body: { action: 'save', data: data, sha: state.sha } })
+      .then(function () {
         state.data = data;
         setStatus(el('saveStatus'), 'Сохранено. Сайт обновится через 1–2 минуты.', true);
+        return adminApi('content');
       })
+      .then(function (body) { state.sha = body.sha; })
       .catch(function (err) {
         setStatus(el('saveStatus'), 'Ошибка: ' + err.message, false);
       })
@@ -461,10 +453,8 @@
       var reader = new FileReader();
       reader.onload = function () {
         var base64 = String(reader.result).split(',')[1];
-        ghApi('/contents/' + encodeURIComponent(name), {
-          method: 'PUT',
-          body: { message: 'media: ' + name, content: base64, branch: BRANCH }
-        }).then(function () { uploaded.push(name); next(); })
+        adminApi('upload', { method: 'POST', body: { action: 'upload', name: name, content: base64 } })
+          .then(function (body) { uploaded.push(body.name || name); next(); })
           .catch(function (err) { setStatus(el('uploadStatus'), 'Файл ' + name + ': ' + err.message, false); });
       };
       reader.readAsDataURL(file);
@@ -485,14 +475,10 @@
     b.addEventListener('click', function () { switchTab(b.dataset.tab); });
   });
 
-  el('load').onclick = login;
+  el('loginBtn').onclick = login;
+  el('logout').onclick = logout;
+  el('loginPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
   el('save').onclick = save;
-  el('forget').onclick = function () {
-    localStorage.removeItem(KEY);
-    el('token').value = '';
-    el('editor').hidden = true;
-    setStatus(el('authStatus'), 'Токен удалён из браузера.', true);
-  };
   el('collagePhotos').addEventListener('input', renderThumbs);
   el('upload').addEventListener('change', function (event) {
     if (event.target.files && event.target.files.length) uploadFiles(event.target.files);
@@ -511,6 +497,23 @@
     }
   });
 
-  var saved = localStorage.getItem(KEY);
-  if (saved) { el('token').value = saved; login(); }
+  // Автовход, если в браузере живая сессия
+  if (session()) {
+    adminApi('content').then(function (body) {
+      state.sha = body.sha;
+      state.data = body.content;
+      fillContent(body.content);
+      el('loginCard').hidden = true;
+      el('editor').hidden = false;
+      el('whoami').textContent = localStorage.getItem('pg-admin-user') || '';
+      loadOrders();
+    }).catch(function () {
+      logout();
+    });
+  }
+  var savedUser = localStorage.getItem('pg-admin-user');
+  if (savedUser) {
+    el('whoami').textContent = savedUser;
+    el('loginUser').value = savedUser;
+  }
 })();
