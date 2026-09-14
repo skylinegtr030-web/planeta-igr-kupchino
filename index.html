@@ -874,6 +874,11 @@ function closeExtraModal(){document.getElementById('extraModal').classList.remov
 
 /* ===== Order form render & logic ===== */
 function renderOrderOptions(){
+  // запоминаем текущий выбор — перерисовка не должна его сбрасывать
+  const form0=document.getElementById('orderForm');
+  const prevPack=form0.querySelector('input[name="pack"]:checked')?.value||'';
+  const prevRoom=form0.querySelector('input[name="room"]:checked')?.value||'';
+  const prevExtras=[...form0.querySelectorAll('input[name="extra"]:checked')].map(c=>c.value);
   const packBox=document.getElementById('packOptions');
   packBox.innerHTML='<label class="order-opt"><input type="radio" name="pack" value=""> <span class="oo-name">Без пакета (только комната / услуги)</span></label>';
   Object.keys(PACKS).forEach(id=>{
@@ -897,6 +902,11 @@ function renderOrderOptions(){
     const priceLabel=(ex.priceFrom?'от ':'')+ex.price.toLocaleString('ru-RU')+' ₽';
     exBox.innerHTML+=`<label class="order-opt"><input type="checkbox" name="extra" value="${id}" onchange="recalc()"> <span class="oo-name">${ex.name}</span><span class="oo-meta">${priceLabel} · ~${ex.duration} мин</span></label>`;
   });
+
+  // восстанавливаем выбор
+  if(prevPack){const p=form0.querySelector(`input[name="pack"][value="${prevPack}"]`);if(p)p.checked=true;}
+  if(prevRoom){const r=form0.querySelector(`input[name="room"][value="${prevRoom}"]`);if(r)r.checked=true;}
+  prevExtras.forEach(id=>{const c=form0.querySelector(`input[name="extra"][value="${id}"]`);if(c)c.checked=true;});
 }
 renderOrderOptions();
 
