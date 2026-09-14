@@ -1,14 +1,56 @@
-/* Time-card tiers: artwork plus 30/60 minute picker inside the service modal. */
+/* Tiered services: time cards and the unlimited entry ticket. */
 (function () {
   'use strict';
 
-  var NOTE = 'Между играми нужно выждать 50 секунд.';
-  var MAIN_NAME = 'Тайм-карты на автоматы';
-  var HIDDEN_NAME = 'Тайм-карта 60 минут';
   var ART = 'time-cards.svg?v=1';
-  var TIERS = [
-    { id: 'timeCards', label: '30 минут', price: 1290 },
-    { id: 'timeCards60', label: '60 минут', price: 2190 }
+
+  var GROUPS = [
+    {
+      key: 'timeCards',
+      name: 'Тайм-карты на автоматы',
+      intro: 'Тайм-карта на игровые автоматы. Выберите подходящий вариант:',
+      note: 'Между играми нужно выждать 50 секунд.',
+      photo: ART,
+      duration: 30,
+      hiddenName: 'Тайм-карта 60 минут',
+      variant: {
+        id: 'timeCards60',
+        name: 'Тайм-карта 60 минут',
+        price: 2190,
+        duration: 60,
+        emoji: '⏳',
+        c1: '#7b2fd6',
+        c2: '#ffc72c',
+        photo: ART,
+        desc: 'Тайм-карта на игровые автоматы на 60 минут.'
+      },
+      tiers: [
+        { id: 'timeCards', label: '30 минут', price: 1290 },
+        { id: 'timeCards60', label: '60 минут', price: 2190 }
+      ]
+    },
+    {
+      key: 'unlimitedTicket',
+      name: 'Входной билет «Безлимит»',
+      intro: 'Безлимитный вход в игровую зону на весь день. Выберите день посещения:',
+      note: 'Цена за одного ребёнка.',
+      duration: 0,
+      hiddenName: 'Безлимит в выходные',
+      variant: {
+        id: 'unlimitedTicketWeekend',
+        name: 'Безлимит в выходные',
+        price: 1800,
+        duration: 0,
+        emoji: '🎫',
+        c1: '#1f5fd6',
+        c2: '#28a745',
+        desc: 'Безлимитный входной билет в выходные и праздничные дни.'
+      },
+      tiers: [
+        { id: 'unlimitedTicket', label: 'Будни', price: 1500 },
+        { id: 'unlimitedTicketWeekend', label: 'Выходные', price: 1800 }
+      ]
+    }
   ];
 
   var style = document.createElement('style');
@@ -20,44 +62,59 @@
   }
 
   function patchCatalog() {
-    if (typeof EXTRAS === 'undefined' || !EXTRAS.timeCards) return false;
-    EXTRAS.timeCards.name = MAIN_NAME;
-    EXTRAS.timeCards.price = 1290;
-    EXTRAS.timeCards.priceFrom = true;
-    EXTRAS.timeCards.duration = 30;
-    EXTRAS.timeCards.photo = ART;
-    EXTRAS.timeCards.desc = 'Тайм-карта на игровые автоматы. Выберите подходящий вариант:';
-    if (!EXTRAS.timeCards60) {
-      EXTRAS.timeCards60 = {
-        name: HIDDEN_NAME,
-        price: 2190,
-        duration: 60,
-        emoji: '⏳',
-        c1: '#7b2fd6',
-        c2: '#ffc72c',
-        photo: ART,
-        desc: 'Тайм-карта на игровые автоматы на 60 минут. ' + NOTE
-      };
-    }
-    return true;
+    if (typeof EXTRAS === 'undefined') return false;
+    var done = false;
+    GROUPS.forEach(function (group) {
+      var base = EXTRAS[group.key];
+      if (!base) return;
+      base.name = group.name;
+      base.price = group.tiers[0].price;
+      base.priceFrom = true;
+      base.duration = group.duration;
+      base.desc = group.intro;
+      if (group.photo) base.photo = group.photo;
+      if (group.variant && !EXTRAS[group.variant.id]) {
+        EXTRAS[group.variant.id] = {
+          name: group.variant.name,
+          price: group.variant.price,
+          duration: group.variant.duration,
+          emoji: group.variant.emoji,
+          c1: group.variant.c1,
+          c2: group.variant.c2,
+          desc: group.variant.desc + (group.note ? ' ' + group.note : '')
+        };
+        if (group.variant.photo) EXTRAS[group.variant.id].photo = group.variant.photo;
+      }
+      done = true;
+    });
+    return done;
   }
 
-  function fixGridCard() {
+  function groupByName(name) {
+    for (var i = 0; i < GROUPS.length; i++) {
+      if (GROUPS[i].name === name) return GROUPS[i];
+    }
+    return null;
+  }
+
+  function fixGridCards() {
     var grid = document.getElementById('extrasGrid');
     if (!grid) return;
     Array.prototype.forEach.call(grid.querySelectorAll('.extra-card'), function (card) {
       var title = card.querySelector('h4');
       if (!title) return;
       var name = title.textContent.trim();
-      if (name === HIDDEN_NAME) {
+      var hidden = GROUPS.some(function (group) { return group.hiddenName === name; });
+      if (hidden) {
         card.style.display = 'none';
         return;
       }
-      if (name !== MAIN_NAME || card.dataset.pgArt) return;
+      var group = groupByName(name);
+      if (!group || !group.photo || card.dataset.pgArt) return;
       var cover = card.querySelector('.ec-cover');
       if (!cover) return;
       card.dataset.pgArt = '1';
-      cover.innerHTML = '<img class="pg-art" src="' + ART + '" alt="Тайм-карты на игровые автоматы" loading="lazy" decoding="async">';
+      cover.innerHTML = '<img class="pg-art" src="' + group.photo + '" alt="' + group.name + '" loading="lazy" decoding="async">';
     });
   }
 
@@ -66,10 +123,11 @@
     var body = document.getElementById('extraModalBody');
     var media = document.getElementById('extraModalMedia');
     if (!titleNode || !body) return;
-    if (titleNode.textContent.trim() !== MAIN_NAME) return;
+    var group = groupByName(titleNode.textContent.trim());
+    if (!group) return;
 
-    if (media && !media.querySelector('.pg-art')) {
-      media.innerHTML = '<img class="pg-art" src="' + ART + '" alt="Тайм-карты на игровые автоматы" decoding="async">';
+    if (group.photo && media && !media.querySelector('.pg-art')) {
+      media.innerHTML = '<img class="pg-art" src="' + group.photo + '" alt="' + group.name + '" decoding="async">';
     }
     if (body.querySelector('.pg-tier-box')) return;
 
@@ -77,7 +135,7 @@
 
     var box = document.createElement('div');
     box.className = 'pg-tier-box';
-    TIERS.forEach(function (tier) {
+    group.tiers.forEach(function (tier) {
       var row = document.createElement('div');
       row.className = 'pg-tier';
       var text = document.createElement('div');
@@ -101,14 +159,16 @@
       box.appendChild(row);
     });
 
-    var note = document.createElement('p');
-    note.className = 'pg-tier-note';
-    note.textContent = NOTE;
-    box.appendChild(note);
+    if (group.note) {
+      var note = document.createElement('p');
+      note.className = 'pg-tier-note';
+      note.textContent = group.note;
+      box.appendChild(note);
+    }
 
     var paragraph = body.querySelector('p');
     if (paragraph) {
-      paragraph.textContent = 'Тайм-карта на игровые автоматы. Выберите подходящий вариант:';
+      paragraph.textContent = group.intro;
       paragraph.parentNode.insertBefore(box, paragraph.nextSibling);
     } else {
       body.insertBefore(box, body.firstChild);
@@ -139,14 +199,14 @@
     if (typeof window.recalc === 'function') {
       try { window.recalc(); } catch (error) {}
     }
-    fixGridCard();
+    fixGridCards();
   }
 
   var attempts = 0;
   function loop() {
     if (patchCatalog()) refreshAll();
     watchModal();
-    fixGridCard();
+    fixGridCards();
     if (attempts++ < 40) setTimeout(loop, 400);
   }
 
