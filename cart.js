@@ -39,9 +39,14 @@
     var out = [];
     if (cart.pack) { var p = info('pack', cart.pack); if (p) out.push({ kind: 'pack', id: cart.pack, name: p.name, price: p.price }); }
     if (cart.room) { var r = info('room', cart.room); if (r) out.push({ kind: 'room', id: cart.room, name: r.name, price: r.price }); }
+    var seen = {};
     cart.extras.forEach(function (id) {
+      if (seen[id]) return;
+      seen[id] = true;
       var e = info('extra', id);
-      if (e) out.push({ kind: 'extra', id: id, name: e.name, price: e.price });
+      if (!e) return;
+      var n = cart.extras.filter(function (x) { return x === id; }).length;
+      out.push({ kind: 'extra', id: id, name: e.name, price: e.price, qty: n, total: e.price * n });
     });
     return out;
   }
@@ -52,7 +57,7 @@
     return map;
   }
   function total() {
-    return items().reduce(function (sum, x) { return sum + (x.price || 0); }, 0);
+    return items().reduce(function (sum, x) { return sum + (x.kind === 'extra' ? (x.total || x.price) : (x.price || 0)); }, 0);
   }
 
   // ---------- интерфейс ----------
@@ -121,7 +126,7 @@
     var rows = list.map(function (x) {
       var n = x.kind === 'extra' ? (g[x.id] || 1) : 1;
       var isQty = x.kind === 'extra' && QTY.indexOf(x.id) !== -1;
-      var priceLine = isQty ? fmt(x.price) + ' × ' + n + ' = <b>' + fmt(x.price * n) + '</b>' : '<b>' + fmt(x.price) + '</b>';
+      var priceLine = isQty ? fmt(x.price) + ' × ' + n + ' = <b>' + fmt((x.total != null ? x.total : x.price * n)) + '</b>' : '<b>' + fmt(x.price) + '</b>';
       var controls = isQty
         ? '<span style="display:flex;gap:6px;align-items:center">' +
           '<button class="pg-cart-rm pg-qty" data-kind="' + x.kind + '" data-id="' + escapeHtml(x.id) + '" data-d="-1">−</button>' +
