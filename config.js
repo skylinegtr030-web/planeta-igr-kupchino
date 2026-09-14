@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
     logo.replaceWith(link);
   }
   var bg = document.createElement('script');
-  bg.src = 'background.js?v=1';
+  bg.src = 'background.js?v=2';
   document.head.appendChild(bg);
 });
 
