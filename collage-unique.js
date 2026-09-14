@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var POOL = [
+  var FALLBACK = [
     'hero-collage-1.jpg',
     'hero-collage-2.jpg',
     'hero-collage-3.jpg',
@@ -29,10 +29,18 @@
   style.textContent = '.collage-slot img{animation:none!important;opacity:1;transition:opacity ' + FADE_MS + 'ms ease}.collage-slot img.pg-out{opacity:0}';
   document.head.appendChild(style);
 
+  var pool = FALLBACK.slice();
   var slots = [];
   var shown = [];
   var cursor = 0;
   var timer = null;
+
+  function readPool() {
+    var content = window.PG_CONTENT;
+    var list = content && content.photos && content.photos.collage;
+    if (list && list.length >= 4) return list.slice();
+    return FALLBACK.slice();
+  }
 
   function shuffled(list) {
     var copy = list.slice();
@@ -53,14 +61,8 @@
     return img;
   }
 
-  function freeCandidates() {
-    return POOL.filter(function (src) {
-      return shown.indexOf(src) === -1;
-    });
-  }
-
   function swap() {
-    var free = freeCandidates();
+    var free = pool.filter(function (src) { return shown.indexOf(src) === -1; });
     if (!free.length) return;
     var index = cursor % slots.length;
     cursor++;
@@ -84,8 +86,9 @@
     var found = document.querySelectorAll('.collage .collage-slot');
     if (found.length < 2) return false;
 
+    pool = readPool();
     slots = Array.prototype.slice.call(found);
-    var picks = shuffled(POOL).slice(0, slots.length);
+    var picks = shuffled(pool).slice(0, slots.length);
     shown = [];
 
     slots.forEach(function (slot, index) {
@@ -94,7 +97,7 @@
       shown[index] = picks[index];
     });
 
-    POOL.forEach(function (src) {
+    pool.forEach(function (src) {
       var pre = new Image();
       pre.src = src;
     });
@@ -111,6 +114,7 @@
   }
 
   boot();
+  window.addEventListener('pg:content', function () { init(); });
   window.addEventListener('load', function () {
     if (!slots.length) {
       attempts = 0;
