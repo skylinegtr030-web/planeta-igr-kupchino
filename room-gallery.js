@@ -56,4 +56,8 @@
     rotate(cards[1].querySelector(':scope > img'), sets[1], 2500);
   }
   start();
+
+  var game = document.createElement('script');
+  game.src = 'balloon-game.js?v=1';
+  document.head.appendChild(game);
 })();
