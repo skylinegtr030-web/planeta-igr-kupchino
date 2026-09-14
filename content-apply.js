@@ -1,4 +1,5 @@
-/* Loads content.json and pushes prices into the live catalog. */
+/* Loads content.json and pushes prices into the live catalog.
+   Supports pack objects {weekday, weekend} and picks the right price by eventDate. */
 (function () {
   'use strict';
 
@@ -8,6 +9,13 @@
     unlimitedTicket: 'unlimitedWeekday',
     unlimitedTicketWeekend: 'unlimitedWeekend'
   };
+
+  function isWeekend() {
+    var input = document.getElementById('eventDate');
+    if (!input || !input.value) return false;
+    var day = new Date(input.value + 'T12:00:00').getDay();
+    return day === 0 || day === 6;
+  }
 
   function refresh() {
     ['renderExtras', 'renderOrderOptions', 'recalc'].forEach(function (fn) {
@@ -21,10 +29,22 @@
     var content = window.PG_CONTENT;
     if (!content) return false;
     var touched = false;
+    var weekend = isWeekend();
 
     if (typeof PACKS !== 'undefined' && content.packs) {
       Object.keys(content.packs).forEach(function (id) {
-        if (PACKS[id]) { PACKS[id].price = content.packs[id]; touched = true; }
+        if (!PACKS[id]) return;
+        var value = content.packs[id];
+        if (value && typeof value === 'object') {
+          PACKS[id].weekday = value.weekday;
+          PACKS[id].weekend = value.weekend;
+          PACKS[id].price = weekend ? value.weekend : value.weekday;
+        } else {
+          PACKS[id].price = value;
+          PACKS[id].weekday = value;
+          PACKS[id].weekend = value;
+        }
+        touched = true;
       });
     }
 
@@ -53,6 +73,9 @@
       }, delay);
     });
   }
+
+  var date = document.getElementById('eventDate');
+  if (date) date.addEventListener('change', patch);
 
   fetch('content.json?v=' + Date.now(), { cache: 'no-store' })
     .then(function (response) { return response.ok ? response.json() : null; })

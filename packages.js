@@ -1,4 +1,5 @@
-/* Planeta Igr — themed package cards and weekday/weekend pricing. */
+/* Planeta Igr — themed package cards and weekday/weekend pricing.
+   Prices flow from content.json via PG_CONTENT; defaults are used only until it loads. */
 (function () {
   'use strict';
 
@@ -52,29 +53,57 @@
     '@media(max-width:780px){#prices .pack-grid{grid-template-columns:1fr}.pk-prices{flex-direction:column}.pk-price.single{max-width:none}}';
   document.head.appendChild(style);
 
-  function money(n) { return n.toLocaleString('ru-RU') + ' ₽'; }
+  function money(n) { return (Number(n) || 0).toLocaleString('ru-RU') + ' ₽'; }
   function isWeekend() {
     var input = document.getElementById('eventDate');
     if (!input || !input.value) return false;
     var day = new Date(input.value + 'T12:00:00').getDay();
     return day === 0 || day === 6;
   }
+  function priceFromContent(id) {
+    var content = window.PG_CONTENT;
+    if (!content || !content.packs || !content.packs[id]) return null;
+    var value = content.packs[id];
+    if (typeof value === 'number') return { weekday: value, weekend: value };
+    return {
+      weekday: Number(value.weekday) || DATA[id].weekday,
+      weekend: Number(value.weekend) || Number(value.weekday) || DATA[id].weekend
+    };
+  }
+  function currentPrices(id) {
+    return priceFromContent(id) || { weekday: DATA[id].weekday, weekend: DATA[id].weekend };
+  }
   function applyPrices() {
     var weekend = isWeekend();
     Object.keys(DATA).forEach(function (id) {
       var d = DATA[id];
-      Object.assign(PACKS[id], { name: d.name, price: weekend ? d.weekend : d.weekday, guests: d.guests, duration: d.duration });
+      var p = currentPrices(id);
+      if (!PACKS[id]) return;
+      Object.assign(PACKS[id], {
+        name: d.name,
+        price: weekend ? p.weekend : p.weekday,
+        weekday: p.weekday,
+        weekend: p.weekend,
+        guests: d.guests,
+        duration: d.duration
+      });
     });
   }
   function card(id, d) {
-    var fixed = d.weekday === d.weekend;
+    var p = currentPrices(id);
+    var fixed = p.weekday === p.weekend;
     var prices = fixed
-      ? '<div class="pk-price single"><span>Будни и выходные</span><strong>' + money(d.weekday) + '</strong></div>'
-      : '<div class="pk-price"><span>Будни</span><strong>' + money(d.weekday) + '</strong></div><div class="pk-price"><span>Выходные</span><strong>' + money(d.weekend) + '</strong></div>';
+      ? '<div class="pk-price single"><span>Будни и выходные</span><strong>' + money(p.weekday) + '</strong></div>'
+      : '<div class="pk-price"><span>Будни</span><strong>' + money(p.weekday) + '</strong></div><div class="pk-price"><span>Выходные</span><strong>' + money(p.weekend) + '</strong></div>';
     var items = d.items.map(function (x) { return '<li class="' + (/подарок/i.test(x) ? 'pk-gift' : '') + '">' + x + '</li>'; }).join('');
     return '<div class="pack" data-theme="' + d.theme + '" onclick="openOrder(\'' + id + '\')">' +
       '<div class="pk-head"><span class="pk-mark">' + d.mark + '</span><h3>' + d.name + '</h3><div class="pk-guests">' + d.guests + '</div><div class="pk-prices">' + prices + '</div></div>' +
       '<div class="pk-body"><ul class="pk-list">' + items + '</ul><div class="pk-cta">Выбрать пакет →</div></div></div>';
+  }
+
+  function renderGrid() {
+    var grid = document.querySelector('#prices .pack-grid');
+    if (grid) grid.innerHTML = Object.keys(DATA).map(function (id) { return card(id, DATA[id]); }).join('');
   }
 
   applyPrices();
@@ -82,8 +111,7 @@
   if (title) title.textContent = 'Выберите программу для дня рождения';
   var intro = document.querySelector('#prices h2 + p');
   if (intro) intro.textContent = 'Четыре готовых сценария праздника до 10 человек. Цена зависит от дня недели — выберите пакет, а в заявке добавьте нужные услуги.';
-  var grid = document.querySelector('#prices .pack-grid');
-  if (grid) grid.innerHTML = Object.keys(DATA).map(function (id) { return card(id, DATA[id]); }).join('');
+  renderGrid();
 
   if (typeof renderOrderOptions === 'function') renderOrderOptions();
   var originalRecalc = window.recalc;
@@ -92,6 +120,11 @@
     return originalRecalc && originalRecalc.apply(this, arguments);
   };
   var date = document.getElementById('eventDate');
-  if (date) date.addEventListener('change', function () { window.recalc(); });
+  if (date) date.addEventListener('change', function () { renderGrid(); window.recalc(); });
+  window.addEventListener('pg:content', function () {
+    applyPrices();
+    renderGrid();
+    window.recalc();
+  });
   window.recalc();
 })();

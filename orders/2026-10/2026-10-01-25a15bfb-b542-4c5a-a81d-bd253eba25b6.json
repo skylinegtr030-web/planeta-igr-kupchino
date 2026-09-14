@@ -1,0 +1,22 @@
+{
+  "requestId": "25a15bfb-b542-4c5a-a81d-bd253eba25b6",
+  "createdAt": "2026-09-12T19:04:18.000Z",
+  "status": "Новая",
+  "fio": "Проверка Формы",
+  "phone": "+70000000001",
+  "childName": "Тест",
+  "childBday": "2020-01-01",
+  "eventDate": "2026-10-01",
+  "eventTime": "16:00",
+  "pack": "malysh",
+  "packName": "Малыш JO",
+  "room": "loft-room",
+  "roomName": "Банкетная комната «Лофт»",
+  "extra": [],
+  "extraNames": [],
+  "durationText": "3 ч",
+  "endTimeText": "19:00",
+  "priceText": "24 500 ₽",
+  "promo": "",
+  "comment": "ТЕСТ проверки правил формы. Это не заявка клиента. Номер, имя и даты вымышлены."
+}

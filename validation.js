@@ -64,7 +64,8 @@
     render(checked.errors, true);
     if (!checked.ok) { showStatus('Проверьте отмеченные поля. Заявка ещё не отправлена.', true); focusError(); return; }
     recalc();
-    const payload = { ...checked.data, website: form.website.value };
+    const priceEl = form.querySelector('[name=priceText]');
+    const payload = { ...checked.data, website: form.website.value, priceText: priceEl ? priceEl.value : '' };
     const signature = JSON.stringify(payload);
     if (signature !== lastPayload || !requestId) {
       requestId = crypto.randomUUID();
@@ -77,12 +78,10 @@
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 25000);
     try {
-      const ENDPOINT = (window.PLANETA_CONFIG && window.PLANETA_CONFIG.sheetWebhookUrl) ||
-        'https://script.google.com/macros/s/AKfycbxyNdqz_-U_DDZRGyIF-2y_sITJwBbsH7Q5CHRtBs2e8lMFGB532Ne10q99xbeRi4m9Vw/exec';
-      if (!ENDPOINT) throw new Error('unconfigured');
+      const ENDPOINT = (window.PLANETA_CONFIG && window.PLANETA_CONFIG.orderEndpoint) || '/api/order';
       const response = await fetch(ENDPOINT, {
         method: 'POST', mode: 'cors', credentials: 'omit',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'application/json;charset=utf-8' },
         body: JSON.stringify(payload), signal: controller.signal
       });
       if (!response.ok) throw new Error('http');

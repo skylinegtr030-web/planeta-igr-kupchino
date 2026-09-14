@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "contacts": {
     "addressShort": "Балканская пл., 17",
     "addressFull": "Балканская площадь, 17",
@@ -17,21 +17,25 @@
     "extendTwo": 5000
   },
   "packs": {
-    "malysh": 24500,
-    "jungle": 33000,
-    "king": 50500,
-    "cyber": 36500
+    "malysh": { "weekday": 24000, "weekend": 27000 },
+    "jungle": { "weekday": 37900, "weekend": 41900 },
+    "king": { "weekday": 84100, "weekend": 88100 },
+    "cyber": { "weekday": 45900, "weekend": 45900 }
   },
   "extras": {
-    "azot": 13000,
-    "neon": 10000,
-    "bubbles": 10000,
-    "challenge": 8500,
-    "pinata": 4000,
+    "animator": 7500,
+    "quest": 8500,
     "masterclass": 10000,
-    "quest": 8000,
-    "animator": 8000,
-    "magician": 15000
+    "sciShow": 12000,
+    "bubbles": 9000,
+    "pinata": 4000,
+    "qzar": 17000,
+    "lavaFloor": 2500,
+    "invite": 500,
+    "tables": 1000,
+    "balloonFountain": 2600,
+    "surpriseBalloon": 2500,
+    "serving": 1000
   },
   "photos": {
     "collage": [
