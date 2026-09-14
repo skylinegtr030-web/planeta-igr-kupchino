@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b1055"/>
+      <stop offset="55%" stop-color="#4b2ea8"/>
+      <stop offset="100%" stop-color="#1f5fd6"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#63e6ff"/>
+      <stop offset="100%" stop-color="#1f5fd6"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd84d"/>
+      <stop offset="100%" stop-color="#ff9f1c"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="420" fill="url(#bg)"/>
+  <g fill="#ffffff" opacity=".5">
+    <circle cx="80" cy="60" r="3"/><circle cx="180" cy="36" r="2"/><circle cx="300" cy="70" r="2.5"/>
+    <circle cx="520" cy="44" r="2"/><circle cx="650" cy="78" r="3"/><circle cx="730" cy="40" r="2"/>
+    <circle cx="120" cy="330" r="2"/><circle cx="690" cy="300" r="2.5"/>
+  </g>
+
+  <g transform="translate(96 74)">
+    <rect x="0" y="0" width="212" height="286" rx="26" fill="#111a3b" stroke="#63e6ff" stroke-width="5"/>
+    <rect x="22" y="26" width="168" height="116" rx="14" fill="url(#screen)"/>
+    <g fill="#111a3b" opacity=".85">
+      <rect x="44" y="52" width="22" height="22" rx="4"/>
+      <rect x="78" y="52" width="22" height="22" rx="4"/>
+      <rect x="112" y="52" width="22" height="22" rx="4"/>
+      <rect x="61" y="86" width="22" height="22" rx="4"/>
+      <rect x="95" y="86" width="22" height="22" rx="4"/>
+    </g>
+    <circle cx="70" cy="186" r="20" fill="#e2231a" stroke="#fff" stroke-width="5"/>
+    <circle cx="142" cy="186" r="20" fill="#28a745" stroke="#fff" stroke-width="5"/>
+    <rect x="40" y="228" width="132" height="18" rx="9" fill="#ffc72c"/>
+    <rect x="64" y="256" width="84" height="12" rx="6" fill="#63e6ff" opacity=".8"/>
+  </g>
+
+  <g transform="translate(360 150) rotate(-8)">
+    <rect x="0" y="0" width="248" height="150" rx="20" fill="url(#card)" stroke="#fff" stroke-width="6"/>
+    <rect x="0" y="34" width="248" height="26" fill="#111a3b" opacity=".85"/>
+    <rect x="26" y="82" width="96" height="14" rx="7" fill="#111a3b" opacity=".7"/>
+    <rect x="26" y="106" width="62" height="12" rx="6" fill="#111a3b" opacity=".45"/>
+    <g transform="translate(160 74)">
+      <circle cx="36" cy="36" r="38" fill="#fff" stroke="#111a3b" stroke-width="6"/>
+      <path d="M36 14v24l18 10" fill="none" stroke="#e2231a" stroke-width="7" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g transform="translate(628 96)" fill="none" stroke="#ffd84d" stroke-width="6" stroke-linecap="round">
+    <path d="M14 0v22M0 36h22M8 62l16 14"/>
+  </g>
+  <g transform="translate(612 286)" fill="none" stroke="#ff6b9d" stroke-width="6" stroke-linecap="round">
+    <path d="M0 14h24M12 2v24"/>
+  </g>
+
+  <g transform="translate(400 344)" fill="#ffffff" font-family="Nunito, Arial, sans-serif" font-weight="900" text-anchor="middle">
+    <text y="0" font-size="40">30 и 60 минут</text>
+    <text y="34" font-size="24" opacity=".85">тайм-карты на автоматы</text>
+  </g>
+</svg>
