@@ -34,19 +34,13 @@
     return 'Продление одной комнаты — ' + money(one) + ' / час · продление двух комнат — ' + money(two) + ' / час';
   }
 
-  var rotations = [];
-  function stopRotations() {
-    rotations.forEach(function (t) { clearInterval(t); });
-    rotations = [];
-  }
-  function rotate(img, photos, delay, restart) {
-    if (!img) return;
-    if (img.dataset.galleryReady && !restart) return;
+  function rotate(img, photos, delay) {
+    if (!img || img.dataset.galleryReady) return;
     img.dataset.galleryReady = '1';
     photos.forEach(function (src) { var pre = new Image(); pre.src = src; });
     var index = 0;
-    var timer = setTimeout(function () {
-      var interval = setInterval(function () {
+    setTimeout(function () {
+      setInterval(function () {
         index = (index + 1) % photos.length;
         img.style.opacity = '0';
         setTimeout(function () {
@@ -54,9 +48,7 @@
           img.style.opacity = '1';
         }, 600);
       }, 5000);
-      rotations.push(interval);
     }, delay);
-    rotations.push(timer);
   }
 
   function updateCopy(cards) {
@@ -86,16 +78,9 @@
   window.addEventListener('pg:content', function () {
     var note = document.querySelector('#rooms .room-note');
     if (note) note.textContent = noteText();
-    // обновляем ротацию галереи свежим списком фото из content.json
-    var cards = document.querySelectorAll('#rooms > .section-inner > .activity:not(#roomDuo)');
-    if (cards.length >= 2) {
-      stopRotations();
-      rotate(cards[0].querySelector(':scope > img'), photosFor('jungle'), 0, true);
-      rotate(cards[1].querySelector(':scope > img'), photosFor('loft'), 2500, true);
-    }
   });
 
-  ['content-apply.js?v=1', 'balloon-game.js?v=1', 'party-art.js?v=2', 'reviews-rotator.js?v=2', 'copy-polish.js?v=1', 'pack-readability.js?v=2', 'extras-fix.js?v=2', 'price-tiers.js?v=5', 'address-fix.js?v=2', 'collage-unique.js?v=2'].forEach(function (src) {
+  ['content-apply.js?v=1', 'balloon-game.js?v=1', 'party-art.js?v=2', 'reviews-rotator.js?v=2', 'copy-polish.js?v=1', 'pack-readability.js?v=1', 'extras-fix.js?v=2', 'price-tiers.js?v=4', 'address-fix.js?v=3', 'collage-unique.js?v=2', 'ages.js?v=1'].forEach(function (src) {
     var script = document.createElement('script');
     script.src = src;
     document.head.appendChild(script);

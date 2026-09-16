@@ -1,12 +1,15 @@
-/* Contacts (address, phone, hours) driven by content.json. */
+/* Contacts (address, phone, hours, map) driven by content.json. */
 (function () {
   'use strict';
 
   var DEFAULTS = {
-    addressShort: 'Балканская пл., 17',
-    addressFull: 'Балканская площадь, 17',
+    addressShort: 'Балканская ул., 17',
+    addressFull: 'Балканская улица, 17, ТРК «Балкания Nova», 3 этаж',
     phone: '+7 981 818-01-34',
-    hours: '10:00–22:00'
+    hours: '10:00–22:00',
+    mapQuery: 'Санкт-Петербург, Балканская улица, 17',
+    mapLat: 59.8252,
+    mapLon: 30.3808
   };
 
   function contacts() {
@@ -15,16 +18,18 @@
       addressShort: source.addressShort || DEFAULTS.addressShort,
       addressFull: source.addressFull || DEFAULTS.addressFull,
       phone: source.phone || DEFAULTS.phone,
-      hours: source.hours || DEFAULTS.hours
+      hours: source.hours || DEFAULTS.hours,
+      mapQuery: source.mapQuery || DEFAULTS.mapQuery,
+      mapLat: source.mapLat || DEFAULTS.mapLat,
+      mapLon: source.mapLon || DEFAULTS.mapLon
     };
   }
 
   function rules() {
     var c = contacts();
     return [
-      { from: /Балканская\s+пл\.,\s*д?\.?\s*\d+[а-яА-Я]?/g, to: c.addressShort },
-      { from: /Балканская\s+площадь,\s*(д\.\s*)?\d+[а-яА-Я]?(,\s*литера\s*Ю)?/g, to: c.addressFull },
-      { from: /ул\.\s*Балканская,\s*д\.\s*\d+[а-яА-Я]?/g, to: c.addressFull },
+      { from: /Балканская\s+(пл\.|площадь|ул\.|улица),?\s*(д\.\s*)?\d+[а-яА-Я]?(,\s*литера\s*Ю)?/g, to: c.addressShort },
+      { from: /ул\.\s*Балканская,\s*д\.\s*\d+[а-яА-Я]?/g, to: c.addressShort },
       { from: /\+?7[\s(]*9\d{2}[\s)]*\d{3}[-\s]?\d{2}[-\s]?\d{2}/g, to: c.phone },
       { from: /\d{1,2}:\d{2}\s*[–—-]\s*\d{1,2}:\d{2}/g, to: c.hours }
     ];
@@ -64,7 +69,7 @@
     if (ld) {
       try {
         var data = JSON.parse(ld.textContent);
-        if (data.address) data.address.streetAddress = c.addressFull + ', ТРК «Балкания Nova»';
+        if (data.address) data.address.streetAddress = c.addressFull;
         data.telephone = c.phone.replace(/[^\d+]/g, '');
         var hours = c.hours.match(/(\d{1,2}:\d{2})\s*[–—-]\s*(\d{1,2}:\d{2})/);
         if (hours) data.openingHours = 'Mo-Su ' + hours[1] + '-' + hours[2];
@@ -83,11 +88,19 @@
     }
   }
 
+  function mapUrl(c) {
+    if (c.mapLat && c.mapLon) {
+      return 'https://yandex.ru/map-widget/v1/?ll=' + c.mapLon + '%2C' + c.mapLat +
+        '&z=17&pt=' + c.mapLon + ',' + c.mapLat + ',pm2rdm';
+    }
+    return 'https://yandex.ru/map-widget/v1/?text=' + encodeURIComponent(c.mapQuery) + '&z=17';
+  }
+
   function fixMap() {
     var frame = document.querySelector('iframe.map-frame');
     if (!frame) return;
     var c = contacts();
-    var target = 'https://yandex.ru/map-widget/v1/?text=' + encodeURIComponent('Санкт-Петербург, ' + c.addressFull) + '&z=17';
+    var target = mapUrl(c);
     if (frame.dataset.pgMap === target) return;
     frame.dataset.pgMap = target;
     frame.src = target;
