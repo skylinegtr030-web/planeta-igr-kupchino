@@ -1,0 +1,7 @@
+.git
+.github
+.env
+runtime
+node_modules
+admin
+*.log
