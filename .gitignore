@@ -5,3 +5,6 @@ backups/
 node_modules/
 *.log
 .DS_Store
+
+# Персональные данные заявок
+orders/**/*.json

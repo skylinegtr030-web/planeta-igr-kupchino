@@ -3,22 +3,22 @@
   'use strict';
 
   var FALLBACK = [
-    'hero-collage-1.jpg',
-    'hero-collage-2.jpg',
-    'hero-collage-3.jpg',
-    'hero-collage-4.jpg',
-    'hero-collage-5.jpg',
-    'hero-collage-6.jpg',
-    'room-jungle-1.jpg',
-    'room-jungle-2.jpg',
-    'room-loft-1.jpg',
-    'room-loft-2.jpg',
-    'lava-pol-real-1.jpg',
-    'lava-pol-real-2.jpg',
-    'lava-pol-real-3.jpg',
-    'kuzar-real-arena-1.jpg',
-    'kuzar-real-arena-2.jpg',
-    'kuzar-real-arena-3.jpg'
+    'assets/images/hero/hero-collage-1.jpg',
+    'assets/images/hero/hero-collage-2.jpg',
+    'assets/images/hero/hero-collage-3.jpg',
+    'assets/images/hero/hero-collage-4.jpg',
+    'assets/images/hero/hero-collage-5.jpg',
+    'assets/images/hero/hero-collage-6.jpg',
+    'assets/images/rooms/jungle/room-jungle-1.jpg',
+    'assets/images/rooms/jungle/room-jungle-2.jpg',
+    'assets/images/rooms/loft/room-loft-1.jpg',
+    'assets/images/rooms/loft/room-loft-2.jpg',
+    'assets/images/activities/lava-floor/lava-pol-real-1.jpg',
+    'assets/images/activities/lava-floor/lava-pol-real-2.jpg',
+    'assets/images/activities/lava-floor/lava-pol-real-3.jpg',
+    'assets/images/activities/kuzar/kuzar-real-arena-1.jpg',
+    'assets/images/activities/kuzar/kuzar-real-arena-2.jpg',
+    'assets/images/activities/kuzar/kuzar-real-arena-3.jpg'
   ];
 
   var ALT = 'Детский праздник в «Планете игр»';

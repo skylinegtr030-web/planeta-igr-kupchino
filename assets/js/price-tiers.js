@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var ART = 'time-cards.svg?v=1';
+  var ART = 'assets/images/illustrations/time-cards.svg?v=1';
   var DEFAULT_TIERS = {
     timeCards30: 1290,
     timeCards60: 2190,

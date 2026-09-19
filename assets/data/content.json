@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "contacts": {
+    "addressShort": "Балканская ул., 17",
+    "addressFull": "Балканская улица, 17, ТРК «Балкания Nova», 3 этаж",
+    "phone": "+7 981 818-01-34",
+    "hours": "10:00–22:00",
+    "mapQuery": "Санкт-Петербург, Балканская улица, 17",
+    "mapLat": 59.8252,
+    "mapLon": 30.3808
+  },
+  "ages": {
+    "kuzar": 7,
+    "lavaFloor": 4
+  },
+  "tiers": {
+    "timeCards30": 1290,
+    "timeCards60": 2190,
+    "unlimitedWeekday": 1500,
+    "unlimitedWeekend": 1800
+  },
+  "rooms": {
+    "extendOne": 2500,
+    "extendTwo": 5000
+  },
+  "packs": {
+    "malysh": 24500,
+    "jungle": 33000,
+    "king": 50500,
+    "cyber": 36500
+  },
+  "extras": {
+    "azot": 13000,
+    "neon": 10000,
+    "bubbles": 10000,
+    "challenge": 8500,
+    "pinata": 4000,
+    "masterclass": 10000,
+    "quest": 8000,
+    "animator": 8000,
+    "magician": 15000
+  },
+  "photos": {
+    "collage": [
+      "assets/images/hero/hero-collage-1.jpg",
+      "assets/images/hero/hero-collage-2.jpg",
+      "assets/images/hero/hero-collage-3.jpg",
+      "assets/images/hero/hero-collage-4.jpg",
+      "assets/images/hero/hero-collage-5.jpg",
+      "assets/images/hero/hero-collage-6.jpg",
+      "assets/images/rooms/jungle/room-jungle-1.jpg",
+      "assets/images/rooms/jungle/room-jungle-2.jpg",
+      "assets/images/rooms/loft/room-loft-1.jpg",
+      "assets/images/rooms/loft/room-loft-2.jpg",
+      "assets/images/activities/lava-floor/lava-pol-real-1.jpg",
+      "assets/images/activities/lava-floor/lava-pol-real-2.jpg",
+      "assets/images/activities/lava-floor/lava-pol-real-3.jpg",
+      "assets/images/activities/kuzar/kuzar-real-arena-1.jpg",
+      "assets/images/activities/kuzar/kuzar-real-arena-2.jpg",
+      "assets/images/activities/kuzar/kuzar-real-arena-3.jpg"
+    ],
+    "jungle": [
+      "assets/images/rooms/jungle/room-jungle-1.jpg",
+      "assets/images/rooms/jungle/room-jungle-2.jpg",
+      "assets/images/rooms/jungle/f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg",
+      "assets/images/rooms/jungle/fe0f8752-696e-4f60-9c88-fcea23ef4103.jpeg"
+    ],
+    "loft": [
+      "assets/images/rooms/loft/room-loft-1.jpg",
+      "assets/images/rooms/loft/room-loft-2.jpg",
+      "assets/images/rooms/loft/9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg",
+      "assets/images/rooms/loft/a1f34b81-2c83-43d4-beb4-c847afdeb72c.jpeg"
+    ]
+  }
+}

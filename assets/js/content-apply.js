@@ -1,4 +1,4 @@
-/* Loads content.json and pushes prices into the live catalog.
+/* Loads assets/data/content.json and pushes prices into the live catalog.
    Supports pack objects {weekday, weekend} and picks the right price by eventDate. */
 (function () {
   'use strict';
@@ -77,7 +77,7 @@
   var date = document.getElementById('eventDate');
   if (date) date.addEventListener('change', patch);
 
-  fetch('content.json?v=' + Date.now(), { cache: 'no-store' })
+  fetch('assets/data/content.json?v=' + Date.now(), { cache: 'no-store' })
     .then(function (response) { return response.ok ? response.json() : null; })
     .then(function (data) {
       if (!data) return;

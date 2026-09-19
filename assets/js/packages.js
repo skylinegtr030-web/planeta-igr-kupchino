@@ -1,5 +1,5 @@
 /* Planeta Igr — themed package cards and weekday/weekend pricing.
-   Prices flow from content.json via PG_CONTENT; defaults are used only until it loads. */
+   Prices flow from assets/data/content.json via PG_CONTENT; defaults are used only until it loads. */
 (function () {
   'use strict';
 

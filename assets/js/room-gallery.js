@@ -3,8 +3,8 @@
   'use strict';
 
   var FALLBACK = {
-    jungle: ['room-jungle-1.jpg', 'room-jungle-2.jpg', 'f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg', 'fe0f8752-696e-4f60-9c88-fcea23ef4103.jpeg'],
-    loft: ['room-loft-1.jpg', 'room-loft-2.jpg', '9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg', 'a1f34b81-2c83-43d4-beb4-c847afdeb72c.jpeg']
+    jungle: ['assets/images/rooms/jungle/room-jungle-1.jpg', 'assets/images/rooms/jungle/room-jungle-2.jpg', 'assets/images/rooms/jungle/f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg', 'assets/images/rooms/jungle/fe0f8752-696e-4f60-9c88-fcea23ef4103.jpeg'],
+    loft: ['assets/images/rooms/loft/room-loft-1.jpg', 'assets/images/rooms/loft/room-loft-2.jpg', 'assets/images/rooms/loft/9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg', 'assets/images/rooms/loft/a1f34b81-2c83-43d4-beb4-c847afdeb72c.jpeg']
   };
 
   var descriptions = [
@@ -80,7 +80,7 @@
     if (note) note.textContent = noteText();
   });
 
-  ['content-apply.js?v=1', 'balloon-game.js?v=1', 'party-art.js?v=2', 'reviews-rotator.js?v=2', 'copy-polish.js?v=1', 'pack-readability.js?v=1', 'extras-fix.js?v=2', 'price-tiers.js?v=4', 'address-fix.js?v=3', 'collage-unique.js?v=2', 'ages.js?v=1'].forEach(function (src) {
+  ['assets/js/content-apply.js?v=1', 'assets/js/balloon-game.js?v=1', 'assets/js/party-art.js?v=2', 'assets/js/reviews-rotator.js?v=2', 'assets/js/copy-polish.js?v=1', 'assets/js/pack-readability.js?v=1', 'assets/js/extras-fix.js?v=2', 'assets/js/price-tiers.js?v=4', 'assets/js/address-fix.js?v=3', 'assets/js/collage-unique.js?v=2', 'assets/js/ages.js?v=1'].forEach(function (src) {
     var script = document.createElement('script');
     script.src = src;
     document.head.appendChild(script);

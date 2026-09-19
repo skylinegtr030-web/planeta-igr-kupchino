@@ -1,0 +1,9 @@
+services:
+  web:
+    container_name: planeta-igr-web
+    networks:
+      - web
+
+networks:
+  web:
+    external: true

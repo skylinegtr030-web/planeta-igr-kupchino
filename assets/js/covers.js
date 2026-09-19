@@ -3,35 +3,35 @@
   'use strict';
 
   var PHOTO = {
-    animator: 'generated-image%20(13).jpg',
-    quest: 'generated-image%20(8).jpg',
-    masterclass: 'generated-image%20(9).jpg',
-    sciShow: 'generated-image%20(1).jpg',
-    bubbles: 'generated-image%20(10).jpg',
-    pinata: 'generated-image%20(7).jpg',
-    qzar: 'generated-image%20(14).jpg',
-    lavaFloor: 'generated-image%20(12).jpg',
-    unlimitedTicket: 'generated-image%20(6).jpg',
-    invite: 'generated-image.jpg',
-    tables: 'generated-image%20(5).jpg',
-    balloonFountain: 'generated-image%20(4).jpg',
-    surpriseBalloon: 'generated-image%20(3).jpg',
-    serving: 'generated-image%20(2).jpg',
-    timeCards: 'generated-image%20(11).jpg'
+    animator: 'assets/images/services/animator.jpg',
+    quest: 'assets/images/services/quest.jpg',
+    masterclass: 'assets/images/services/masterclass.jpg',
+    sciShow: 'assets/images/services/science-show.jpg',
+    bubbles: 'assets/images/services/bubbles.jpg',
+    pinata: 'assets/images/services/pinata.jpg',
+    qzar: 'assets/images/services/qzar.jpg',
+    lavaFloor: 'assets/images/services/lava-floor.jpg',
+    unlimitedTicket: 'assets/images/services/unlimited-ticket.jpg',
+    invite: 'assets/images/services/invitation.jpg',
+    tables: 'assets/images/services/tables.jpg',
+    balloonFountain: 'assets/images/services/balloon-fountain.jpg',
+    surpriseBalloon: 'assets/images/services/surprise-balloon.jpg',
+    serving: 'assets/images/services/serving.jpg',
+    timeCards: 'assets/images/services/time-cards.jpg'
   };
 
   var DUO_FALLBACK = [
     [
-      'room-jungle-1.jpg',
-      'room-jungle-2.jpg',
-      'f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg',
-      'fe0f8752-696e-4f60-9c88-fcea23ef4103.jpeg'
+      'assets/images/rooms/jungle/room-jungle-1.jpg',
+      'assets/images/rooms/jungle/room-jungle-2.jpg',
+      'assets/images/rooms/jungle/f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg',
+      'assets/images/rooms/jungle/fe0f8752-696e-4f60-9c88-fcea23ef4103.jpeg'
     ],
     [
-      'room-loft-1.jpg',
-      'room-loft-2.jpg',
-      '9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg',
-      'a1f34b81-2c83-43d4-beb4-c847afdeb72c.jpeg'
+      'assets/images/rooms/loft/room-loft-1.jpg',
+      'assets/images/rooms/loft/room-loft-2.jpg',
+      'assets/images/rooms/loft/9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg',
+      'assets/images/rooms/loft/a1f34b81-2c83-43d4-beb4-c847afdeb72c.jpeg'
     ]
   ];
   function duoLists() {

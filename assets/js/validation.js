@@ -142,7 +142,7 @@
         { name: 'Тесла-шоу', meta: 'до 15 чел · 40 мин' },
         { name: 'Жонглёр-шоу', meta: 'до 15 чел · 40 мин' }
       ] },
-    bubbles: { name: 'Мыльные пузыри / Крио-шоу', price: 9000, duration: 30, emoji: '🫧', c1: '#28a745', c2: '#8fe3a6', photo: 'extra-bubbles.jpg', upto: 'до 15 человек',
+    bubbles: { name: 'Мыльные пузыри / Крио-шоу', price: 9000, duration: 30, emoji: '🫧', c1: '#28a745', c2: '#8fe3a6', photo: 'assets/images/extras/extra-bubbles.jpg', upto: 'до 15 человек',
       desc: 'Шоу гигантских мыльных пузырей или эффектное крио-шоу с холодным паром — на выбор. 30 минут зрелища для всей компании.' },
     pinata: { name: 'Пиньята', price: 4000, duration: 15, emoji: '🪅', c1: '#e2231a', c2: '#ffc72c',
       desc: 'Яркая пиньята со сладкими сюрпризами внутри — весёлая традиция для завершения праздника.' },
@@ -264,8 +264,8 @@
         var pair = document.createElement('div');
         pair.className = 'rm-duo';
         pair.innerHTML =
-          '<img src="room-jungle-1.jpg" alt="Комната «Джунгли»" loading="lazy" decoding="async">' +
-          '<img src="room-loft-1.jpg" alt="Комната «Лофт»" loading="lazy" decoding="async">';
+          '<img src="assets/images/rooms/jungle/room-jungle-1.jpg" alt="Комната «Джунгли»" loading="lazy" decoding="async">' +
+          '<img src="assets/images/rooms/loft/room-loft-1.jpg" alt="Комната «Лофт»" loading="lazy" decoding="async">';
         oldImg.parentNode.replaceChild(pair, oldImg);
       }
       note.parentNode.insertBefore(duo, note);

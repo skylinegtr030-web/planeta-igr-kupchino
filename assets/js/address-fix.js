@@ -1,4 +1,4 @@
-/* Contacts (address, phone, hours, map) driven by content.json. */
+/* Contacts (address, phone, hours, map) driven by assets/data/content.json. */
 (function () {
   'use strict';
 
