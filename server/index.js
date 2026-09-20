@@ -34,6 +34,19 @@ const PRIVATE_PREFIXES = [
   '/server', '/runtime', '/backups', '/.git', '/.github'
 ];
 
+// ── Simple token auth for admin endpoints ─────────────────────────────────────
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
+function requireAdmin(req, res) {
+  if (!ADMIN_TOKEN) return true;  // если токен не задан — разрешаем (только для разработки)
+  const auth = req.headers['authorization'] || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (token !== ADMIN_TOKEN) {
+    json(res, 401, { ok: false, error: 'unauthorized' });
+    return false;
+  }
+  return true;
+}
+
 function json(res, status, body) {
   const payload = JSON.stringify(body);
   res.writeHead(status, {
@@ -72,6 +85,7 @@ function readBody(req) {
 
 const clean = (v, max) => String(v == null ? '' : v).trim().slice(0, max);
 
+// ── POST /api/order ───────────────────────────────────────────────────────────
 async function saveOrder(req, res) {
   const input = await readBody(req);
   const name  = clean(input.name || input.fio, 120);
@@ -103,6 +117,33 @@ async function saveOrder(req, res) {
   json(res, 201, { ok: true, id: rows[0].id, createdAt: rows[0].created_at });
 }
 
+// ── GET /api/orders ── список заявок (только для админа) ─────────────────────
+async function apiOrders(req, res) {
+  if (!requireAdmin(req, res)) return;
+  const { rows } = await pool.query(
+    `select id, created_at, name, phone, event_date, status, payload
+     from orders order by created_at desc limit 200`
+  );
+  json(res, 200, { ok: true, orders: rows });
+}
+
+// ── PATCH /api/orders/:id ── смена статуса заявки ────────────────────────────
+async function apiOrderPatch(req, res, id) {
+  if (!requireAdmin(req, res)) return;
+  const input  = await readBody(req);
+  const status = clean(input.status || '', 20);
+  const allowed = ['new', 'confirmed', 'cancelled'];
+  if (!allowed.includes(status)) {
+    json(res, 422, { ok: false, error: 'invalid_status' }); return;
+  }
+  const { rowCount } = await pool.query(
+    'update orders set status=$1 where id=$2', [status, Number(id)]
+  );
+  if (!rowCount) { json(res, 404, { ok: false, error: 'not_found' }); return; }
+  json(res, 200, { ok: true });
+}
+
+// ── GET /api/packages ────────────────────────────────────────────────────────
 async function apiPackages(res) {
   const { rows } = await pool.query(
     `select slug, title, description, price_weekday, price_weekend, attrs
@@ -111,6 +152,7 @@ async function apiPackages(res) {
   json(res, 200, { ok: true, packages: rows });
 }
 
+// ── GET /api/extras ──────────────────────────────────────────────────────────
 async function apiExtras(res) {
   const { rows } = await pool.query(
     `select slug, title, description, price, price_from, duration_min, upto,
@@ -120,6 +162,23 @@ async function apiExtras(res) {
   json(res, 200, { ok: true, extras: rows });
 }
 
+// ── GET /api/media[?group=xxx] ── медиатека ───────────────────────────────────
+async function apiMedia(req, res) {
+  const url   = new URL(req.url, 'http://localhost');
+  const group = url.searchParams.get('group') || null;
+  let query, params;
+  if (group) {
+    query  = 'select id, path, alt, "group", sort_order from media where is_active=true and "group"=$1 order by sort_order';
+    params = [group];
+  } else {
+    query  = 'select id, path, alt, "group", sort_order from media where is_active=true order by "group", sort_order';
+    params = [];
+  }
+  const { rows } = await pool.query(query, params);
+  json(res, 200, { ok: true, media: rows });
+}
+
+// ── GET /api/settings ────────────────────────────────────────────────────────
 async function apiSettings(res, key) {
   if (key) {
     const { rows } = await pool.query(
@@ -133,6 +192,7 @@ async function apiSettings(res, key) {
   }
 }
 
+// ── Static file server ────────────────────────────────────────────────────────
 async function serveStatic(req, res, pathname) {
   if (PRIVATE_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))) {
     json(res, 404, { ok: false, error: 'not_found' });
@@ -170,6 +230,7 @@ async function serveStatic(req, res, pathname) {
   }
 }
 
+// ── Router ────────────────────────────────────────────────────────────────────
 async function handler(req, res) {
   const url      = new URL(req.url, 'http://localhost');
   const pathname = decodeURIComponent(url.pathname);
@@ -178,17 +239,24 @@ async function handler(req, res) {
   if (pathname === '/health' && method === 'GET') {
     json(res, 200, { ok: true, service: 'planeta-igr', time: new Date().toISOString() }); return;
   }
-  if (pathname === '/api/order') {
-    if (method === 'POST') { await saveOrder(req, res); return; }
-    res.setHeader('Allow', 'POST');
-    json(res, 405, { ok: false, error: 'method_not_allowed' }); return;
-  }
-  if (pathname === '/api/packages' && method === 'GET') { await apiPackages(res); return; }
-  if (pathname === '/api/extras'   && method === 'GET') { await apiExtras(res);   return; }
+
+  // orders
+  if (pathname === '/api/order' && method === 'POST')                             { await saveOrder(req, res); return; }
+  if (pathname === '/api/orders' && method === 'GET')                             { await apiOrders(req, res); return; }
+  const orderPatch = pathname.match(/^\/api\/orders\/(\d+)$/);
+  if (orderPatch && method === 'PATCH')                                           { await apiOrderPatch(req, res, orderPatch[1]); return; }
+
+  // catalogue
+  if (pathname === '/api/packages' && method === 'GET')                          { await apiPackages(res); return; }
+  if (pathname === '/api/extras'   && method === 'GET')                          { await apiExtras(res);   return; }
+  if (pathname === '/api/media'    && method === 'GET')                          { await apiMedia(req, res); return; }
+
+  // settings
   if (pathname.startsWith('/api/settings') && method === 'GET') {
     const key = pathname.replace('/api/settings', '').replace(/^\//, '') || null;
     await apiSettings(res, key); return;
   }
+
   if (pathname.startsWith('/api/')) { json(res, 404, { ok: false, error: 'not_found' }); return; }
   if (method !== 'GET' && method !== 'HEAD') { json(res, 405, { ok: false, error: 'method_not_allowed' }); return; }
   await serveStatic(req, res, pathname);
