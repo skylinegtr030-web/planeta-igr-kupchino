@@ -205,16 +205,24 @@ nav a:hover{color:var(--red);}
 }
 @keyframes icon-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12) rotate(6deg);}}
 
+/* Extra cards */
 .extras{columns:3 260px;column-gap:20px;}
 .extra-card{
-  break-inside:avoid;background:rgba(255,255,255,.9);border-radius:18px;padding:22px;margin-bottom:20px;
-  box-shadow:0 10px 24px rgba(17,26,59,.08);text-align:center;transition:.25s;cursor:pointer;
+  break-inside:avoid;background:rgba(255,255,255,.9);border-radius:18px;margin-bottom:20px;
+  box-shadow:0 10px 24px rgba(17,26,59,.08);text-align:center;transition:.25s;cursor:pointer;overflow:hidden;
 }
 .extra-card:hover{transform:translateY(-8px) scale(1.03);box-shadow:0 18px 34px rgba(17,26,59,.15);}
-.extra-card:hover svg{animation:wiggle .5s ease;}
-@keyframes wiggle{0%,100%{transform:rotate(0);}25%{transform:rotate(-14deg);}75%{transform:rotate(14deg);}}
-.extra-price{font-weight:900;color:var(--red);font-size:1.15rem;margin-top:8px;}
-.extra-hint{font-size:.75rem;color:#8a93ab;font-weight:700;margin-top:2px;}
+/* Карточка с фото */
+.extra-card-img{height:160px;overflow:hidden;}
+.extra-card-img img{width:100%;height:100%;object-fit:cover;transition:.35s;}
+.extra-card:hover .extra-card-img img{transform:scale(1.06);}
+.extra-card-body{padding:14px 18px 18px;}
+.extra-card-emoji{font-size:1.6rem;margin-bottom:4px;}
+/* Карточка без фото — градиентная иконка */
+.extra-card-icon{height:100px;display:flex;align-items:center;justify-content:center;font-size:2.6rem;}
+.extra-card h4{font-size:1rem;font-weight:900;margin:8px 0 4px;}
+.extra-price{font-weight:900;color:var(--red);font-size:1.1rem;margin-top:6px;}
+.extra-hint{font-size:.75rem;color:#8a93ab;font-weight:700;margin-top:2px;padding-bottom:14px;}
 .extras-cta{text-align:center;margin-top:14px;}
 
 .timeline{position:relative;padding-left:36px;}
@@ -643,39 +651,10 @@ const ROOMS = {
   'loft-room':{name:'Банкетная комната «Лофт»'},
   'duo-room':{name:'«Джунгли» + «Лофт» — две комнаты сразу'},
 };
-const EXTRAS = {
-  azot:{name:'Азот-шоу', price:13000, duration:20, emoji:'🧊', c1:'#e2231a', c2:'#ff8a65',
-    desc:'Эффектное шоу с жидким азотом — облака холодного пара, яркие эффекты и восторг у детей и взрослых.'},
-  neon:{name:'Неоновое шоу', price:10000, duration:20, emoji:'💡', c1:'#1f5fd6', c2:'#63e6ff',
-    desc:'Световое шоу в неоновых красках с интерактивом для гостей — эффектно смотрится в затемнённой комнате.'},
-  bubbles:{name:'Мыльные пузыри', price:10000, duration:20, emoji:'🫧', c1:'#28a745', c2:'#8fe3a6', photo:'assets/images/extras/extra-bubbles.jpg',
-    desc:'Шоу гигантских мыльных пузырей — можно забраться внутрь пузыря и сделать эффектные фото.'},
-  challenge:{name:'Челлендж-пати', price:8500, duration:30, emoji:'🏆', c1:'#ffc72c', c2:'#ffe27a',
-    desc:'Командные конкурсы и весёлые челленджи для всей компании — соревновательный формат праздника.'},
-  pinata:{name:'Пиньята', price:4000, priceFrom:true, duration:15, emoji:'🪅', c1:'#e2231a', c2:'#ffc72c',
-    desc:'Яркая пиньята со сладкими сюрпризами внутри — весёлая традиция для завершения праздника.'},
-  masterclass:{name:'Мастер-класс', price:10000, duration:40, emoji:'🎨', c1:'#28a745', c2:'#63e6ff', upto:'до 10 человек',
-    desc:'Творческий мастер-класс на выбор — 40 минут, всё оборудование и материалы включены.',
-    options:[
-      {name:'Слайм-лаборатория', meta:'5+ лет · 30–40 мин'},
-      {name:'Пушистый Монстрик', meta:'4+ лет · 30–40 мин'},
-      {name:'Свеча из вощины', meta:'5+ лет · 25–30 мин'},
-      {name:'Роспись шопера', meta:'6+ лет · 40–60 мин'},
-      {name:'Магнитик на память', meta:'4+ лет · 25–30 мин'},
-    ]},
-  quest:{name:'Квест', price:8000, duration:40, emoji:'🗝️', c1:'#1f5fd6', c2:'#111a3b', upto:'до 12 человек',
-    desc:'Квест с ведущим на выбор — 40 минут ярких приключений для команды именинника.',
-    options:[
-      {name:'Академия Супергероев', meta:'5–8 лет · 40 мин'},
-      {name:'Форт Боярд', meta:'6–10 лет · 45 мин'},
-      {name:'Алиса в Стране Чудес', meta:'5–8 лет · 40 мин'},
-      {name:'Мультиквест', meta:'5–6 лет · 40 мин'},
-    ]},
-  animator:{name:'Аниматор', price:8000, duration:60, emoji:'🎭', c1:'#ffc72c', c2:'#e2231a',
-    desc:'Аниматор в костюме любимого персонажа на 1 час — игры, конкурсы и хорошее настроение для всех гостей.'},
-  magician:{name:'Фокусник', price:15000, duration:30, emoji:'🎩', c1:'#111a3b', c2:'#1f5fd6', photo:'assets/images/extras/extra-magician.jpg',
-    desc:'Эффектное шоу фокусника с участием гостей — трюки, магия и восторженные лица детей.'},
-};
+/* EXTRAS заполняется динамически из extras.js через /api/extras.
+   Здесь оставляем пустой объект как заглушку на случай,
+   если extras.js загрузится раньше, чем страница получила ответ. */
+var EXTRAS = {};
 
 /* ===== Background blobs / particles ===== */
 function sizeGlobalFields(){
@@ -803,47 +782,7 @@ document.querySelectorAll('.fade-up,.section-inner,.pack').forEach(el=>{
 });
 document.querySelectorAll('.pack').forEach((el,i)=>{el.style.transitionDelay=(i*0.1)+'s';});
 
-/* ===== Extras grid render ===== */
-function renderExtras(){
-  const grid=document.getElementById('extrasGrid');
-  grid.innerHTML='';
-  Object.keys(EXTRAS).forEach(id=>{
-    const ex=EXTRAS[id];
-    const card=document.createElement('div');
-    card.className='extra-card';
-    card.onclick=()=>openExtraModal(id);
-    const priceLabel=(ex.priceFrom?'от ':'')+ex.price.toLocaleString('ru-RU')+' ₽';
-    card.innerHTML=`<div style="font-size:2rem;">${ex.emoji}</div><h4>${ex.name}</h4><div class="extra-price">${priceLabel}</div><div class="extra-hint">~${ex.duration} мин${ex.upto?' · '+ex.upto:''}</div>`;
-    grid.appendChild(card);
-  });
-}
-renderExtras();
-
-/* ===== Extra modal ===== */
-function openExtraModal(id){
-  const ex=EXTRAS[id];
-  document.getElementById('extraModalTitle').textContent=ex.name;
-  const media=document.getElementById('extraModalMedia');
-  if(ex.photo){
-    media.innerHTML=`<img loading="lazy" decoding="async" src="${ex.photo}" alt="${ex.name}">`;
-  }else{
-    media.innerHTML=`<div class="icon-block" style="background:linear-gradient(135deg,${ex.c1},${ex.c2});">${ex.emoji}</div>`;
-  }
-  let body=`<p>${ex.desc}</p>`;
-  if(ex.options){
-    body+='<div style="margin-top:6px;">';
-    ex.options.forEach(o=>{
-      body+=`<div class="tier-row"><span>${o.name}<br><span style="font-weight:600;color:#8a93ab;font-size:.78rem;">${o.meta}</span></span><span class="tier-price">${ex.price.toLocaleString('ru-RU')} ₽</span></div>`;
-    });
-    body+='</div>';
-  } else {
-    const priceLabel=(ex.priceFrom?'от ':'')+ex.price.toLocaleString('ru-RU')+' ₽';
-    body+=`<div class="tier-row"><span>Стоимость услуги · ~${ex.duration} мин</span><span class="tier-price">${priceLabel}</span></div>`;
-  }
-  body+=`<a href="javascript:void(0)" class="btn btn-primary" style="width:100%;margin-top:16px;text-align:center;" onclick="closeExtraModal();openOrder(null,null,'${id}')">Заказать праздник</a>`;
-  document.getElementById('extraModalBody').innerHTML=body;
-  document.getElementById('extraModal').classList.add('active');
-}
+/* ===== Extra modal close ===== */
 function closeExtraModal(){document.getElementById('extraModal').classList.remove('active');}
 
 const QTY_EXTRAS = ['timeCards','timeCards60','unlimitedTicket','unlimitedTicketWeekend','invite','serving','tables','balloonFountain','surpriseBalloon'];
@@ -920,8 +859,7 @@ function recalc(){
     duration+=120; price+=5000;
   }
   extraChecks.forEach(id=>{
-    duration+=EXTRAS[id].duration;
-    price+=EXTRAS[id].price;
+    if(EXTRAS[id]){duration+=EXTRAS[id].duration;price+=EXTRAS[id].price;}
   });
 
   const promo=(form.promo.value||'').trim().toUpperCase();
@@ -954,7 +892,7 @@ function recalc(){
 
   document.getElementById('hPackName').value = packId && PACKS[packId] ? PACKS[packId].name+' — '+PACKS[packId].price.toLocaleString('ru-RU')+' ₽' : '';
   document.getElementById('hRoomName').value = roomVal && ROOMS[roomVal] ? ROOMS[roomVal].name : '';
-  document.getElementById('hExtrasNames').value = extraChecks.map(id=>EXTRAS[id].name).join(', ');
+  document.getElementById('hExtrasNames').value = extraChecks.filter(id=>EXTRAS[id]).map(id=>EXTRAS[id].name).join(', ');
   document.getElementById('hDurationText').value = durationText||'';
   document.getElementById('hEndTimeText').value = endText==='—'?'':endText;
   document.getElementById('hPriceText').value = priceTextPlain;
@@ -1019,6 +957,7 @@ function usePromoInOrder(){
   recalc();
 }
 </script>
+<script src="assets/js/extras.js?v=1"></script>
 <script src="assets/js/order-rules.js?v=3"></script>
 <script src="assets/js/validation.js?v=5"></script>
 <script src="assets/js/packages.js?v=4"></script>
