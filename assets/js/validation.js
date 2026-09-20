@@ -90,12 +90,12 @@
       });
       if (!response.ok) throw new Error('http');
       const reply = await response.json();
-      if (reply.errors) {
-        render(reply.errors, true);
+      if (reply.status === 'invalid') {
+        render(reply.errors || {}, true);
         showStatus('Проверьте отмеченные поля. Заявка не отправлена.', true);
         focusError(); return;
       }
-      if (!reply.ok) throw new Error('server');
+      if (reply.status !== 'ok') throw new Error('server');
       showStatus('Заявка записана. Мы свяжемся с вами для подтверждения праздника.', false);
       form.reset(); touched.clear(); attempted = false; requestId = ''; lastPayload = '';
       renderOrderOptions(); recalc(); render({}, true);
@@ -273,7 +273,6 @@
 
     note.textContent = 'Продление — 3 500 \u20bd за каждый следующий час';
   }
-  // Обновление цен комнат при поступлении данных из панели
   function refreshRoomPrices() {
     var rc = (window.PG_CONTENT && window.PG_CONTENT.rooms) || {};
     function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
