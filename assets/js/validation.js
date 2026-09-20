@@ -90,12 +90,12 @@
       });
       if (!response.ok) throw new Error('http');
       const reply = await response.json();
-      if (reply.status === 'invalid') {
-        render(reply.errors || {}, true);
+      if (reply.errors) {
+        render(reply.errors, true);
         showStatus('Проверьте отмеченные поля. Заявка не отправлена.', true);
         focusError(); return;
       }
-      if (reply.status !== 'ok') throw new Error('server');
+      if (!reply.ok) throw new Error('server');
       showStatus('Заявка записана. Мы свяжемся с вами для подтверждения праздника.', false);
       form.reset(); touched.clear(); attempted = false; requestId = ''; lastPayload = '';
       renderOrderOptions(); recalc(); render({}, true);
