@@ -8,3 +8,6 @@ node_modules/
 
 # Персональные данные заявок
 orders/**/*.json
+
+assets/js/config.js
+.env

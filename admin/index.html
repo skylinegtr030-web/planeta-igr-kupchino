@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Админка сайта</title>
+<style>
+:root{--bg:#0f1115;--card:#171a21;--line:#262b36;--txt:#e8ecf3;--mut:#9aa4b6;--acc:#ff7a1a;--ok:#2bb673;--err:#e5484d}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+header{display:flex;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+header b{font-size:16px}nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--txt);padding:8px 14px;border-radius:9px}
+button.tab.on{background:var(--acc);border-color:var(--acc);color:#111}
+button.pri{background:var(--acc);border-color:var(--acc);color:#111;font-weight:600}
+button.del{border-color:#502}
+main{padding:18px;max-width:1100px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+input,textarea,select{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:#0e1116;color:var(--txt);font:inherit}
+label{display:block;font-size:12px;color:var(--mut);margin:8px 0 4px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.thumb{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0b0d11}
+.thumb img{width:100%;height:110px;object-fit:cover;display:block}
+.thumb .x{position:absolute;top:6px;right:6px;background:#000a;border:0;color:#fff;border-radius:6px;padding:2px 7px}
+.thumb[draggable=true]{cursor:grab}
+.muted{color:var(--mut);font-size:13px}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse}td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+#login{max-width:380px;margin:12vh auto}
+.hide{display:none}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ok);color:#06210f;padding:10px 18px;border-radius:10px;opacity:0;transition:.25s}
+#toast.on{opacity:1}#toast.bad{background:var(--err);color:#fff}
+</style></head><body>
+
+<div id="login" class="card">
+  <h2 style="margin-top:0">Вход в админку</h2>
+  <label>Email</label><input id="email" type="email" placeholder="you@mail.ru">
+  <label>Пароль</label><input id="pass" type="password">
+  <p><button class="pri" id="btnLogin" style="width:100%">Войти</button></p>
+  <p class="muted">Сессия сохраняется в браузере, повторно вводить не нужно.</p>
+</div>
+
+<div id="app" class="hide">
+<header><b>Админка</b><span class="muted" id="who"></span>
+  <nav>
+    <button class="tab on" data-t="orders">Заявки</button>
+    <button class="tab" data-t="products">Товары / пакеты</button>
+    <button class="tab" data-t="media">Фото</button>
+    <button class="tab" data-t="galleries">Галереи</button>
+    <button class="tab" data-t="settings">Настройки</button>
+    <button id="btnOut">Выйти</button>
+  </nav>
+</header>
+<main>
+  <section id="v-orders"></section>
+  <section id="v-products" class="hide"></section>
+  <section id="v-media" class="hide"></section>
+  <section id="v-galleries" class="hide"></section>
+  <section id="v-settings" class="hide"></section>
+</main>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import { sb, BUCKET, mediaUrl } from '../site/cms.js';
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let toastT;
+function toast(msg, bad){ const t=$('#toast'); t.textContent=msg; t.className='on'+(bad?' bad':'');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.className='',2600); }
+const STATUSES = ['Новая','В работе','Подтверждена','Отклонена'];
+
+/* ---------- auth ---------- */
+$('#btnLogin').onclick = async () => {
+  const { error } = await sb.auth.signInWithPassword({ email: $('#email').value.trim(), password: $('#pass').value });
+  error ? toast(error.message, 1) : boot();
+};
+$('#btnOut').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session) return;
+  const { data: prof } = await sb.from('admin_profiles').select('email,role').eq('user_id', session.user.id).maybeSingle();
+  if(!prof){ toast('Нет прав администратора', 1); await sb.auth.signOut(); return; }
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
+  $('#who').textContent = session.user.email + ' · ' + prof.role;
+  show('orders');
+}
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on')); b.classList.add('on'); show(b.dataset.t);
+});
+const views = { orders: renderOrders, products: renderProducts, media: renderMedia, galleries: renderGalleries, settings: renderSettings };
+function show(t){
+  ['orders','products','media','galleries','settings'].forEach(k => $('#v-'+k).classList.toggle('hide', k!==t));
+  views[t]();
+}
+
+/* ---------- заявки ---------- */
+async function renderOrders(){
+  const el = $('#v-orders');
+  const { data, error } = await sb.from('orders').select('*').order('created_at',{ascending:false}).limit(300);
+  if(error) return el.innerHTML = '<div class="card">'+esc(error.message)+'</div>';
+  const counts = STATUSES.map(s => s+': '+data.filter(o=>o.status===s).length).join(' · ');
+  el.innerHTML = '<div class="card"><b>Заявки</b> <span class="muted">'+esc(counts)+'</span></div>' +
+    '<div class="card"><table><tr><th>Дата</th><th>Имя</th><th>Телефон</th><th>Событие</th><th>Статус</th></tr>' +
+    data.map(o => '<tr><td>'+new Date(o.created_at).toLocaleString('ru-RU')+'</td><td>'+esc(o.name)+'</td>'+
+      '<td>'+esc(o.phone)+'</td><td>'+esc(o.event_date||'')+'</td>'+
+      '<td><select data-id="'+o.id+'" class="st">'+STATUSES.map(s=>'<option'+(s===o.status?' selected':'')+'>'+s+'</option>').join('')+'</select></td></tr>').join('') +
+    '</table></div>';
+  el.querySelectorAll('.st').forEach(s => s.onchange = async () => {
+    const { error } = await sb.from('orders').update({ status: s.value }).eq('id', s.dataset.id);
+    toast(error ? error.message : 'Статус обновлён', !!error);
+  });
+}
+
+/* ---------- товары ---------- */
+async function renderProducts(){
+  const el = $('#v-products');
+  const { data } = await sb.from('products').select('*, product_media(sort_order, media(id,storage_path))').order('sort_order');
+  el.innerHTML = '<div class="card"><button class="pri" id="addP">+ Добавить</button></div>' +
+    (data||[]).map(p => '<div class="card" data-id="'+p.id+'">'+
+      '<div class="row"><div><label>Название</label><input class="f" data-k="title" value="'+esc(p.title)+'"></div>'+
+      '<div><label>Цена будни</label><input class="f" data-k="price_weekday" type="number" value="'+(p.price_weekday??'')+'"></div>'+
+      '<div><label>Цена выходные</label><input class="f" data-k="price_weekend" type="number" value="'+(p.price_weekend??'')+'"></div>'+
+      '<div><label>Порядок</label><input class="f" data-k="sort_order" type="number" value="'+p.sort_order+'"></div></div>'+
+      '<label>Описание</label><textarea class="f" data-k="description" rows="2">'+esc(p.description)+'</textarea>'+
+      '<p><label><input type="checkbox" class="f" data-k="is_published" '+(p.is_published?'checked':'')+' style="width:auto"> Опубликован</label></p>'+
+      '<div class="grid">'+(p.product_media||[]).sort((a,b)=>a.sort_order-b.sort_order)
+        .map(pm=>'<div class="thumb"><img src="'+mediaUrl(pm.media.storage_path)+'"></div>').join('')+'</div>'+
+      '<p><button class="pri save">Сохранить</button> <button class="del">Удалить</button></p></div>').join('');
+  $('#addP').onclick = async () => {
+    const t = prompt('Название?'); if(!t) return;
+    const slug = t.toLowerCase().replace(/[^a-z0-9\u0430-\u044f]+/g,'-') + '-' + Date.now().toString(36);
+    const { error } = await sb.from('products').insert({ title:t, slug });
+    error ? toast(error.message,1) : renderProducts();
+  };
+  el.querySelectorAll('.save').forEach(b => b.onclick = async () => {
+    const card = b.closest('.card'), patch = {};
+    card.querySelectorAll('.f').forEach(f => patch[f.dataset.k] = f.type==='checkbox' ? f.checked : (f.value===''?null:f.value));
+    const { error } = await sb.from('products').update(patch).eq('id', card.dataset.id);
+    toast(error ? error.message : 'Сохранено', !!error);
+  });
+  el.querySelectorAll('.del').forEach(b => b.onclick = async () => {
+    if(!confirm('Удалить?')) return;
+    await sb.from('products').delete().eq('id', b.closest('.card').dataset.id); renderProducts();
+  });
+}
+
+/* ---------- фото ---------- */
+async function renderMedia(){
+  const el = $('#v-media');
+  const { data } = await sb.from('media').select('*').order('created_at',{ascending:false}).limit(300);
+  el.innerHTML = '<div class="card"><label>Загрузить фото (можно несколько)</label>'+
+    '<input type="file" id="up" multiple accept="image/*"><p class="muted">Большие фото сжимаются до 1600px автоматически.</p></div>'+
+    '<div class="card"><div class="grid">'+(data||[]).map(m=>'<div class="thumb" data-id="'+m.id+'">'+
+      '<img src="'+mediaUrl(m.storage_path)+'" loading="lazy"><button class="x">✕</button></div>').join('')+'</div></div>';
+  $('#up').onchange = async e => {
+    for (const file of e.target.files) {
+      const blob = await shrink(file);
+      const path = 'uploads/' + Date.now() + '-' + file.name.replace(/[^\w.\-]/g,'_').replace(/\.\w+$/,'.webp');
+      const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType:'image/webp', upsert:true });
+      if(error){ toast(error.message,1); continue; }
+      await sb.from('media').insert({ storage_path:path, folder:'uploads', bytes:blob.size });
+    }
+    toast('Загружено'); renderMedia();
+  };
+  el.querySelectorAll('.x').forEach(b => b.onclick = async () => {
+    const d = b.closest('.thumb');
+    const { data:m } = await sb.from('media').select('storage_path').eq('id', d.dataset.id).single();
+    await sb.storage.from(BUCKET).remove([m.storage_path]);
+    await sb.from('media').delete().eq('id', d.dataset.id); renderMedia();
+  });
+}
+function shrink(file, max=1600){
+  return new Promise(res => {
+    const img = new Image(); img.onload = () => {
+      const k = Math.min(1, max/Math.max(img.width,img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width*k); c.height = Math.round(img.height*k);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      c.toBlob(b => res(b), 'image/webp', 0.85);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/* ---------- галереи (drag & drop порядок) ---------- */
+async function renderGalleries(){
+  const el = $('#v-galleries');
+  const { data: gals } = await sb.from('galleries').select('*, gallery_media(sort_order, media(id,storage_path))').order('slug');
+  const { data: all } = await sb.from('media').select('id,storage_path').order('created_at',{ascending:false}).limit(300);
+  el.innerHTML = (gals||[]).map(g => {
+    const items = (g.gallery_media||[]).sort((a,b)=>a.sort_order-b.sort_order);
+    return '<div class="card" data-g="'+g.id+'"><b>'+esc(g.title||g.slug)+'</b> <span class="badge">'+items.length+' фото</span>'+
+      '<div class="grid sortable">'+items.map(i=>'<div class="thumb" draggable="true" data-m="'+i.media.id+'">'+
+        '<img src="'+mediaUrl(i.media.storage_path)+'" loading="lazy"><button class="x">✕</button></div>').join('')+'</div>'+
+      '<label>Добавить фото</label><select class="add"><option value="">—</option>'+
+      (all||[]).map(m=>'<option value="'+m.id+'">'+esc(m.storage_path)+'</option>').join('')+'</select>'+
+      '<p><button class="pri order">Сохранить порядок</button></p></div>';
+  }).join('') || '<div class="card">Галерей пока нет.</div>';
+
+  el.querySelectorAll('.sortable').forEach(list => {
+    let drag;
+    list.addEventListener('dragstart', e => drag = e.target.closest('.thumb'));
+    list.addEventListener('dragover', e => { e.preventDefault();
+      const over = e.target.closest('.thumb');
+      if(over && over!==drag) list.insertBefore(drag, over.nextSibling===drag ? over : over.nextSibling);
+    });
+  });
+  el.querySelectorAll('.order').forEach(b => b.onclick = async () => {
+    const card = b.closest('.card'), gid = card.dataset.g;
+    const ids = [...card.querySelectorAll('.thumb')].map(t=>t.dataset.m);
+    for(let i=0;i<ids.length;i++) await sb.from('gallery_media').update({ sort_order:i }).eq('gallery_id',gid).eq('media_id',ids[i]);
+    toast('Порядок сохранён');
+  });
+  el.querySelectorAll('.add').forEach(s => s.onchange = async () => {
+    if(!s.value) return;
+    const gid = s.closest('.card').dataset.g;
+    await sb.from('gallery_media').insert({ gallery_id:gid, media_id:s.value, sort_order:999 });
+    renderGalleries();
+  });
+  el.querySelectorAll('.x').forEach(b => b.onclick = async () => {
+    const t = b.closest('.thumb'), gid = t.closest('.card').dataset.g;
+    await sb.from('gallery_media').delete().eq('gallery_id',gid).eq('media_id',t.dataset.m);
+    renderGalleries();
+  });
+}
+
+/* ---------- настройки ---------- */
+async function renderSettings(){
+  const el = $('#v-settings');
+  const { data } = await sb.from('site_settings').select('*').order('key');
+  el.innerHTML = (data||[]).map(s => '<div class="card" data-k="'+esc(s.key)+'"><b>'+esc(s.key)+'</b>'+
+    '<textarea rows="8" class="js">'+esc(JSON.stringify(s.value,null,2))+'</textarea>'+
+    '<p><button class="pri save">Сохранить</button></p></div>').join('');
+  el.querySelectorAll('.save').forEach(b => b.onclick = async () => {
+    const card = b.closest('.card');
+    let v; try { v = JSON.parse(card.querySelector('.js').value); } catch(e){ return toast('Ошибка JSON',1); }
+    const { error } = await sb.from('site_settings').update({ value:v }).eq('key', card.dataset.k);
+    toast(error ? error.message : 'Сохранено', !!error);
+  });
+}
+
+boot();
+</script></body></html>
