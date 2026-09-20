@@ -111,6 +111,15 @@ async function apiPackages(res) {
   json(res, 200, { ok: true, packages: rows });
 }
 
+async function apiExtras(res) {
+  const { rows } = await pool.query(
+    `select slug, title, description, price, price_from, duration_min, upto,
+            emoji, photo_url, color1, color2, options, sort_order
+     from extras where is_published = true order by sort_order`
+  );
+  json(res, 200, { ok: true, extras: rows });
+}
+
 async function apiSettings(res, key) {
   if (key) {
     const { rows } = await pool.query(
@@ -175,6 +184,7 @@ async function handler(req, res) {
     json(res, 405, { ok: false, error: 'method_not_allowed' }); return;
   }
   if (pathname === '/api/packages' && method === 'GET') { await apiPackages(res); return; }
+  if (pathname === '/api/extras'   && method === 'GET') { await apiExtras(res);   return; }
   if (pathname.startsWith('/api/settings') && method === 'GET') {
     const key = pathname.replace('/api/settings', '').replace(/^\//, '') || null;
     await apiSettings(res, key); return;
