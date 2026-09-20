@@ -167,7 +167,9 @@ nav a:hover{color:var(--red);}
 }
 .area-list span:hover{transform:translateY(-6px) rotate(-2deg) scale(1.06);box-shadow:0 12px 24px rgba(17,26,59,.16);}
 
-.pack-grid{display:flex;flex-wrap:wrap;gap:26px;justify-content:center;}
+/* pack-grid скрыт до рендера JS */
+.pack-grid{display:flex;flex-wrap:wrap;gap:26px;justify-content:center;visibility:hidden;min-height:320px;}
+.pack-grid.js-ready{visibility:visible;}
 .pack{
   background:rgba(255,255,255,.9);border-radius:20px;padding:28px 24px;width:265px;box-shadow:0 12px 28px rgba(17,26,59,.08);
   position:relative;transition:transform .15s ease,box-shadow .3s;opacity:0;transform:translateY(30px);border:1px solid rgba(17,26,59,.06);
@@ -422,32 +424,8 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
     <span class="badge green">Пакеты праздника</span>
     <h2 style="font-size:2.2rem;margin-bottom:10px;">Выберите программу для рождения</h2>
     <p style="max-width:600px;margin-bottom:30px;font-weight:600;color:#42506e;">Нажмите на пакет — откроется форма заявки с этой программой, где можно сразу увидеть примерную стоимость и время окончания праздника.</p>
-    <div class="pack-grid">
-      <div class="pack" onclick="openOrder('malysh')"><span class="pack-tag">Хит</span>
-        <h3>Малыш JO</h3><div class="guests">До 6 гостей</div>
-        <div class="price">24 500 ₽</div><div class="pack-perf"></div>
-        <ul><li>3 часа банкетной комнаты</li><li>Праздничная сервировка</li><li>6 безлимитных билетов</li><li>Аниматор с героем — 1 час</li></ul>
-        <div class="pack-cta">Нажмите, чтобы заказать →</div>
-      </div>
-      <div class="pack" onclick="openOrder('jungle')">
-        <h3>Гости в джунглях</h3><div class="guests">До 8 гостей</div>
-        <div class="price">33 000 ₽</div><div class="pack-perf"></div>
-        <ul><li>Всё из пакета «Малыш JO»</li><li>Аквагрим / блеск-тату</li><li>10 гелиевых шаров</li><li>2 тайм-карты, приглашения</li></ul>
-        <div class="pack-cta">Нажмите, чтобы заказать →</div>
-      </div>
-      <div class="pack" onclick="openOrder('king')"><span class="pack-tag">Топ</span>
-        <h3>Король саванны</h3><div class="guests">До 10 гостей</div>
-        <div class="price">50 500 ₽</div><div class="pack-perf"></div>
-        <ul><li>4 часа банкетной комнаты</li><li>МК / шоу / квест на выбор</li><li>«Лава-пол» и 3 карты на автоматы</li><li class="gift">Серебряное шоу в подарок</li></ul>
-        <div class="pack-cta">Нажмите, чтобы заказать →</div>
-      </div>
-      <div class="pack" onclick="openOrder('cyber')">
-        <h3>Кибер Пати</h3><div class="guests">До 10 гостей</div>
-        <div class="price">36 500 ₽</div><div class="pack-perf"></div>
-        <ul><li>3 часа банкетной комнаты</li><li>5 тайм-карт на 60 минут</li><li>Лазертаг «Кузар» — 1 час</li><li>«Лава-пол» — 20 минут</li></ul>
-        <div class="pack-cta">Нажмите, чтобы заказать →</div>
-      </div>
-    </div>
+    <!-- Карточки рендерятся через packages.js — не добавляйте статический HTML сюда -->
+    <div class="pack-grid" id="packGrid"></div>
   </div>
 </section>
 
@@ -799,17 +777,6 @@ document.querySelectorAll('.btn-primary').forEach(btn=>{
   });
 });
 
-/* Gentle tilt on price cards */
-document.querySelectorAll('.pack').forEach(card=>{
-  card.addEventListener('mousemove',(e)=>{
-    const r=card.getBoundingClientRect();
-    const x=(e.clientX-r.left)/r.width-0.5;
-    const y=(e.clientY-r.top)/r.height-0.5;
-    card.style.transform=`translateY(-6px) rotateX(${(-y*8).toFixed(2)}deg) rotateY(${(x*8).toFixed(2)}deg)`;
-  });
-  card.addEventListener('mouseleave',()=>{card.style.transform='';});
-});
-
 const observer=new IntersectionObserver((entries)=>{
   entries.forEach(en=>{
     if(en.isIntersecting){
@@ -883,7 +850,6 @@ const QTY_EXTRAS = ['timeCards','timeCards60','unlimitedTicket','unlimitedTicket
 function extraQtyOf(id){ return QTY_EXTRAS.indexOf(id) !== -1; }
 /* ===== Order form render & logic ===== */
 function renderOrderOptions(){
-  // запоминаем текущий выбор — перерисовка не должна его сбрасывать
   const form0=document.getElementById('orderForm');
   const prevPack=form0.querySelector('input[name="pack"]:checked')?.value||'';
   const prevRoom=form0.querySelector('input[name="room"]:checked')?.value||'';
@@ -930,7 +896,6 @@ function renderOrderOptions(){
     });
   });
 
-  // восстанавливаем выбор
   if(prevPack){const p=form0.querySelector(`input[name="pack"][value="${prevPack}"]`);if(p)p.checked=true;}
   if(prevRoom){const r=form0.querySelector(`input[name="room"][value="${prevRoom}"]`);if(r)r.checked=true;}
   prevExtras.forEach(id=>{const c=form0.querySelector(`input[name="extra"][value="${id}"]`);if(c)c.checked=true;});
@@ -952,7 +917,7 @@ function recalc(){
     duration+=PACKS[packId].duration;
     price+=PACKS[packId].price;
   } else if(roomVal){
-    duration+=120; price+=5000; // базовая аренда комнаты 2 часа
+    duration+=120; price+=5000;
   }
   extraChecks.forEach(id=>{
     duration+=EXTRAS[id].duration;
@@ -987,7 +952,6 @@ function recalc(){
   }
   document.getElementById('sumPrice').innerHTML=priceText;
 
-  /* mirror computed values into hidden fields for the sheet webhook */
   document.getElementById('hPackName').value = packId && PACKS[packId] ? PACKS[packId].name+' — '+PACKS[packId].price.toLocaleString('ru-RU')+' ₽' : '';
   document.getElementById('hRoomName').value = roomVal && ROOMS[roomVal] ? ROOMS[roomVal].name : '';
   document.getElementById('hExtrasNames').value = extraChecks.map(id=>EXTRAS[id].name).join(', ');
@@ -1017,11 +981,9 @@ function openOrder(packId,roomId,extraId){
 }
 function closeOrder(){document.getElementById('orderModal').classList.remove('active');}
 
-/* POSTs to the Google Apps Script Web App once SHEET_WEBHOOK_URL is filled in below */
 const SHEET_WEBHOOK_URL=(window.PLANETA_CONFIG&&window.PLANETA_CONFIG.sheetWebhookUrl)||"https://script.google.com/macros/s/AKfycbxyNdqz_-U_DDZRGyIF-2y_sITJwBbsH7Q5CHRtBs2e8lMFGB532Ne10q99xbeRi4m9Vw/exec";
 function submitOrder(e){
   e.preventDefault();
-  // Fail closed if assets/js/validation.js has not loaded; never claim an unsent order succeeded.
   const message=document.getElementById('orderSentMsg');
   message.textContent='Проверка формы не загрузилась. Обновите страницу и попробуйте снова.';
   message.style.color='#a91616';
@@ -1059,6 +1021,7 @@ function usePromoInOrder(){
 </script>
 <script src="assets/js/order-rules.js?v=3"></script>
 <script src="assets/js/validation.js?v=5"></script>
+<script src="assets/js/packages.js?v=4"></script>
 <script src="assets/js/cart.js?v=2"></script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ChildrensEntertainment","name":"Планета Игр — Купчино","telephone":"+79818180134","address":{"@type":"PostalAddress","streetAddress":"Балканская площадь, 5, ТРК «Балкания Nova»","addressLocality":"Санкт-Петербург","addressCountry":"RU"},"openingHours":"Mo-Su 10:00-22:00","url":"https://planeta-igr-kupchino.vercel.app/"}

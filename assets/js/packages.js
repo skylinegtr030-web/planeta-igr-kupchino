@@ -110,7 +110,10 @@
 
   function renderGrid() {
     var grid = document.querySelector('#prices .pack-grid');
-    if (grid) grid.innerHTML = Object.keys(DATA).map(function (id) { return card(id, DATA[id]); }).join('');
+    if (!grid) return;
+    grid.innerHTML = Object.keys(DATA).map(function (id) { return card(id, DATA[id]); }).join('');
+    // Снимаем скрытие только после того как карточки отрендерены
+    grid.classList.add('js-ready');
   }
 
   applyPrices();
