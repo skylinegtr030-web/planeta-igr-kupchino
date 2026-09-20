@@ -3,6 +3,7 @@ services:
     container_name: planeta-igr-web
     networks:
       - web
+      - default
 
 networks:
   web:
