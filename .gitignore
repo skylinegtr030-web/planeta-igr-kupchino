@@ -8,3 +8,5 @@ node_modules/
 orders/**/*.json
 runtime/
 server-admin/
+
+db/sql/04_seed_admin.sql
