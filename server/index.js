@@ -31,6 +31,9 @@ const MIME = {
   '.pdf':  'application/pdf'
 };
 
+// HTML-файлы никогда не кешируем — чтобы обновления сразу подхватывались
+const NO_CACHE_EXTS = new Set(['.html']);
+
 const PRIVATE_PREFIXES = ['/server','/runtime','/backups','/.git','/.github'];
 
 // ─ helpers ─────────────────────────────────────────────────────────────────────
@@ -88,7 +91,6 @@ async function adminLogin(req, res) {
   const input = await parseBody(req);
   const pwd   = clean(input.password || '', 200);
   if (!pwd) { json(res, 422, { ok: false, error: 'password_required' }); return; }
-  // проверяем пароль через bcrypt в PostgreSQL
   const { rows } = await pool.query(
     `select id from admins where pass_hash = crypt($1, pass_hash) limit 1`, [pwd]
   );
@@ -131,9 +133,13 @@ async function saveOrder(req, res) {
     packName:     clean(input.packName,     200),
     roomName:     clean(input.roomName,     200),
     extrasNames:  clean(input.extrasNames,  500),
+    extraNames:   Array.isArray(input.extraNames)
+                    ? input.extraNames.map(x => clean(x, 200))
+                    : [],
     durationText: clean(input.durationText, 100),
     endTimeText:  clean(input.endTimeText,  100),
     priceText:    clean(input.priceText,    200),
+    promo:        clean(input.promo,         80),
     source: 'website'
   };
   const eventDate = clean(input.eventDate, 20) || null;
@@ -173,6 +179,14 @@ async function apiOrderPatch(req, res, id) {
   p.push(id);
   const { rowCount } = await pool.query(`update orders set ${sets.join(',')} where id=$${p.length}`, p);
   if (!rowCount) { json(res,404,{ok:false,error:'not_found'}); return; }
+  json(res, 200, { ok: true });
+}
+
+// ─ DELETE /api/orders/:id ──────────────────────────────────────────────────────
+async function apiOrderDelete(req, res, id) {
+  const s = await requireSession(req, res); if (!s) return;
+  const { rowCount } = await pool.query('delete from orders where id=$1', [id]);
+  if (!rowCount) { json(res, 404, { ok: false, error: 'not_found' }); return; }
   json(res, 200, { ok: true });
 }
 
@@ -288,12 +302,14 @@ async function serveStatic(req, res, pathname) {
     if (stat.isDirectory()) { target=path.join(target,'index.html'); stat=await fsp.stat(target); }
     if (!stat.isFile()) throw new Error('not_file');
     const ext=path.extname(target).toLowerCase();
+    // HTML — без кеша, остальное — 1 час
+    const cacheControl = NO_CACHE_EXTS.has(ext) ? 'no-cache, no-store, must-revalidate' : 'public, max-age=3600';
     res.writeHead(200,{
       'Content-Type': MIME[ext]||'application/octet-stream',
       'Content-Length': stat.size,
       'X-Content-Type-Options':'nosniff',
       'Referrer-Policy':'strict-origin-when-cross-origin',
-      'Cache-Control':'public, max-age=3600'
+      'Cache-Control': cacheControl
     });
     fs.createReadStream(target).pipe(res);
   } catch {
@@ -325,8 +341,9 @@ async function handler(req, res) {
   if (pathname==='/api/order'  && method==='POST') { await saveOrder(req,res);  return; }
   if (pathname==='/api/orders' && method==='GET')  { await apiOrders(req,res);  return; }
   if (pathname==='/api/stats'  && method==='GET')  { await apiStats(req,res);   return; }
-  const opatch = pathname.match(/^\/api\/orders\/([\w-]+)$/);
-  if (opatch && method==='PATCH') { await apiOrderPatch(req,res,opatch[1]); return; }
+  const omatch = pathname.match(/^\/api\/orders\/([\w-]+)$/);
+  if (omatch && method==='PATCH')  { await apiOrderPatch(req,res,omatch[1]);  return; }
+  if (omatch && method==='DELETE') { await apiOrderDelete(req,res,omatch[1]); return; }
 
   // packages
   if (pathname==='/api/packages' && method==='GET') { await apiPackages(res); return; }
