@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Админка — Планета Игр</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+a{color:#7c3aed;text-decoration:none}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{background:#1e2130;border:1px solid #2d3148;border-radius:16px;padding:40px;width:100%;max-width:380px}
+.login-box h1{font-size:1.4rem;margin-bottom:8px;text-align:center}
+.login-box p{color:#94a3b8;text-align:center;margin-bottom:28px;font-size:.9rem}
+.login-box input{width:100%;padding:12px 16px;background:#0f1117;border:1px solid #2d3148;border-radius:10px;color:#e2e8f0;font-size:1rem;margin-bottom:12px}
+.login-box input:focus{outline:none;border-color:#7c3aed}
+.btn-primary{width:100%;padding:13px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:.2s}
+.btn-primary:hover{background:#6d28d9}
+.login-error{color:#f87171;font-size:.85rem;margin-top:8px;text-align:center;display:none}
+
+/* LAYOUT */
+#app{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:#1e2130;border-right:1px solid #2d3148;padding:24px 0;display:flex;flex-direction:column}
+.sidebar-logo{padding:0 24px 24px;border-bottom:1px solid #2d3148;margin-bottom:16px}
+.sidebar-logo span{font-size:1.1rem;font-weight:700;color:#fff}
+.sidebar-logo small{display:block;color:#64748b;font-size:.75rem;margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 24px;color:#94a3b8;cursor:pointer;border-radius:0;transition:.15s;font-size:.9rem}
+.nav-item:hover{background:#2d3148;color:#e2e8f0}
+.nav-item.active{background:#2d1f5e;color:#a78bfa;font-weight:600}
+.nav-item .ic{font-size:1.1rem;width:20px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:16px 24px;border-top:1px solid #2d3148}
+.btn-logout{width:100%;padding:9px;background:transparent;border:1px solid #2d3148;border-radius:8px;color:#94a3b8;cursor:pointer;font-size:.85rem;transition:.2s}
+.btn-logout:hover{border-color:#f87171;color:#f87171}
+
+.main{margin-left:220px;padding:32px}
+.page{display:none}
+.page.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:#1e2130;border:1px solid #2d3148;border-radius:12px;padding:20px}
+.stat-card .val{font-size:2rem;font-weight:700;color:#a78bfa}
+.stat-card .lbl{font-size:.8rem;color:#64748b;margin-top:4px}
+
+/* TABLE */
+.card{background:#1e2130;border:1px solid #2d3148;border-radius:12px;overflow:hidden;margin-bottom:24px}
+.card-header{padding:16px 20px;border-bottom:1px solid #2d3148;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-header h2{font-size:1rem;font-weight:600}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap}
+select,input[type=text],input[type=number],textarea{
+  background:#0f1117;border:1px solid #2d3148;border-radius:8px;
+  color:#e2e8f0;padding:7px 12px;font-size:.85rem
+}
+select:focus,input:focus,textarea:focus{outline:none;border-color:#7c3aed}
+textarea{width:100%;resize:vertical;min-height:70px}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:.78rem;color:#64748b;font-weight:600;text-transform:uppercase;border-bottom:1px solid #2d3148}
+td{padding:12px 16px;font-size:.85rem;border-bottom:1px solid #1a1f35;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#1a1f35}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+.badge-new{background:#1e3a5f;color:#60a5fa}
+.badge-work{background:#1f2d1a;color:#86efac}
+.badge-ok{background:#14291a;color:#4ade80}
+.badge-no{background:#2d1a1a;color:#f87171}
+.btn-sm{padding:5px 12px;border-radius:6px;font-size:.8rem;cursor:pointer;border:none;font-weight:500;transition:.15s}
+.btn-edit{background:#2d3148;color:#e2e8f0}.btn-edit:hover{background:#3d4268}
+.btn-save{background:#7c3aed;color:#fff}.btn-save:hover{background:#6d28d9}
+.btn-del{background:#2d1a1a;color:#f87171}.btn-del:hover{background:#3d2020}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100}
+.overlay.open{display:flex}
+.modal{background:#1e2130;border:1px solid #2d3148;border-radius:16px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal h3{margin-bottom:20px;font-size:1.1rem}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:.8rem;color:#94a3b8;margin-bottom:5px}
+.form-row input,.form-row select,.form-row textarea{width:100%}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+.section-title{font-size:1.3rem;font-weight:700;margin-bottom:20px}
+.empty{padding:40px;text-align:center;color:#64748b}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>🌍 Планета Игр</h1>
+    <p>Административная панель</p>
+    <input type="password" id="pwd-input" placeholder="Пароль" />
+    <button class="btn-primary" onclick="doLogin()">войти</button>
+    <div class="login-error" id="login-err">Неверный пароль</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <span>🌍 Планета Игр</span>
+      <small>Админпанель</small>
+    </div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="ic">📊</span> Дашборд
+    </div>
+    <div class="nav-item" onclick="showPage('orders')">
+      <span class="ic">📋</span> Заявки
+    </div>
+    <div class="nav-item" onclick="showPage('packages')">
+      <span class="ic">🎁</span> Пакеты
+    </div>
+    <div class="nav-item" onclick="showPage('extras')">
+      <span class="ic">✨</span> Доп. услуги
+    </div>
+    <div class="nav-item" onclick="showPage('contacts')">
+      <span class="ic">📞</span> Контакты
+    </div>
+    <div class="nav-item" onclick="showPage('media')">
+      <span class="ic">🖼️</span> Медиа
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">Выйти</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="section-title">📊 Дашборд</div>
+      <div class="stats-grid" id="stats-grid"></div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="section-title">📋 Заявки</div>
+      <div class="card">
+        <div class="card-header">
+          <h2>Список заявок</h2>
+          <div class="filter-row">
+            <select id="order-filter" onchange="loadOrders()">
+              <option value="">Все</option>
+              <option>Новая</option>
+              <option>В работе</option>
+              <option>Подтверждена</option>
+              <option>Отклонена</option>
+            </select>
+          </div>
+        </div>
+        <div id="orders-table"></div>
+      </div>
+    </div>
+
+    <!-- PACKAGES -->
+    <div class="page" id="page-packages">
+      <div class="section-title">🎁 Пакеты</div>
+      <div class="card" id="packages-card"></div>
+    </div>
+
+    <!-- EXTRAS -->
+    <div class="page" id="page-extras">
+      <div class="section-title">✨ Дополнительные услуги</div>
+      <div class="card" id="extras-card"></div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="page" id="page-contacts">
+      <div class="section-title">📞 Контакты и настройки</div>
+      <div class="card" style="padding:24px" id="contacts-card"></div>
+    </div>
+
+    <!-- MEDIA -->
+    <div class="page" id="page-media">
+      <div class="section-title">🖼️ Медиатека</div>
+      <div class="card" id="media-card"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="overlay" id="order-modal">
+  <div class="modal">
+    <h3>📋 Заявка #<span id="m-id"></span></h3>
+    <div style="margin-bottom:12px;font-size:.85rem;color:#94a3b8" id="m-info"></div>
+    <div class="form-row">
+      <label>Статус</label>
+      <select id="m-status">
+        <option>Новая</option>
+        <option>В работе</option>
+        <option>Подтверждена</option>
+        <option>Отклонена</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Заметка</label>
+      <textarea id="m-note" placeholder="Примечание администратора..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-edit" onclick="closeModal()">Отмена</button>
+      <button class="btn-sm btn-save" onclick="saveOrder()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let TOKEN = localStorage.getItem('adm_token') || '';
+let currentOrderId = null;
+
+// ─ AUTH ───────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  const r = await fetch('/api/admin/login', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ password: pwd })
+  });
+  const d = await r.json();
+  if (d.ok) {
+    TOKEN = d.token;
+    localStorage.setItem('adm_token', TOKEN);
+    showApp();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+document.getElementById('pwd-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogout() {
+  fetch('/api/admin/logout', { method:'POST', headers: authH() });
+  TOKEN = '';
+  localStorage.removeItem('adm_token');
+  location.reload();
+}
+
+function authH() { return { 'Authorization': 'Bearer ' + TOKEN }; }
+
+async function checkAuth() {
+  if (!TOKEN) return;
+  const r = await fetch('/api/admin/check', { headers: authH() });
+  if (r.ok) showApp();
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadDashboard();
+}
+
+// ─ NAV ─────────────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  const loaders = { dashboard: loadDashboard, orders: loadOrders,
+    packages: loadPackages, extras: loadExtras, contacts: loadContacts, media: loadMedia };
+  if (loaders[name]) loaders[name]();
+}
+
+// ─ DASHBOARD ─────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const r = await fetch('/api/stats', { headers: authH() });
+  const d = await r.json();
+  if (!d.ok) return;
+  const s = d.stats;
+  const grid = document.getElementById('stats-grid');
+  grid.innerHTML = [
+    [s.total,       'Всего заявок'],
+    [s.new_count,   'Новых'],
+    [s.confirmed,   'Подтверждено'],
+    [s.cancelled,   'Отклонено'],
+    [s.upcoming_30d,'Ближайшие 30 дней'],
+    [s.last_7d,     'За 7 дней'],
+  ].map(([v,l]) => `<div class="stat-card"><div class="val">${v}</div><div class="lbl">${l}</div></div>`).join('');
+}
+
+// ─ ORDERS ────────────────────────────────────────────────────────────────
+async function loadOrders() {
+  const st = document.getElementById('order-filter').value;
+  const url = '/api/orders' + (st ? '?status=' + encodeURIComponent(st) : '');
+  const r = await fetch(url, { headers: authH() });
+  const d = await r.json();
+  const el = document.getElementById('orders-table');
+  if (!d.orders || !d.orders.length) { el.innerHTML = '<div class="empty">Заявок нет</div>'; return; }
+  const badgeClass = { 'Новая':'badge-new','В работе':'badge-work','Подтверждена':'badge-ok','Отклонена':'badge-no' };
+  el.innerHTML = `<table>
+    <thead><tr><th>#</th><th>Имя</th><th>Телефон</th><th>Дата</th><th>Статус</th><th>Пакет</th><th></th></tr></thead>
+    <tbody>${d.orders.map(o => {
+      const p = o.payload || {};
+      const dt = o.event_date ? new Date(o.event_date).toLocaleDateString('ru') : '—';
+      const created = new Date(o.created_at).toLocaleDateString('ru');
+      return `<tr>
+        <td style="color:#64748b">${created}</td>
+        <td><b>${esc(o.name)}</b></td>
+        <td>${esc(o.phone)}</td>
+        <td>${dt}</td>
+        <td><span class="badge ${badgeClass[o.status]||'badge-new'}">${o.status}</span></td>
+        <td style="color:#94a3b8">${esc(p.packName||'')}</td>
+        <td><button class="btn-sm btn-edit" onclick='openOrder(${JSON.stringify(o)})'>Открыть</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function openOrder(o) {
+  currentOrderId = o.id;
+  document.getElementById('m-id').textContent = String(o.id).slice(0,8);
+  const p = o.payload || {};
+  const dt = o.event_date ? new Date(o.event_date).toLocaleDateString('ru') : '—';
+  document.getElementById('m-info').innerHTML =
+    `<b>${esc(o.name)}</b> &bull; ${esc(o.phone)} &bull; Дата: ${dt}<br>
+     Пакет: ${esc(p.packName||'—')} &bull; Зал: ${esc(p.roomName||'—')} &bull; Цена: ${esc(p.priceText||'—')}<br>
+     ${ p.extrasNames ? 'Доп: ' + esc(p.extrasNames) + '<br>' : '' }
+     ${ p.comment ? 'Коммент: ' + esc(p.comment) : '' }`;
+  document.getElementById('m-status').value = o.status;
+  document.getElementById('m-note').value   = o.admin_note || '';
+  document.getElementById('order-modal').classList.add('open');
+}
+
+async function saveOrder() {
+  const status = document.getElementById('m-status').value;
+  const note   = document.getElementById('m-note').value;
+  await fetch(`/api/orders/${currentOrderId}`, {
+    method: 'PATCH',
+    headers: { ...authH(), 'Content-Type':'application/json' },
+    body: JSON.stringify({ status, admin_note: note })
+  });
+  closeModal();
+  loadOrders();
+}
+
+function closeModal() {
+  document.getElementById('order-modal').classList.remove('open');
+}
+
+// ─ PACKAGES ────────────────────────────────────────────────────────────
+async function loadPackages() {
+  const r = await fetch('/api/packages');
+  const d = await r.json();
+  const el = document.getElementById('packages-card');
+  el.innerHTML = `
+    <div class="card-header"><h2>Пакеты и цены</h2></div>
+    <table>
+      <thead><tr><th>Название</th><th>Будни</th><th>Выходные</th><th></th></tr></thead>
+      <tbody id="pkg-body"></tbody>
+    </table>`;
+  document.getElementById('pkg-body').innerHTML = d.packages.map(p => `
+    <tr id="pkg-${p.slug}">
+      <td><b>${esc(p.title)}</b><br><span style="color:#64748b;font-size:.8rem">${esc(p.description||'')}</span></td>
+      <td><input type="number" value="${p.price_weekday}" id="pwd-${p.slug}" style="width:100px"></td>
+      <td><input type="number" value="${p.price_weekend}" id="pwe-${p.slug}" style="width:100px"></td>
+      <td><button class="btn-sm btn-save" onclick="savePkg('${p.slug}')">Сохранить</button></td>
+    </tr>`).join('');
+}
+
+async function savePkg(slug) {
+  const pwd = document.getElementById('pwd-' + slug).value;
+  const pwe = document.getElementById('pwe-' + slug).value;
+  await fetch('/api/admin/packages/' + slug, {
+    method: 'PATCH',
+    headers: { ...authH(), 'Content-Type':'application/json' },
+    body: JSON.stringify({ price_weekday: Number(pwd), price_weekend: Number(pwe) })
+  });
+  showToast('Сохранено');
+}
+
+// ─ EXTRAS ────────────────────────────────────────────────────────────────
+async function loadExtras() {
+  const r = await fetch('/api/extras');
+  const d = await r.json();
+  const el = document.getElementById('extras-card');
+  el.innerHTML = `
+    <div class="card-header"><h2>Доп. услуги</h2></div>
+    <table>
+      <thead><tr><th>Название</th><th>Цена</th><th>Описание</th><th></th></tr></thead>
+      <tbody id="ext-body"></tbody>
+    </table>`;
+  document.getElementById('ext-body').innerHTML = d.extras.map(e => `
+    <tr>
+      <td><b>${e.emoji||''} ${esc(e.title)}</b></td>
+      <td><input type="number" value="${e.price}" id="ep-${e.slug}" style="width:100px"></td>
+      <td><input type="text" value="${esc(e.description||'')}" id="ed-${e.slug}" style="width:200px"></td>
+      <td><button class="btn-sm btn-save" onclick="saveExtra('${e.slug}')">Сохранить</button></td>
+    </tr>`).join('');
+}
+
+async function saveExtra(slug) {
+  const price = document.getElementById('ep-' + slug).value;
+  const desc  = document.getElementById('ed-' + slug).value;
+  await fetch('/api/admin/extras/' + slug, {
+    method: 'PATCH',
+    headers: { ...authH(), 'Content-Type':'application/json' },
+    body: JSON.stringify({ price: Number(price), description: desc })
+  });
+  showToast('Сохранено');
+}
+
+// ─ CONTACTS ───────────────────────────────────────────────────────────
+async function loadContacts() {
+  const r = await fetch('/api/settings');
+  const d = await r.json();
+  const s = d.settings || {};
+  const c = s.contacts || {};
+  const t = s.tiers   || {};
+  const rm = s.rooms  || {};
+  document.getElementById('contacts-card').innerHTML = `
+    <div style="display:grid;gap:20px;max-width:560px">
+      <div>
+        <h3 style="margin-bottom:14px;font-size:1rem">📍 Контакты</h3>
+        <div class="form-row"><label>Телефон</label><input id="c-phone" value="${esc(c.phone||'')}"></div>
+        <div class="form-row"><label>Адрес (short)</label><input id="c-addr" value="${esc(c.addressShort||'')}"></div>
+        <div class="form-row"><label>Часы</label><input id="c-hours" value="${esc(c.hours||'')}"></div>
+        <button class="btn-sm btn-save" onclick="saveContacts()">Сохранить контакты</button>
+      </div>
+      <div>
+        <h3 style="margin-bottom:14px;font-size:1rem">🏷️ Тарифы</h3>
+        <div class="form-row"><label>Карточка 30 мин</label><input type="number" id="t-30" value="${t.timeCards30||''}"></div>
+        <div class="form-row"><label>Карточка 60 мин</label><input type="number" id="t-60" value="${t.timeCards60||''}"></div>
+        <div class="form-row"><label>Безлимит будни</label><input type="number" id="t-wd" value="${t.unlimitedWeekday||''}"></div>
+        <div class="form-row"><label>Безлимит выходные</label><input type="number" id="t-we" value="${t.unlimitedWeekend||''}"></div>
+        <button class="btn-sm btn-save" onclick="saveTiers()">Сохранить тарифы</button>
+      </div>
+      <div>
+        <h3 style="margin-bottom:14px;font-size:1rem">🏠 Залы</h3>
+        <div class="form-row"><label>Базовая цена зала</label><input type="number" id="r-base" value="${rm.roomBase||''}"></div>
+        <div class="form-row"><label>Доплата за час</label><input type="number" id="r-ext" value="${rm.extendPerHour||''}"></div>
+        <button class="btn-sm btn-save" onclick="saveRooms()">Сохранить залы</button>
+      </div>
+    </div>`;
+}
+
+async function saveContacts() {
+  const cur = await (await fetch('/api/settings/contacts')).json();
+  const val = { ...(cur.value||{}),
+    phone: document.getElementById('c-phone').value,
+    addressShort: document.getElementById('c-addr').value,
+    hours: document.getElementById('c-hours').value
+  };
+  await fetch('/api/admin/settings/contacts', {
+    method:'PUT', headers:{...authH(),'Content-Type':'application/json'},
+    body: JSON.stringify({ value: val })
+  });
+  showToast('Сохранено');
+}
+
+async function saveTiers() {
+  const val = {
+    timeCards30: Number(document.getElementById('t-30').value),
+    timeCards60: Number(document.getElementById('t-60').value),
+    unlimitedWeekday: Number(document.getElementById('t-wd').value),
+    unlimitedWeekend: Number(document.getElementById('t-we').value)
+  };
+  await fetch('/api/admin/settings/tiers', {
+    method:'PUT', headers:{...authH(),'Content-Type':'application/json'},
+    body: JSON.stringify({ value: val })
+  });
+  showToast('Сохранено');
+}
+
+async function saveRooms() {
+  const val = {
+    roomBase: Number(document.getElementById('r-base').value),
+    extendPerHour: Number(document.getElementById('r-ext').value)
+  };
+  await fetch('/api/admin/settings/rooms', {
+    method:'PUT', headers:{...authH(),'Content-Type':'application/json'},
+    body: JSON.stringify({ value: val })
+  });
+  showToast('Сохранено');
+}
+
+// ─ MEDIA ─────────────────────────────────────────────────────────────────
+async function loadMedia() {
+  const r = await fetch('/api/media');
+  const d = await r.json();
+  const el = document.getElementById('media-card');
+  const groups = {};
+  (d.media||[]).forEach(m => { (groups[m.group] = groups[m.group]||[]).push(m); });
+  el.innerHTML = `<div class="card-header"><h2>Фотографии</h2></div>
+    <div style="padding:20px">
+    ${Object.entries(groups).map(([g, items]) => `
+      <div style="margin-bottom:24px">
+        <div style="font-weight:600;margin-bottom:10px;color:#a78bfa">${g}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          ${items.map(m => `
+            <div style="position:relative">
+              <img src="/${m.path}" style="width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #2d3148">
+              <div style="font-size:.7rem;color:#64748b;margin-top:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.alt||m.path)}</div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+
+// ─ UTILS ──────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  Object.assign(t.style, {
+    position:'fixed',bottom:'24px',right:'24px',background:'#7c3aed',color:'#fff',
+    padding:'10px 20px',borderRadius:'10px',fontWeight:'600',zIndex:'999',fontSize:'.9rem'
+  });
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+// ─ INIT
+checkAuth();
+</script>
+</body>
+</html>
