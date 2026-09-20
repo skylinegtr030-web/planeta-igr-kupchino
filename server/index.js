@@ -1,45 +1,57 @@
-const http = require('http');
-const fs = require('fs');
-const fsp = fs.promises;
-const path = require('path');
-const crypto = require('crypto');
+'use strict';
+const http    = require('http');
+const fs      = require('fs');
+const fsp     = fs.promises;
+const path    = require('path');
+const crypto  = require('crypto');
+const { Pool } = require('pg');
 
-const PORT = Number(process.env.PORT || 3000);
+const PORT      = Number(process.env.PORT || 3000);
 const SITE_ROOT = path.resolve(__dirname, '..');
-const DATA_ROOT = path.resolve('/app/data');
-const ORDERS_ROOT = path.join(DATA_ROOT, 'orders');
-const MAX_BODY = Number(process.env.MAX_ORDER_BODY_BYTES || 1048576);
+const MAX_BODY  = Number(process.env.MAX_ORDER_BODY_BYTES || 65536);
+
+// PostgreSQL пул — ждём готовности при старте
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000
+});
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
+  '.css':  'text/css; charset=utf-8',
+  '.js':   'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.jpg': 'image/jpeg',
+  '.svg':  'image/svg+xml',
+  '.jpg':  'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
+  '.png':  'image/png',
   '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.pdf': 'application/pdf'
+  '.ico':  'image/x-icon',
+  '.pdf':  'application/pdf'
 };
 
 const PRIVATE_PREFIXES = [
-  '/admin', '/server', '/runtime', '/backups', '/.git', '/.github', '/api/'
+  '/server', '/runtime', '/backups', '/.git', '/.github'
 ];
+
+// ────────────────────────────────────────────────
+// Утилиты
+// ────────────────────────────────────────────────
 
 function json(res, status, body) {
   const payload = JSON.stringify(body);
   res.writeHead(status, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Content-Length': Buffer.byteLength(payload),
-    'Cache-Control': 'no-store',
+    'Content-Type':           'application/json; charset=utf-8',
+    'Content-Length':         Buffer.byteLength(payload),
+    'Cache-Control':          'no-store',
     'X-Content-Type-Options': 'nosniff'
   });
   res.end(payload);
 }
 
-function readJson(req) {
+function readBody(req) {
   return new Promise((resolve, reject) => {
     let size = 0;
     const chunks = [];
@@ -56,7 +68,7 @@ function readJson(req) {
       try {
         const raw = Buffer.concat(chunks).toString('utf8');
         resolve(raw ? JSON.parse(raw) : {});
-      } catch (error) {
+      } catch {
         reject(Object.assign(new Error('invalid_json'), { status: 400 }));
       }
     });
@@ -64,140 +76,193 @@ function readJson(req) {
   });
 }
 
-function cleanText(value, limit) {
-  return String(value == null ? '' : value).trim().slice(0, limit);
-}
+const clean = (v, max) => String(v == null ? '' : v).trim().slice(0, max);
+
+// ────────────────────────────────────────────────
+// API — заявка
+// ────────────────────────────────────────────────
 
 async function saveOrder(req, res) {
-  try {
-    const input = await readJson(req);
-    const id = crypto.randomUUID();
-    const createdAt = new Date().toISOString();
-    const order = {
-      id,
-      createdAt,
-      status: 'new',
-      name: cleanText(input.name || input.fio, 120),
-      phone: cleanText(input.phone, 40),
-      childName: cleanText(input.childName, 100),
-      childBday: cleanText(input.childBday, 20),
-      eventDate: cleanText(input.eventDate, 20),
-      eventTime: cleanText(input.eventTime, 20),
-      comment: cleanText(input.comment, 2000),
-      packName: cleanText(input.packName, 200),
-      roomName: cleanText(input.roomName, 200),
-      extrasNames: cleanText(input.extrasNames, 2000),
-      durationText: cleanText(input.durationText, 100),
-      endTimeText: cleanText(input.endTimeText, 100),
-      priceText: cleanText(input.priceText, 200),
-      source: 'website'
-    };
+  const input = await readBody(req);
+  const name  = clean(input.name || input.fio, 120);
+  const phone = clean(input.phone, 40);
 
-    if (!order.name || !order.phone) {
-      json(res, 422, { ok: false, error: 'name_and_phone_required' });
-      return;
-    }
+  if (!name || !phone) {
+    json(res, 422, { ok: false, error: 'name_and_phone_required' });
+    return;
+  }
 
-    const month = createdAt.slice(0, 7);
-    const folder = path.join(ORDERS_ROOT, month);
-    await fsp.mkdir(folder, { recursive: true });
-    const target = path.join(folder, createdAt.replace(/[:.]/g, '-') + '-' + id + '.json');
-    const temp = target + '.tmp';
-    await fsp.writeFile(temp, JSON.stringify(order, null, 2) + '\n', { mode: 0o600 });
-    await fsp.rename(temp, target);
-    json(res, 201, { ok: true, id, createdAt });
-  } catch (error) {
-    const status = error.status || 500;
-    json(res, status, { ok: false, error: status === 500 ? 'server_error' : error.message });
+  const payload = {
+    childName:    clean(input.childName,   100),
+    childBday:    clean(input.childBday,    20),
+    eventTime:    clean(input.eventTime,    20),
+    comment:      clean(input.comment,    2000),
+    packName:     clean(input.packName,    200),
+    roomName:     clean(input.roomName,    200),
+    extrasNames:  clean(input.extrasNames, 500),
+    durationText: clean(input.durationText, 100),
+    endTimeText:  clean(input.endTimeText,  100),
+    priceText:    clean(input.priceText,    200),
+    source:       'website'
+  };
+
+  const eventDateRaw = clean(input.eventDate, 20);
+  const eventDate    = eventDateRaw || null;
+
+  const { rows } = await pool.query(
+    `insert into orders (name, phone, event_date, payload)
+     values ($1, $2, $3, $4)
+     returning id, created_at`,
+    [name, phone, eventDate, JSON.stringify(payload)]
+  );
+
+  json(res, 201, { ok: true, id: rows[0].id, createdAt: rows[0].created_at });
+}
+
+// ────────────────────────────────────────────────
+// Публичное API — данные для фронтенда
+// ────────────────────────────────────────────────
+
+async function apiPackages(res) {
+  const { rows } = await pool.query(
+    `select slug, title, description, price_weekday, price_weekend, attrs
+     from products
+     where is_published = true
+     order by sort_order`
+  );
+  json(res, 200, { ok: true, packages: rows });
+}
+
+async function apiSettings(res, key) {
+  if (key) {
+    const { rows } = await pool.query(
+      'select value from site_settings where key = $1', [key]
+    );
+    if (!rows.length) { json(res, 404, { ok: false, error: 'not_found' }); return; }
+    json(res, 200, { ok: true, value: rows[0].value });
+  } else {
+    const { rows } = await pool.query(
+      'select key, value from site_settings order by key'
+    );
+    const settings = Object.fromEntries(rows.map(r => [r.key, r.value]));
+    json(res, 200, { ok: true, settings });
   }
 }
 
+// ────────────────────────────────────────────────
+// Статические файлы
+// ────────────────────────────────────────────────
+
 async function serveStatic(req, res, pathname) {
-  if (PRIVATE_PREFIXES.some(prefix => pathname === prefix || pathname.startsWith(prefix))) {
+  if (PRIVATE_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))) {
     json(res, 404, { ok: false, error: 'not_found' });
     return;
   }
 
-  let relative = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
-  let file = path.resolve(SITE_ROOT, relative);
-  if (!file.startsWith(SITE_ROOT + path.sep)) {
+  const relative = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
+  const file     = path.resolve(SITE_ROOT, relative);
+
+  if (!file.startsWith(SITE_ROOT + path.sep) && file !== SITE_ROOT) {
     json(res, 404, { ok: false, error: 'not_found' });
     return;
   }
 
   try {
-    let stat = await fsp.stat(file);
+    let target = file;
+    let stat   = await fsp.stat(target);
     if (stat.isDirectory()) {
-      file = path.join(file, 'index.html');
-      stat = await fsp.stat(file);
+      target = path.join(target, 'index.html');
+      stat   = await fsp.stat(target);
     }
     if (!stat.isFile()) throw new Error('not_file');
 
-    const ext = path.extname(file).toLowerCase();
-    const headers = {
-      'Content-Type': MIME[ext] || 'application/octet-stream',
-      'Content-Length': stat.size,
+    const ext = path.extname(target).toLowerCase();
+    res.writeHead(200, {
+      'Content-Type':           MIME[ext] || 'application/octet-stream',
+      'Content-Length':         stat.size,
       'X-Content-Type-Options': 'nosniff',
-      'Referrer-Policy': 'strict-origin-when-cross-origin'
-    };
-    headers['Cache-Control'] = path.basename(file) === 'content.json'
-      ? 'no-store'
-      : 'public, max-age=3600';
-    res.writeHead(200, headers);
-    fs.createReadStream(file).pipe(res);
-  } catch (error) {
+      'Referrer-Policy':        'strict-origin-when-cross-origin',
+      'Cache-Control':          'public, max-age=3600'
+    });
+    fs.createReadStream(target).pipe(res);
+  } catch {
     try {
       const fallback = path.join(SITE_ROOT, 'index.html');
-      const stat = await fsp.stat(fallback);
+      const stat     = await fsp.stat(fallback);
       res.writeHead(404, {
-        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Type':   'text/html; charset=utf-8',
         'Content-Length': stat.size,
-        'Cache-Control': 'no-store'
+        'Cache-Control':  'no-store'
       });
       fs.createReadStream(fallback).pipe(res);
-    } catch (nested) {
+    } catch {
       json(res, 404, { ok: false, error: 'not_found' });
     }
   }
 }
 
-async function handler(req, res) {
-  const url = new URL(req.url, 'http://localhost');
-  const pathname = decodeURIComponent(url.pathname);
+// ────────────────────────────────────────────────
+// Роутер
+// ────────────────────────────────────────────────
 
-  if (pathname === '/health' && req.method === 'GET') {
+async function handler(req, res) {
+  const url      = new URL(req.url, 'http://localhost');
+  const pathname = decodeURIComponent(url.pathname);
+  const method   = req.method;
+
+  if (pathname === '/health' && method === 'GET') {
     json(res, 200, { ok: true, service: 'planeta-igr', time: new Date().toISOString() });
     return;
   }
 
-  if (pathname === '/api/order' && req.method === 'POST') {
-    await saveOrder(req, res);
-    return;
-  }
-
   if (pathname === '/api/order') {
+    if (method === 'POST') { await saveOrder(req, res); return; }
     res.setHeader('Allow', 'POST');
     json(res, 405, { ok: false, error: 'method_not_allowed' });
     return;
   }
 
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    json(res, 405, { ok: false, error: 'method_not_allowed' });
-    return;
+  if (pathname === '/api/packages' && method === 'GET') {
+    await apiPackages(res); return;
+  }
+
+  if (pathname.startsWith('/api/settings') && method === 'GET') {
+    const key = pathname.replace('/api/settings', '').replace(/^\//, '') || null;
+    await apiSettings(res, key); return;
+  }
+
+  if (pathname.startsWith('/api/')) {
+    json(res, 404, { ok: false, error: 'not_found' }); return;
+  }
+
+  if (method !== 'GET' && method !== 'HEAD') {
+    json(res, 405, { ok: false, error: 'method_not_allowed' }); return;
   }
 
   await serveStatic(req, res, pathname);
 }
 
-fsp.mkdir(ORDERS_ROOT, { recursive: true })
-  .then(() => {
-    http.createServer((req, res) => {
-      handler(req, res).catch(() => json(res, 500, { ok: false, error: 'server_error' }));
-    }).listen(PORT, '0.0.0.0', () => {
-      console.log('Planeta Igr server listening on port ' + PORT);
+// ────────────────────────────────────────────────
+// Старт
+// ────────────────────────────────────────────────
+
+async function start() {
+  // Проверяем подключение к БД
+  const client = await pool.connect();
+  client.release();
+  console.log('Database connected');
+
+  http.createServer((req, res) => {
+    handler(req, res).catch(err => {
+      const status = err.status || 500;
+      json(res, status, { ok: false, error: status === 500 ? 'server_error' : err.message });
     });
-  })
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
+  }).listen(PORT, '0.0.0.0', () => {
+    console.log('Planeta Igr server listening on port ' + PORT);
   });
+}
+
+start().catch(err => {
+  console.error('Startup error:', err.message);
+  process.exit(1);
+});

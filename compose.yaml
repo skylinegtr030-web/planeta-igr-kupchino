@@ -1,9 +1,33 @@
 services:
-  web:
-    build: .
+  db:
+    image: postgres:16-alpine
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-planetaigr}
+      POSTGRES_USER: ${POSTGRES_USER:-planetaigr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./runtime/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-planetaigr} -d ${POSTGRES_DB:-planetaigr}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-planetaigr}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-planetaigr}
     ports:
       - "127.0.0.1:${APP_PORT:-3000}:3000"
     volumes:
