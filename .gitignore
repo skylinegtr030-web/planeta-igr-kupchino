@@ -1,13 +1,10 @@
+
+.DS_Store
 .env
-runtime/
-server-admin/
+*.log
+# Персональные данные заявок
 backups/
 node_modules/
-*.log
-.DS_Store
-
-# Персональные данные заявок
 orders/**/*.json
-
-assets/js/config.js
-.env
+runtime/
+server-admin/
