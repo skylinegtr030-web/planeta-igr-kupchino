@@ -68,17 +68,38 @@ tr:hover td{background:#1a1f35}
 .btn-sm{padding:5px 12px;border-radius:6px;font-size:.8rem;cursor:pointer;border:none;font-weight:500;transition:.15s}
 .btn-edit{background:#2d3148;color:#e2e8f0}.btn-edit:hover{background:#3d4268}
 .btn-save{background:#7c3aed;color:#fff}.btn-save:hover{background:#6d28d9}
-.btn-del{background:#2d1a1a;color:#f87171}.btn-del:hover{background:#3d2020}
+.btn-del{background:#2d1a1a;color:#f87171;border:1px solid #3d2020}.btn-del:hover{background:#3d2020}
+
+/* DATE SEPARATOR */
+.date-sep td{
+  background:#161926;
+  color:#a78bfa;
+  font-size:.78rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  padding:8px 16px;
+  border-bottom:1px solid #2d3148;
+  border-top:2px solid #2d3148;
+}
+.date-sep:first-child td{border-top:none}
 
 /* MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100}
 .overlay.open{display:flex}
-.modal{background:#1e2130;border:1px solid #2d3148;border-radius:16px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal{background:#1e2130;border:1px solid #2d3148;border-radius:16px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
 .modal h3{margin-bottom:20px;font-size:1.1rem}
+.order-detail{background:#0f1117;border:1px solid #2d3148;border-radius:10px;padding:16px;margin-bottom:16px;font-size:.85rem;line-height:1.8}
+.order-detail .od-label{color:#64748b;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;display:block;margin-top:10px;margin-bottom:2px}
+.order-detail .od-label:first-child{margin-top:0}
+.order-detail .od-value{color:#e2e8f0;font-weight:500}
+.order-detail .od-section{border-top:1px solid #2d3148;margin-top:12px;padding-top:12px}
+.order-detail .od-tag{display:inline-block;background:#2d1f5e;color:#a78bfa;border-radius:6px;padding:2px 10px;font-size:.78rem;font-weight:600;margin:2px 3px 2px 0}
 .form-row{margin-bottom:14px}
 .form-row label{display:block;font-size:.8rem;color:#94a3b8;margin-bottom:5px}
 .form-row input,.form-row select,.form-row textarea{width:100%}
-.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.modal-footer{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:20px}
+.modal-footer-right{display:flex;gap:10px}
 
 .section-title{font-size:1.3rem;font-weight:700;margin-bottom:20px}
 .empty{padding:40px;text-align:center;color:#64748b}
@@ -185,8 +206,11 @@ tr:hover td{background:#1a1f35}
 <!-- ORDER MODAL -->
 <div class="overlay" id="order-modal">
   <div class="modal">
-    <h3>📋 Заявка #<span id="m-id"></span></h3>
-    <div style="margin-bottom:12px;font-size:.85rem;color:#94a3b8" id="m-info"></div>
+    <h3>📋 Заявка <span id="m-id" style="color:#a78bfa"></span></h3>
+
+    <!-- Полное описание заказа -->
+    <div class="order-detail" id="m-detail"></div>
+
     <div class="form-row">
       <label for="m-status">Статус</label>
       <select id="m-status">
@@ -197,12 +221,15 @@ tr:hover td{background:#1a1f35}
       </select>
     </div>
     <div class="form-row">
-      <label for="m-note">Заметка</label>
-      <textarea id="m-note" placeholder="Примечание администратора..."></textarea>
+      <label for="m-note">Заметка администратора</label>
+      <textarea id="m-note" placeholder="Примечание..."></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn-sm btn-edit" onclick="closeModal()">Отмена</button>
-      <button class="btn-sm btn-save" onclick="saveOrder()">Сохранить</button>
+      <button class="btn-sm btn-del" onclick="deleteOrder()">🗑 Удалить</button>
+      <div class="modal-footer-right">
+        <button class="btn-sm btn-edit" onclick="closeModal()">Отмена</button>
+        <button class="btn-sm btn-save" onclick="saveOrder()">Сохранить</button>
+      </div>
     </div>
   </div>
 </div>
@@ -211,6 +238,7 @@ tr:hover td{background:#1a1f35}
 const API = '';
 let TOKEN = localStorage.getItem('adm_token') || '';
 let currentOrderId = null;
+let currentOrderPayload = null;
 
 // ─ AUTH ───────────────────────────────────────────────────────────────────
 async function doLogin() {
@@ -291,36 +319,130 @@ async function loadOrders() {
   const d = await r.json();
   const el = document.getElementById('orders-table');
   if (!d.orders || !d.orders.length) { el.innerHTML = '<div class="empty">Заявок нет</div>'; return; }
+
   const badgeClass = { 'Новая':'badge-new','В работе':'badge-work','Подтверждена':'badge-ok','Отклонена':'badge-no' };
-  el.innerHTML = `<table>
-    <thead><tr><th>#</th><th>Имя</th><th>Телефон</th><th>Дата</th><th>Статус</th><th>Пакет</th><th></th></tr></thead>
-    <tbody>${d.orders.map(o => {
+
+  // Группируем по дате праздника
+  const groups = {};
+  d.orders.forEach(o => {
+    const key = o.event_date ? o.event_date.slice(0, 10) : '—';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(o);
+  });
+
+  const sortedKeys = Object.keys(groups).sort();
+
+  function fmtGroupDate(key) {
+    if (key === '—') return 'Дата не указана';
+    const d = new Date(key + 'T00:00:00');
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+  }
+
+  let rows = '';
+  sortedKeys.forEach(key => {
+    rows += `<tr class="date-sep"><td colspan="7">📅 ${fmtGroupDate(key)} — ${groups[key].length} заяв${groups[key].length === 1 ? 'ка' : groups[key].length < 5 ? 'ки' : 'ок'}</td></tr>`;
+    groups[key].forEach(o => {
       const p = o.payload || {};
-      const dt = o.event_date ? new Date(o.event_date).toLocaleDateString('ru') : '—';
       const created = new Date(o.created_at).toLocaleDateString('ru');
-      return `<tr>
-        <td style="color:#64748b">${created}</td>
-        <td><b>${esc(o.name)}</b></td>
-        <td>${esc(o.phone)}</td>
-        <td>${dt}</td>
+      const extras = p.extraNames && p.extraNames.length
+        ? p.extraNames.slice(0, 2).join(', ') + (p.extraNames.length > 2 ? ` +${p.extraNames.length - 2}` : '')
+        : '';
+      rows += `<tr>
+        <td style="color:#64748b;font-size:.78rem">${created}</td>
+        <td><b>${esc(o.name)}</b><br><span style="color:#64748b;font-size:.78rem">${esc(p.childName||'')}</span></td>
+        <td><a href="tel:${esc(o.phone)}" style="color:#a78bfa">${esc(o.phone)}</a></td>
+        <td style="color:#94a3b8">${esc(p.eventTime||'—')}</td>
         <td><span class="badge ${badgeClass[o.status]||'badge-new'}">${o.status}</span></td>
-        <td style="color:#94a3b8">${esc(p.packName||'')}</td>
+        <td style="color:#94a3b8;font-size:.8rem">
+          ${esc(p.packName || p.roomName || '—')}
+          ${extras ? '<br><span style="color:#64748b">' + esc(extras) + '</span>' : ''}
+        </td>
         <td><button class="btn-sm btn-edit" onclick='openOrder(${JSON.stringify(o)})'>Открыть</button></td>
       </tr>`;
-    }).join('')}</tbody>
+    });
+  });
+
+  el.innerHTML = `<table>
+    <thead><tr><th>Создана</th><th>Клиент / Ребёнок</th><th>Телефон</th><th>Время</th><th>Статус</th><th>Заказ</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
   </table>`;
 }
 
 function openOrder(o) {
   currentOrderId = o.id;
-  document.getElementById('m-id').textContent = String(o.id).slice(0,8);
+  currentOrderPayload = o;
   const p = o.payload || {};
-  const dt = o.event_date ? new Date(o.event_date).toLocaleDateString('ru') : '—';
-  document.getElementById('m-info').innerHTML =
-    `<b>${esc(o.name)}</b> &bull; ${esc(o.phone)} &bull; Дата: ${dt}<br>
-     Пакет: ${esc(p.packName||'—')} &bull; Зал: ${esc(p.roomName||'—')} &bull; Цена: ${esc(p.priceText||'—')}<br>
-     ${ p.extrasNames ? 'Доп: ' + esc(p.extrasNames) + '<br>' : '' }
-     ${ p.comment ? 'Коммент: ' + esc(p.comment) : '' }`;
+
+  document.getElementById('m-id').textContent = String(o.id).slice(0, 8);
+
+  // ── Полное описание заказа ──────────────────────────────────────────────
+  const eventDate = o.event_date
+    ? new Date(o.event_date + 'T00:00:00').toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric', weekday:'long' })
+    : '—';
+  const createdAt = o.created_at
+    ? new Date(o.created_at).toLocaleString('ru-RU', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })
+    : '—';
+
+  // Имя ребёнка и дата рождения
+  const childBday = p.childBday
+    ? new Date(p.childBday + 'T00:00:00').toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' })
+    : '';
+
+  // Экстры — каждый тегом
+  const extraTags = (p.extraNames || []).map(n => `<span class="od-tag">${esc(n)}</span>`).join('');
+
+  // Время начала → конец
+  const timeRange = p.eventTime
+    ? p.eventTime + (p.endTimeText ? ' → ' + p.endTimeText : '') + (p.durationText ? ' (' + p.durationText + ')' : '')
+    : '—';
+
+  let html = `
+    <span class="od-label">Дата и время праздника</span>
+    <span class="od-value">📅 ${esc(eventDate)} &nbsp; ⏰ ${esc(timeRange)}</span>
+
+    <span class="od-label">Клиент</span>
+    <span class="od-value">👤 ${esc(o.name)} &nbsp; 📞 <a href="tel:${esc(o.phone)}" style="color:#a78bfa">${esc(o.phone)}</a></span>
+
+    <span class="od-label">Ребёнок</span>
+    <span class="od-value">🎂 ${esc(p.childName || '—')}${childBday ? ' &nbsp; д/р: ' + esc(childBday) : ''}</span>
+
+    <div class="od-section">
+      <span class="od-label">Пакет</span>
+      <span class="od-value">${p.packName ? '🎁 ' + esc(p.packName) : '<span style="color:#64748b">не выбран</span>'}</span>
+
+      <span class="od-label">Банкетный зал</span>
+      <span class="od-value">${p.roomName ? '🏠 ' + esc(p.roomName) : '<span style="color:#64748b">не выбран</span>'}</span>
+    </div>`;
+
+  if (extraTags) {
+    html += `
+    <div class="od-section">
+      <span class="od-label">Дополнительные услуги</span>
+      <div style="margin-top:4px">${extraTags}</div>
+    </div>`;
+  }
+
+  html += `
+    <div class="od-section">
+      <span class="od-label">Стоимость</span>
+      <span class="od-value" style="font-size:1.05rem;font-weight:700;color:#a78bfa">${esc(p.priceText || '—')}</span>
+      ${p.promo ? `<span class="od-label" style="margin-top:6px">Промокод</span><span class="od-value">🏷️ ${esc(p.promo)}</span>` : ''}
+    </div>`;
+
+  if (p.comment) {
+    html += `
+    <div class="od-section">
+      <span class="od-label">Комментарий клиента</span>
+      <span class="od-value" style="white-space:pre-wrap">${esc(p.comment)}</span>
+    </div>`;
+  }
+
+  html += `
+    <div class="od-section" style="color:#64748b;font-size:.78rem">
+      Заявка создана: ${esc(createdAt)} &nbsp;·&nbsp; ID: ${esc(String(o.id || o.requestId || ''))}
+    </div>`;
+
+  document.getElementById('m-detail').innerHTML = html;
   document.getElementById('m-status').value = o.status;
   document.getElementById('m-note').value   = o.admin_note || '';
   document.getElementById('order-modal').classList.add('open');
@@ -338,8 +460,24 @@ async function saveOrder() {
   loadOrders();
 }
 
+async function deleteOrder() {
+  const p = currentOrderPayload && currentOrderPayload.payload || {};
+  const name = currentOrderPayload ? currentOrderPayload.name : '';
+  const date = currentOrderPayload && currentOrderPayload.event_date ? currentOrderPayload.event_date.slice(0,10) : '';
+  if (!confirm(`Удалить заявку от ${name}${date ? ' на ' + date : ''}?\nЭто действие необратимо.`)) return;
+  await fetch(`/api/orders/${currentOrderId}`, {
+    method: 'DELETE',
+    headers: authH()
+  });
+  closeModal();
+  loadOrders();
+  showToast('Заявка удалена');
+}
+
 function closeModal() {
   document.getElementById('order-modal').classList.remove('open');
+  currentOrderId = null;
+  currentOrderPayload = null;
 }
 
 // ─ PACKAGES ────────────────────────────────────────────────────────────
@@ -505,15 +643,15 @@ async function loadMedia() {
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function showToast(msg) {
+function showToast(msg, color) {
   const t = document.createElement('div');
   t.textContent = msg;
   Object.assign(t.style, {
-    position:'fixed',bottom:'24px',right:'24px',background:'#7c3aed',color:'#fff',
+    position:'fixed',bottom:'24px',right:'24px',background: color || '#7c3aed',color:'#fff',
     padding:'10px 20px',borderRadius:'10px',fontWeight:'600',zIndex:'999',fontSize:'.9rem'
   });
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2000);
+  setTimeout(() => t.remove(), 2500);
 }
 
 // ─ INIT
