@@ -35,7 +35,7 @@ docker compose config --quiet
 docker compose up -d --build --remove-orphans
 
 sleep 10
-curl --fail --silent --show-error http://127.0.0.1:3001/health
+curl --fail --silent --show-error "http://127.0.0.1:3001/health"
 
 find "$BACKUPS" -type f -mtime +30 -delete
 
