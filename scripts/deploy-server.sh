@@ -1,44 +1,21 @@
 #!/usr/bin/env bash
+# Деплой: дамп базы -> код из origin/main -> пересборка -> проверка здоровья.
 set -Eeuo pipefail
+cd /opt/projects/planeta-igr
 
-PROJECT="/opt/projects/planeta-igr"
-BACKUPS="/opt/backups/planeta-igr"
-DATE="$(date +%Y-%m-%d_%H-%M-%S)"
+./scripts/backup-server.sh
 
-cd "$PROJECT"
-
-mkdir -p \
-  "$BACKUPS" \
-  runtime/data/orders \
-  runtime/uploads \
-  runtime/admin
-
-if [ -f .env ]; then
-  cp .env "$BACKUPS/env-$DATE.backup"
-  chmod 600 "$BACKUPS/env-$DATE.backup"
-fi
-
-tar \
-  --exclude='*.log' \
-  -czf "$BACKUPS/runtime-$DATE.tar.gz" \
-  runtime 2>/dev/null || true
-
-git fetch origin main
+git fetch --quiet origin main
 git reset --hard origin/main
-
-mkdir -p \
-  runtime/data/orders \
-  runtime/uploads \
-  runtime/admin
+mkdir -p runtime/uploads runtime/data/orders runtime/admin
 
 docker compose config --quiet
 docker compose up -d --build --remove-orphans
 
-sleep 10
-curl --fail --silent --show-error "http://127.0.0.1:3001/health"
-
-find "$BACKUPS" -type f -mtime +30 -delete
-
-echo
-echo "Деплой завершён: $(date)"
-docker compose ps
+for i in $(seq 1 30); do
+  if curl -fsS --max-time 3 http://127.0.0.1:3001/health > /dev/null 2>&1; then
+    echo "[$(date '+%F %T')] health OK ($((i*2)) сек)"; docker compose ps; exit 0
+  fi
+  sleep 2
+done
+echo "[$(date '+%F %T')] health FAIL"; docker compose logs --tail 60 web; exit 1
