@@ -226,22 +226,115 @@ async function apiPackagePatch(req, res, slug) {
 }
 
 // ─ GET /api/extras ──────────────────────────────────────────────────────────
-async function apiExtras(res) {
+// ─ Каталог: единственный источник — products ───────────────────────────────
+const CATALOG_SQL = `
+  select c.slug as category, c.kind, c.title as category_title,
+         p.id, p.parent_id, p.slug, p.title, p.short_desc, p.description, p.badge,
+         coalesce(p.price_weekday, pp.price_weekday)::float8 as price_weekday,
+         coalesce(p.price_weekend, pp.price_weekend)::float8 as price_weekend,
+         p.price_from, p.duration_min, p.qty_mode, p.max_qty, p.day_type, p.min_age,
+         p.capacity, p.emoji, p.color1, p.color2, p.bookable, p.attrs, p.sort_order,
+         m.path as cover,
+         (select coalesce(jsonb_agg(jsonb_build_object('path', gi.path, 'alt', gi.alt) order by gm.sort_order), '[]'::jsonb)
+            from gallery_media gm join media gi on gi.id = gm.media_id
+           where gm.gallery_id = p.gallery_id and gi.is_active) as gallery
+    from products p
+    join categories c on c.id = p.category_id
+    left join products pp on pp.id = p.parent_id
+    left join media m on m.id = p.cover_media_id and m.is_active
+   where p.is_published and c.is_published
+   order by c.sort_order, p.sort_order, p.title`;
+
+async function loadCatalog() {
+  const { rows } = await pool.query(CATALOG_SQL);
+  const cats = new Map(), byId = new Map();
+  for (const r of rows) {
+    if (!cats.has(r.category)) cats.set(r.category, { slug: r.category, kind: r.kind, title: r.category_title, items: [] });
+    const { id, parent_id, category, kind, category_title, ...item } = r;
+    item.variants = [];
+    byId.set(id, { item, parent_id, category });
+  }
+  for (const { item, parent_id, category } of byId.values()) {
+    if (!parent_id) cats.get(category).items.push(item);
+    else if (byId.has(parent_id)) byId.get(parent_id).item.variants.push(item);
+  }
+  return [...cats.values()];
+}
+
+// ─ GET /api/catalog ─────────────────────────────────────────────────────────
+async function apiCatalog(res) {
+  json(res, 200, { ok: true, categories: await loadCatalog() });
+}
+
+// ─ Совместимость со старым фронтом: ключи settings собираются из products ───
+const LEGACY_SETTINGS = ['extras', 'tiers', 'rooms', 'ages'];
+const TIER_SLUGS = { timeCards30: 'timeCards', timeCards60: 'timeCards60',
+                     unlimitedWeekday: 'unlimitedTicket', unlimitedWeekend: 'unlimitedTicketWeekend' };
+
+async function legacySettings() {
   const { rows } = await pool.query(
-    `select slug,title,description,price,price_from,duration_min,upto,
-            emoji,photo_url,color1,color2,options,sort_order
-     from extras where is_published=true order by sort_order`);
-  json(res, 200, { ok: true, extras: rows });
+    `select p.slug, p.price_weekday::float8 as price, p.min_age, p.attrs,
+            p.parent_id is null as is_root, c.slug as category
+       from products p join categories c on c.id = p.category_id`);
+  const by = Object.fromEntries(rows.map(r => [r.slug, r]));
+  const price = slug => (by[slug] ? by[slug].price : null);
+  return {
+    extras: Object.fromEntries(rows.filter(r => r.category === 'services' && r.is_root).map(r => [r.slug, r.price])),
+    tiers:  Object.fromEntries(Object.entries(TIER_SLUGS).map(([k, slug]) => [k, price(slug)])),
+    rooms:  { roomBase: price('jungle-room'), duoBase: price('duo-room'),
+              extendPerHour: Number(by['jungle-room']?.attrs?.extendPerHour) || null },
+    ages:   { kuzar: by.qzar?.min_age ?? null, lavaFloor: by.lavaFloor?.min_age ?? null },
+  };
+}
+
+async function legacySettingsPut(key, value) {
+  const v = value || {};
+  const num = x => { const n = Number(x); return Number.isFinite(n) && n >= 0 ? n : null; };
+  const setPrice = (slug, x) => num(x) === null ? null :
+    pool.query('update products set price_weekday=$2, price_weekend=$2 where slug=$1', [slug, num(x)]);
+  const jobs = [];
+  if (key === 'extras') for (const [slug, x] of Object.entries(v)) jobs.push(setPrice(slug, x));
+  if (key === 'tiers')  for (const [k, slug] of Object.entries(TIER_SLUGS)) if (k in v) jobs.push(setPrice(slug, v[k]));
+  if (key === 'rooms') {
+    if ('roomBase' in v) jobs.push(setPrice('jungle-room', v.roomBase), setPrice('loft-room', v.roomBase));
+    if ('duoBase' in v)  jobs.push(setPrice('duo-room', v.duoBase));
+    if (num(v.extendPerHour) !== null) jobs.push(pool.query(
+      `update products set attrs = attrs || jsonb_build_object('extendPerHour',
+              case when slug = 'duo-room' then $1::numeric * 2 else $1::numeric end)
+        where slug in ('jungle-room', 'loft-room', 'duo-room')`, [num(v.extendPerHour)]));
+  }
+  if (key === 'ages') {
+    if (num(v.kuzar) !== null)     jobs.push(pool.query('update products set min_age=$1 where slug=$2', [Math.round(num(v.kuzar)), 'qzar']));
+    if (num(v.lavaFloor) !== null) jobs.push(pool.query('update products set min_age=$1 where slug=$2', [Math.round(num(v.lavaFloor)), 'lavaFloor']));
+  }
+  await Promise.all(jobs.filter(Boolean));
+}
+
+// ─ GET /api/extras (старый формат, данные из products) ─────────────────────
+async function apiExtras(res) {
+  const cats = await loadCatalog();
+  const services = (cats.find(c => c.slug === 'services') || { items: [] }).items;
+  const extras = services.map(p => ({
+    slug: p.slug, title: p.title, description: p.description,
+    price: Math.round(p.price_weekday || 0), price_from: p.price_from,
+    duration_min: p.duration_min, upto: p.capacity, emoji: p.emoji, photo_url: p.cover,
+    color1: p.color1 || '#e2231a', color2: p.color2 || '#ff8a65',
+    options: p.variants.length ? p.variants.map(v => ({ name: v.title, meta: v.short_desc })) : null,
+    sort_order: p.sort_order,
+  }));
+  json(res, 200, { ok: true, extras });
 }
 
 // ─ PATCH /api/admin/extras/:slug ───────────────────────────────────────────
 async function apiExtraPatch(req, res, slug) {
   const s = await requireSession(req, res); if (!s) return;
   const input = await parseBody(req);
+  const price = Number(input.price);
+  if (!Number.isFinite(price) || price < 0) { json(res, 400, { ok: false, error: 'bad_price' }); return; }
+  const desc = input.description == null ? null : clean(input.description, 500);
   await pool.query(
-    `update extras set price=$1, description=$2 where slug=$3`,
-    [Number(input.price), clean(input.description||'', 500), slug]
-  );
+    `update products set price_weekday=$1, price_weekend=$1, description=coalesce($2, description) where slug=$3`,
+    [price, desc, slug]);
   json(res, 200, { ok: true });
 }
 
@@ -267,18 +360,22 @@ async function colExists(table, col) {
 
 // ─ GET/PUT /api/admin/settings/:key ────────────────────────────────────────
 async function apiSettings(res, key) {
+  if (key && LEGACY_SETTINGS.includes(key)) {
+    json(res, 200, { ok: true, value: (await legacySettings())[key] }); return;
+  }
   if (key) {
-    const { rows } = await pool.query('select value from site_settings where key=$1',[key]);
-    if (!rows.length) { json(res,404,{ok:false,error:'not_found'}); return; }
+    const { rows } = await pool.query('select value from site_settings where key=$1', [key]);
+    if (!rows.length) { json(res, 404, { ok: false, error: 'not_found' }); return; }
     json(res, 200, { ok: true, value: rows[0].value });
   } else {
     const { rows } = await pool.query('select key,value from site_settings order by key');
-    json(res, 200, { ok: true, settings: Object.fromEntries(rows.map(r=>[r.key,r.value])) });
+    json(res, 200, { ok: true, settings: { ...Object.fromEntries(rows.map(r => [r.key, r.value])), ...(await legacySettings()) } });
   }
 }
 async function apiSettingsPut(req, res, key) {
   const s = await requireSession(req, res); if (!s) return;
   const input = await parseBody(req);
+  if (LEGACY_SETTINGS.includes(key)) { await legacySettingsPut(key, input.value); json(res, 200, { ok: true }); return; }
   await pool.query(
     `insert into site_settings(key,value) values($1,$2)
      on conflict(key) do update set value=excluded.value, updated_at=now()`,
@@ -346,6 +443,7 @@ async function handler(req, res) {
   if (omatch && method==='DELETE') { await apiOrderDelete(req,res,omatch[1]); return; }
 
   // packages
+  if (pathname==='/api/catalog' && method==='GET') { await apiCatalog(res); return; }
   if (pathname==='/api/packages' && method==='GET') { await apiPackages(res); return; }
   const pkgPatch = pathname.match(/^\/api\/admin\/packages\/([\w-]+)$/);
   if (pkgPatch && method==='PATCH') { await apiPackagePatch(req,res,pkgPatch[1]); return; }
