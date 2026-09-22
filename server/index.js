@@ -374,7 +374,7 @@ async function handler(req, res) {
 async function start() {
   console.log('SITE_ROOT:', SITE_ROOT);
   console.log('DB:', process.env.DATABASE_URL ? 'URL set' : 'NO DATABASE_URL!');
-  const client = await pool.connect(); client.release();
+  await require('./migrate').migrate(pool);
   console.log('DB connected OK');
   http.createServer((req,res) => {
     handler(req,res).catch(err => {
