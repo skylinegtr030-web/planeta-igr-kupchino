@@ -2,7 +2,8 @@ FROM node:22-alpine
 
 # Статика сайта — отдельно от сервера
 WORKDIR /app/site
-COPY . .
+COPY index.html admin.html ./
+COPY assets ./assets
 
 # Сервер — своя директория, здесь же node_modules
 WORKDIR /app/server

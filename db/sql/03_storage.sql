@@ -1,3 +1,0 @@
--- Файл оставлен пустым.
--- Storage Supabase не используется.
--- Файлы хранятся в runtime/uploads на VPS.
