@@ -1,19 +1,25 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+# Ночной бэкап: дамп PostgreSQL + файлы (uploads, .env). Хранит 14 дней.
+set -euo pipefail
+umask 077
+cd "$(dirname "$0")/.."
+DEST=/opt/backups/planeta-igr
+TS=$(date +%F_%H-%M)
+KEEP_DAYS=14
+mkdir -p "$DEST"
 
-PROJECT="/opt/projects/planeta-igr"
-BACKUPS="/opt/backups/planeta-igr"
-DATE="$(date +%Y-%m-%d_%H-%M-%S)"
+part="$DEST/.db-$TS.part"
+trap 'rm -f "$part"' EXIT
+docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > "$part"
+docker compose exec -T db pg_restore --list < "$part" > /dev/null
+mv "$part" "$DEST/db-$TS.dump"
 
-mkdir -p "$BACKUPS"
+files=(.env runtime/uploads)
+[ -f compose.override.yaml ] && files+=(compose.override.yaml)
+tar czf "$DEST/files-$TS.tar.gz" "${files[@]}"
 
-tar \
-  --exclude='*.log' \
-  -czf "$BACKUPS/planeta-$DATE.tar.gz" \
-  -C "$PROJECT" \
-  runtime .env compose.override.yaml
+find "$DEST" -maxdepth 1 -type f \( -name 'db-2*.dump' -o -name 'files-2*.tar.gz' \
+  -o -name 'planeta-2*.tar.gz' -o -name 'runtime-2*.tar.gz' -o -name 'env-2*.backup' \) \
+  -mtime +"$KEEP_DAYS" -delete
 
-chmod 600 "$BACKUPS/planeta-$DATE.tar.gz"
-find "$BACKUPS" -type f -mtime +30 -delete
-
-echo "Резервная копия: $BACKUPS/planeta-$DATE.tar.gz"
+echo "$(date '+%F %T') OK db=$(du -h "$DEST/db-$TS.dump" | cut -f1) files=$(du -h "$DEST/files-$TS.tar.gz" | cut -f1)"
