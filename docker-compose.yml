@@ -12,9 +12,11 @@ services:
       - ./runtime/uploads:/app/uploads
     ports:
       - "127.0.0.1:${APP_PORT:-3002}:3000"
-    networks: [default, legacy]
+    networks: [default, legacy, web]
     security_opt: ["no-new-privileges:true"]
 networks:
+  web:
+    external: true
   legacy:
     external: true
     name: planeta-igr_default
