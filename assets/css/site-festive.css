@@ -1,22 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600;1,700&display=swap');
 .party-cv{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.has-party{isolation:isolate}
 #fx-ov{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:1001}
-.hero h1 em,.wm.acc>span{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:700;letter-spacing:-.01em;background:linear-gradient(100deg,#a8740c 0%,#ffe9a3 22%,#d9a21e 42%,#fff7d6 58%,#c48a14 78%,#ffe39a 100%);background-size:260% auto;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:foil 7s linear infinite}
-.hero h1 em{padding:0 .08em 0 .02em;text-shadow:none;filter:drop-shadow(0 4px 22px rgba(255,190,60,.5))}
+.hero h1 em,.wm.acc>span{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:700;letter-spacing:-.01em;background:linear-gradient(100deg,#a8740c 0%,#ffe9a3 22%,#d9a21e 42%,#fff7d6 58%,#c48a14 78%,#ffe39a 100%);background-size:260% auto;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:foil 5s linear infinite}
+.hero h1 em{padding:0 .08em 0 .02em;text-shadow:none;filter:drop-shadow(0 4px 22px rgba(255,190,60,.6))}
 .wm.acc>span{padding-right:.06em}
 @keyframes foil{to{background-position:260% center}}
 .kick{background:linear-gradient(90deg,#a8740c,#e0a516,#a8740c);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 .final .kick{background:none;color:#fff;-webkit-text-fill-color:#fff}
 .hero-in{position:relative}
-.glint{position:absolute;width:28px;height:28px;pointer-events:none;background:#fff4c2;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 10px #ffd35a);transform:scale(0);animation:tw 3.2s ease-in-out infinite}
+.glint{position:absolute;width:30px;height:30px;pointer-events:none;background:#fff4c2;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 10px #ffd35a);transform:scale(0);animation:tw 2.6s ease-in-out infinite}
 @keyframes tw{0%,100%{transform:scale(0) rotate(0)}45%{transform:scale(var(--s)) rotate(45deg)}55%{transform:scale(var(--s)) rotate(60deg)}}
-.bunting{position:absolute;left:0;right:0;top:0;height:90px;pointer-events:none;z-index:2}
+.bunting{position:absolute;left:0;right:0;top:0;height:100px;pointer-events:none;z-index:2}
 .bunting svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.flag{position:absolute;width:34px;height:44px;margin-left:-17px;transform-origin:50% 0;clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(135deg,var(--l),var(--d));animation:swing 2.8s ease-in-out infinite alternate;filter:drop-shadow(0 6px 6px rgba(20,23,51,.15))}
-@keyframes swing{from{rotate:-7deg}to{rotate:7deg}}
-.btn.primary::before{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;z-index:1;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:sweep2 3.4s ease-in-out infinite;pointer-events:none}
-@keyframes sweep2{0%,60%{left:-60%}100%{left:130%}}
+.flag{position:absolute;width:40px;height:52px;margin-left:-20px;transform-origin:50% 0;clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(135deg,var(--l),var(--d));animation:swing 2.4s ease-in-out infinite alternate;filter:drop-shadow(0 6px 6px rgba(20,23,51,.15))}
+@keyframes swing{from{rotate:-9deg}to{rotate:9deg}}
+.btn.primary::before{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;z-index:1;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:sweep2 2.8s ease-in-out infinite;pointer-events:none}
+@keyframes sweep2{0%,55%{left:-60%}100%{left:130%}}
 .hero-shade{box-shadow:inset 0 -120px 120px -60px rgba(255,250,242,.9)}
-.aurora i:nth-child(3){background:radial-gradient(circle,rgba(255,199,44,.4),transparent 62%)}
+.aurora i:nth-child(3){background:radial-gradient(circle,rgba(255,199,44,.45),transparent 62%)}
+.hero-foot{position:relative;z-index:2}
 @media(max-width:900px){.flag{width:24px;height:32px;margin-left:-12px}.bunting{height:70px}.glint{width:20px;height:20px}}
 @media(prefers-reduced-motion:reduce){.glint{display:none}}
