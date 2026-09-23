@@ -16,7 +16,7 @@ mv "$part" "$DEST/db-$TS.dump"
 
 files=(.env runtime/uploads)
 [ -f compose.override.yaml ] && files+=(compose.override.yaml)
-tar czf "$DEST/files-$TS.tar.gz" "${files[@]}"
+tar --exclude=runtime/db -czf "$DEST/files-$TS.tar.gz" "${files[@]}"
 
 find "$DEST" -maxdepth 1 -type f \( -name 'db-2*.dump' -o -name 'files-2*.tar.gz' \
   -o -name 'planeta-2*.tar.gz' -o -name 'runtime-2*.tar.gz' -o -name 'env-2*.backup' \) \
