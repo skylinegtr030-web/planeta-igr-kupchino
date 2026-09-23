@@ -136,7 +136,7 @@ function renderSettings(s: Settings) {
     s.ages.lavaFloor ? `Лава-пол — с <b>${s.ages.lavaFloor}</b> лет` : '',
     s.ages.kuzar ? `Лазертаг Q-ZAR — с <b>${s.ages.kuzar}</b> лет` : '',
     `Носки обязательны · Родители бесплатно`,
-  ].filter(Boolean).join('<span aria-hidden="true">·</span>');
+  ].filter(Boolean).map((t) => `<span>${t}</span>`).join('');
   const hl = $('[data-hours-label]'); if (hl) hl.textContent = `Ежедневно ${s.contacts.hours}`;
 }
 
@@ -149,21 +149,43 @@ function renderContent(blocks: Block[]) {
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
   renderDeck(zones);
   const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
-    const zEl = $('#zones')!;
-  zEl.innerHTML = zones.map((z, i) => `<button type="button" class="zone rv" data-g="${i}" style="transition-delay:${Math.min(i, 4) * 0.08}s">
-      <img src="${pic(z.images[0].src, 960)}" alt="${esc(z.images[0].alt || z.data.title)}" width="${z.images[0].w}" height="${z.images[0].h}" loading="lazy" decoding="async" />
-      <span class="n">Зона ${pad(i + 1)}</span><span class="cnt">${z.images.length} фото</span>
-      <span class="t"><h3>${esc(z.data.title)}</h3><p>${esc(z.data.text || ZONE_TEXT[z.key] || '')}</p><span class="go">Смотреть фото →</span></span>
-    </button>`).join('');
-  observe(zEl);
-  zEl.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('.zone'); if (b && !dragged) openLB(Number(b.dataset.g), 0); });
-  // drag-scroll
-  let down = false, sx = 0, sl = 0, dragged = false;
-  zEl.addEventListener('pointerdown', (e) => { down = true; dragged = false; sx = e.clientX; sl = zEl.scrollLeft; });
-  zEl.addEventListener('pointermove', (e) => { if (!down) return; const dx = e.clientX - sx; if (Math.abs(dx) > 6) { dragged = true; zEl.classList.add('drag'); zEl.scrollLeft = sl - dx; } });
-  const up = () => { down = false; zEl.classList.remove('drag'); setTimeout(() => (dragged = false), 0); };
-  zEl.addEventListener('pointerup', up); zEl.addEventListener('pointerleave', up);
-  $$<HTMLButtonElement>('[data-zn]').forEach((b) => b.addEventListener('click', () => zEl.scrollBy({ left: Number(b.dataset.zn) * (zEl.clientWidth * 0.8), behavior: 'smooth' })));
+  renderZoneIndex(zones);
+}
+
+// ───────── парк: указатель зон + сцена ─────────
+function renderZoneIndex(zones: Block[]) {
+  const list = $('#zxList'), stage = $('#zxStage'), strip = $('#zxStrip'), num = $('#zxNum'), title = $('#zxTitle');
+  if (!list || !stage || !strip || !num || !title) return;
+  let cur = -1;
+  list.innerHTML = zones.map((z, i) => `<li class="zx-item rv" style="transition-delay:${Math.min(i, 6) * 0.05}s"><button type="button" data-i="${i}">
+      <span class="num">${pad(i + 1)}</span>
+      <span class="body"><h3>${esc(z.data.title)}</h3><p>${esc(z.data.text || ZONE_TEXT[z.key] || '')}</p></span>
+      <span class="cnt">${z.images.length} фото</span></button></li>`).join('');
+  stage.insertAdjacentHTML('afterbegin', zones.map((z) => `<img src="${pic(z.images[0].src, 960)}" alt="${esc(z.images[0].alt || z.data.title)}" width="${z.images[0].w}" height="${z.images[0].h}" loading="lazy" decoding="async" />`).join(''));
+  const imgs = $$<HTMLImageElement>('img', stage), items = $$<HTMLElement>('.zx-item', list);
+  const set = (i: number) => {
+    if (i === cur) return; cur = i; const z = zones[i]!;
+    imgs.forEach((im, k) => im.classList.toggle('on', k === i));
+    items.forEach((li, k) => li.classList.toggle('on', k === i));
+    num.textContent = `${pad(i + 1)} / ${pad(zones.length)}`; title.textContent = z.data.title;
+    strip.innerHTML = z.images.slice(1, 5).map((im, k) => `<button type="button" data-k="${k + 1}" aria-label="Фото ${k + 2}"><img src="${pic(im.src, 480)}" alt="" width="${im.w}" height="${im.h}" loading="lazy" decoding="async" /></button>`).join('')
+      + (z.images.length > 5 ? `<button type="button" class="more" data-k="5">+${z.images.length - 5}</button>` : '');
+    if (matchMedia('(max-width:900px)').matches) items[i]?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  };
+  list.addEventListener('pointerover', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-i]'); if (b && matchMedia('(hover:hover)').matches) set(Number(b.dataset.i)); });
+  list.addEventListener('focusin', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-i]'); if (b) set(Number(b.dataset.i)); });
+  list.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-i]'); if (!b) return; const i = Number(b.dataset.i); if (i === cur && matchMedia('(hover:hover)').matches) openLB(i, 0); else set(i); });
+  stage.addEventListener('click', () => openLB(cur, 0));
+  stage.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLB(cur, 0); } });
+  strip.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-k]'); if (b) openLB(cur, Number(b.dataset.k)); });
+  observe(list); set(0);
+  // автопролистывание, пока никто не трогает и секция видна
+  if (!reduced) {
+    let t = 0, idle = true; const tick = () => { if (idle) set((cur + 1) % zones.length); };
+    new IntersectionObserver((es) => { clearInterval(t); if (es[0]!.isIntersecting) t = window.setInterval(tick, 3200); }).observe(stage);
+    for (const ev of ['pointerenter', 'focusin', 'touchstart']) $('#zx')!.addEventListener(ev, () => { idle = false; }, { passive: true });
+    $('#zx')!.addEventListener('pointerleave', () => { idle = true; });
+  }
 }
 
 function renderCatalog(cats: Category[]) {
@@ -299,7 +321,7 @@ if (ck && !localStorage.getItem('pi.cookie')) { ck.hidden = false; $('#cookieOk'
     getJSON<Settings>('/api/settings'), getJSON<{ blocks: Block[] }>('/api/content'), getJSON<{ categories: Category[] }>('/api/catalog'), getJSON<{ reviews: Review[] }>('/api/reviews'),
   ]);
   if (settings.status === 'fulfilled') renderSettings(settings.value);
-  if (content.status === 'fulfilled') renderContent(content.value.blocks); else $('#zones')!.innerHTML = '<p class="err-msg">Не удалось загрузить фотографии парка.</p>';
+  if (content.status === 'fulfilled') renderContent(content.value.blocks); else $('#zxList')!.innerHTML = '<p class="err-msg">Не удалось загрузить фотографии парка.</p>';
   if (catalog.status === 'fulfilled') renderCatalog(catalog.value.categories); else $('#packs')!.innerHTML = '<p class="err-msg">Не удалось загрузить программы. Позвоните нам.</p>';
   if (reviews.status === 'fulfilled') renderReviews(reviews.value.reviews);
   estimate();

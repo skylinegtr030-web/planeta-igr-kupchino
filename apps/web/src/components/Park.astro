@@ -5,12 +5,18 @@
         <span class="label rv"><i class="dot"></i>Сцена 02 · Парк</span>
         <h2 id="park-h" class="h-display h-2 rv rv-d1" style="margin-top:18px">Целый этаж<br/>приключений<br/><span class="hl">без скуки</span></h2>
       </div>
-      <p class="lead rv rv-d2">Каждая зона — отдельное приключение. Нажмите на карточку, чтобы посмотреть настоящие фотографии парка.</p>
+      <p class="lead rv rv-d2">Каждая зона — отдельное приключение. Наведите на название — покажем фото, нажмите — откроем всю галерею.</p>
     </div>
-    <div class="zones" id="zones">
-      <div class="zone sk" style="border:0"></div><div class="zone sk" style="border:0"></div><div class="zone sk" style="border:0"></div><div class="zone sk" style="border:0"></div>
+    <div class="zx" id="zx">
+      <ol class="zx-list" id="zxList"><li class="zx-item sk" style="height:64px"></li><li class="zx-item sk" style="height:64px"></li><li class="zx-item sk" style="height:64px"></li></ol>
+      <div class="zx-view">
+        <div class="zx-stage" id="zxStage" role="button" tabindex="0" aria-label="Открыть галерею зоны">
+          <span class="zx-num" id="zxNum"></span>
+          <span class="zx-title" id="zxTitle"></span>
+        </div>
+        <div class="zx-strip" id="zxStrip"></div>
+      </div>
     </div>
-    <div class="zones-nav"><button type="button" data-zn="-1" aria-label="Назад">←</button><button type="button" data-zn="1" aria-label="Вперёд">→</button></div>
     <div class="age-line rv" id="ages"></div>
   </div>
 </section>
