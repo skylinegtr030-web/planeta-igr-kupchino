@@ -14,7 +14,9 @@ export default function docsRoutes(d: { docs: DocsService }) {
       const vars: Record<string, string> = {};
       for (const [k, v] of Object.entries(company)) vars['company.' + k] = String(v ?? '');
       for (const [k, v] of Object.entries(contacts)) vars['contacts.' + k] = String(v ?? '');
-      vars['site.url'] = `${req.protocol}://${req.hostname}`;
+      const xfp = String(req.headers['x-forwarded-proto'] ?? '').split(',')[0].trim();
+      const xfh = String(req.headers['x-forwarded-host'] ?? '').split(',')[0].trim();
+      vars['site.url'] = `${xfp || req.protocol}://${xfh || req.hostname}`;
       let title: string, html: string, updatedAt: string | null = null;
       if (req.params.slug === 'company') {
         title = 'Реквизиты';
