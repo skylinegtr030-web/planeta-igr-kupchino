@@ -1,0 +1,2 @@
+:root{--c-ink:#0b0f1e;--c-paper:#f5f1e9;--c-gold:#ffc94d;--c-mut-d:#9aa0bd;--f-display:'Unbounded','Arial Black',system-ui,sans-serif;--f-text:'Manrope',system-ui,sans-serif;--f-mono:ui-monospace,monospace;--gutter:clamp(20px,4vw,56px)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--f-text);background:var(--c-paper);color:var(--c-ink)}

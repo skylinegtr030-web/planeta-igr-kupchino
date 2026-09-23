@@ -1,0 +1,20 @@
+services:
+  app:
+    build: .
+    container_name: planeta-igr-v2
+    restart: unless-stopped
+    environment:
+      PGHOST: planeta-igr-db-1
+      PGDATABASE: planeta_v2
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./runtime/uploads:/app/uploads
+    ports:
+      - "127.0.0.1:${APP_PORT:-3002}:3000"
+    networks: [default, legacy]
+    security_opt: ["no-new-privileges:true"]
+networks:
+  legacy:
+    external: true
+    name: planeta-igr_default

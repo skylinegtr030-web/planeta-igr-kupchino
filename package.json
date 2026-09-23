@@ -1,0 +1,22 @@
+{
+  "name": "planeta-igr",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run build -w @pi/shared && npm run build -w @pi/web && npm run build -w @pi/api",
+    "typecheck": "npm run build -w @pi/shared && tsc -p apps/api --noEmit",
+    "test": "npm run build -w @pi/shared && vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4",
+    "@types/node": "^22.9.0"
+  }
+}
