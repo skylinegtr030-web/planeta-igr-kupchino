@@ -2,6 +2,7 @@ import './types.js';
 import Fastify from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fastifyStatic from '@fastify/static';
+import mediaResizeRoutes from './routes/media-resize.js';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import publicRoutes from './routes/public.js';
@@ -35,7 +36,10 @@ export function buildApp(d: Deps) {
   app.register(docsRoutes({ docs: d.docs }));
   app.register(adminRoutes({ auth: d.auth, orders: d.adminOrders, catalog: d.adminCatalog, media: d.adminMedia, content: d.adminContent, secureCookies: d.secureCookies ?? false }));
   const uploads = dir(d.uploadsDir);
-  if (uploads) app.register(fastifyStatic, { root: uploads, prefix: '/media/', decorateReply: false, maxAge: '30d', immutable: true });
+  if (uploads) {
+    app.register(mediaResizeRoutes(uploads));
+    app.register(fastifyStatic, { root: uploads, prefix: '/media/', decorateReply: false, maxAge: '30d', immutable: true });
+  }
   const admin = dir(d.adminDist);
   if (admin) {
     app.get('/admin', (_req, reply) => reply.redirect('/admin/'));
