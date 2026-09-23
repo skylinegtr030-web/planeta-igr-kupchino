@@ -1,0 +1,26 @@
+---
+import Logo from './Logo.astro';
+---
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr-grid">
+      <div><Logo sub="Детский парк развлечений" /><p style="margin-top:18px;color:var(--c-mute-d);font-size:.9rem;max-width:30ch" data-address-full>…</p></div>
+      <div><h5>Разделы</h5><ul><li><a href="#park">Парк</a></li><li><a href="#programs">Программы</a></li><li><a href="#shows">Шоу и дополнения</a></li><li><a href="#tickets">Билеты</a></li><li><a href="#book">Бронирование</a></li></ul></div>
+      <div><h5>Документы</h5><ul id="docLinks"><li><a href="/docs/privacy">Политика конфиденциальности</a></li><li><a href="/docs/consent">Согласие на обработку данных</a></li><li><a href="/docs/oferta">Пользовательское соглашение</a></li><li><a href="/docs/rules">Правила посещения</a></li><li><a href="/docs/company">Реквизиты</a></li></ul></div>
+      <div><h5>Контакты</h5><ul><li><a href="tel:" data-phone-link>…</a></li><li data-hours>…</li><li><a data-map-link href="#" target="_blank" rel="noopener">Открыть на карте ↗</a></li></ul></div>
+    </div>
+    <div class="giant" aria-hidden="true">Планета Игр</div>
+    <div class="ftr-bottom"><span data-company>© 2026 ООО «Планета Игр»</span><span>Информация на сайте не является публичной офертой. Цены действительны на дату публикации.</span></div>
+  </div>
+</footer>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Просмотр фото">
+  <button class="x" type="button" data-lb="close" aria-label="Закрыть">✕</button>
+  <button class="p" type="button" data-lb="-1" aria-label="Предыдущее">←</button>
+  <img id="lbImg" alt="" />
+  <button class="n" type="button" data-lb="1" aria-label="Следующее">→</button>
+  <div class="cap"><span id="lbTitle"></span><span id="lbIdx"></span></div>
+</div>
+<div class="cookie" id="cookie" hidden>
+  <p>Мы используем cookie и обезличенную статистику, чтобы сайт работал корректно. Продолжая пользоваться сайтом, вы соглашаетесь с <a href="/docs/privacy">политикой конфиденциальности</a>.</p>
+  <button class="btn btn-white" type="button" id="cookieOk">Хорошо</button>
+</div>

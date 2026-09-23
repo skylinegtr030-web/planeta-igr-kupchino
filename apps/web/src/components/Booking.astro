@@ -1,0 +1,41 @@
+<section class="scene book" id="book">
+  <div class="wrap book-grid">
+    <div id="contacts">
+      <span class="label rv"><i class="dot"></i>Финальная сцена · Бронь</span>
+      <h2 class="h-display h-2 rv rv-d1" style="margin-top:18px">Занимайте<br/>дату</h2>
+      <p class="lead rv rv-d2" style="margin-top:22px">Оставьте заявку — менеджер перезвонит, уточнит детали и закрепит за вами комнату и время. Это бесплатно и ни к чему не обязывает.</p>
+      <div class="contacts rv rv-d3">
+        <a class="big" href="tel:" data-phone-link>…</a>
+        <div class="c"><span>Адрес</span><p data-address>…</p></div>
+        <div class="c"><span>Режим работы</span><p data-hours>…</p></div>
+        <div class="c"><span>Как добраться</span><p><a data-map-link href="#" target="_blank" rel="noopener" style="text-decoration:underline">Открыть на карте ↗</a></p></div>
+      </div>
+    </div>
+    <form class="form rv rv-d2" id="orderForm" novalidate>
+      <div class="f-body" style="display:grid;gap:16px">
+        <div class="f2">
+          <div class="fld"><label for="f-name">Ваше имя</label><input id="f-name" name="name" autocomplete="name" required maxlength="80" placeholder="Анна" /><span class="e"></span></div>
+          <div class="fld"><label for="f-phone">Телефон</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required placeholder="+7 900 000-00-00" /><span class="e"></span></div>
+        </div>
+        <div class="f2">
+          <div class="fld"><label for="f-date">Дата праздника</label><input id="f-date" name="eventDate" type="date" required /><span class="e"></span></div>
+          <div class="fld"><label for="f-kids">Сколько детей</label><input id="f-kids" name="kids" type="number" min="1" max="60" inputmode="numeric" placeholder="10" /><span class="e"></span></div>
+        </div>
+        <div class="fld"><label for="f-pack">Программа</label><select id="f-pack" name="packageSlug"><option value="">Пока не выбрал(а)</option></select><span class="e"></span></div>
+        <div class="fld"><label>Дополнения</label><div class="chips" id="extraChips"></div></div>
+        <div class="fld"><label for="f-comment">Комментарий</label><textarea id="f-comment" name="comment" maxlength="1000" placeholder="Имя и возраст именинника, пожелания"></textarea><span class="e"></span></div>
+        <div class="est" id="est" hidden><div><small>Ориентировочно</small><b data-est-sum>—</b></div><small data-est-note></small></div>
+        <div class="fld consent"><label class="chk-row"><input type="checkbox" name="consent" id="f-consent" required /><span>Я согласен(на) с <a href="/docs/oferta" target="_blank" rel="noopener">пользовательским соглашением</a> и на <a href="/docs/consent" target="_blank" rel="noopener">обработку персональных данных</a> в соответствии с <a href="/docs/privacy" target="_blank" rel="noopener">политикой конфиденциальности</a>.</span></label><span class="e"></span></div>
+        <button class="btn btn-red" type="submit" id="submitBtn">Отправить заявку <span class="ar">↗</span></button>
+        <p class="note">Перезвоним в рабочее время. Никакого спама.</p>
+        <p class="err-msg" id="formErr" hidden></p>
+      </div>
+      <div class="ok-box">
+        <div class="chk">✓</div>
+        <span class="label">Заявка принята</span>
+        <div class="num" id="okNum">№ —</div>
+        <p class="lead" style="margin:0 auto">Спасибо! Менеджер перезвонит, чтобы подтвердить дату и детали праздника.</p>
+      </div>
+    </form>
+  </div>
+</section>

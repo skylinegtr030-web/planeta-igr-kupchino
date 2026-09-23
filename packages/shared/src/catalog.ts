@@ -8,6 +8,7 @@ export const Product = z.object({
   priceWeekday: z.number().nonnegative(), priceWeekend: z.number().nonnegative(),
   priceFrom: z.boolean().default(false), durationMin: z.number().int().nullable().default(null),
   cover: z.string().nullable().default(null),
+  mark: z.string().nullable().default(null),
 });
 export type Product = z.infer<typeof Product>;
 export const Category = z.object({ slug: z.string(), title: z.string(), kind: CategoryKind, items: z.array(Product) });

@@ -1,0 +1,71 @@
+---
+import '@fontsource-variable/unbounded';
+import '@fontsource-variable/manrope';
+import '../styles/tokens.css';
+import '../styles/site.css';
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+const SITE = import.meta.env.PUBLIC_SITE_URL ?? 'https://planeta.84.201.143.53.nip.io';
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': ['AmusementPark', 'LocalBusiness'],
+  name: 'Планета Игр',
+  legalName: 'ООО «Планета Игр»',
+  description,
+  url: SITE,
+  image: `${SITE}/og.jpg`,
+  logo: `${SITE}/favicon.svg`,
+  telephone: '+7 981 818-01-34',
+  priceRange: '₽₽',
+  currenciesAccepted: 'RUB',
+  address: { '@type': 'PostalAddress', streetAddress: 'Балканская ул., 17, ТРК «Балкания Nova», 3 этаж', addressLocality: 'Санкт-Петербург', postalCode: '192281', addressCountry: 'RU' },
+  geo: { '@type': 'GeoCoordinates', latitude: 59.8252, longitude: 30.3808 },
+  openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], opens: '10:00', closes: '22:00' }],
+  areaServed: 'Санкт-Петербург, Купчино, Фрунзенский район',
+  makesOffer: [
+    { '@type': 'Offer', name: 'День рождения в детском парке', category: 'Детский праздник', priceCurrency: 'RUB', price: '24000', priceSpecification: { '@type': 'PriceSpecification', minPrice: '24000', priceCurrency: 'RUB' } },
+    { '@type': 'Offer', name: 'Безлимитный входной билет', priceCurrency: 'RUB', price: '1500' },
+  ],
+  amenityFeature: ['Звёздная башня', 'Лабиринт с пушками', 'Скалодром и батуты', 'Тюбинг-горка', 'Неоновая арена и лазертаг', 'Игровые автоматы', 'Банкетные комнаты'].map((n) => ({ '@type': 'LocationFeatureSpecification', name: n, value: true })),
+};
+---
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="keywords" content="детский парк развлечений Купчино, день рождения ребёнка Санкт-Петербург, детский праздник Купчино, лабиринт, батуты, лазертаг, Балкания Nova, Планета Игр" />
+  <link rel="canonical" href={`${SITE}/`} />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="geo.region" content="RU-SPE" />
+  <meta name="geo.placename" content="Санкт-Петербург" />
+  <meta name="geo.position" content="59.8252;30.3808" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Планета Игр" />
+  <meta property="og:locale" content="ru_RU" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={`${SITE}/`} />
+  <meta property="og:image" content={`${SITE}/og.jpg`} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Планета Игр — детский парк развлечений в Купчино" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={`${SITE}/og.jpg`} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="sitemap" href="/sitemap.xml" />
+  <meta name="theme-color" content="#f7f3ea" />
+  <link rel="preconnect" href={SITE} />
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+</head>
+<body>
+  <slot />
+  <script src="../scripts/site.ts"></script>
+</body>
+</html>

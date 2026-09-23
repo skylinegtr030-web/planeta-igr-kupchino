@@ -13,6 +13,11 @@ const app = buildApp({
   catalog: { list: async () => [{ slug: 'packs', title: 'Программы', kind: 'package', items: [] }] },
   content: { list: async () => [{ key: 'park.tower', data: { title: 'Башня' }, images: [{ src: '/media/park/a.jpeg', alt: '', w: 1440, h: 1920 }] }] },
   orders: { create: async (o) => { saved.push(o); return { id: saved.length }; } },
+  site: {
+    settings: async () => ({ contacts: { phone: '+7 981 818-01-34', hours: '10:00–22:00', addressFull: 'Балканская ул., 17', addressShort: '', mapQuery: '', mapLat: null, mapLon: null },
+      ages: { kuzar: 7 }, tiers: { unlimitedWeekday: 1500 }, weekendDays: [0, 6], holidays: ['2026-11-04'] }),
+    reviews: async () => [{ author: 'Анна', text: 'Отлично', rating: 5, source: null }],
+  },
   auth: {
     login: async (e, p) => (e === 'admin' && p === 'secret' ? { token: 'tok', admin } : null),
     session: async (t) => (t === 'tok' ? admin : null),
@@ -21,20 +26,78 @@ const app = buildApp({
   adminOrders: { list: async () => [order], patch: async (id, p) => (id === ID ? { ...order, ...p } : null) },
   adminCatalog: { list: async () => [product], patch: async (id, p) => (id === ID ? { ...product, ...p } : null) },
   adminMedia: { galleries: async () => [{ slug: 'park-tower', title: 'Башня', images: [] }], patch: async (id) => id === ID },
+  docs: {
+    list: async () => [{ slug: 'privacy', title: 'Политика конфиденциальности' }],
+    get: async (slug) => (slug === 'privacy' ? { slug, title: 'Политика конфиденциальности', body: '## Оператор\nОператор: {{company.name}}, ИНН {{company.inn}}.\n- пункт **один**\n- пункт два', published: true, sort: 1, updatedAt: '2026-09-23T10:00:00Z' } : null),
+    company: async () => ({ company: { name: 'ООО «Планета Игр»', shortName: '', legalAddress: '', inn: '7811463242', kpp: '', ogrn: '1107847140422', bank: '', bik: '', account: '', corrAccount: '', director: '', phone: '', email: '' },
+      contacts: { phone: '+7 981 818-01-34', hours: '10:00–22:00', addressFull: 'Балканская ул., 17', addressShort: '', mapQuery: '', mapLat: null, mapLon: null } }),
+  },
+  adminContent: {
+    settings: async () => ({ contacts: { phone: '1' } }),
+    putSetting: async () => undefined,
+    blocks: async () => [{ key: 'park.tower', data: { title: 'Башня' }, updatedAt: '2026-09-23T10:00:00Z' }],
+    patchBlock: async (key, p) => (key === 'park.tower' ? { key, data: { title: 'Башня', ...p }, updatedAt: 'x' } : null),
+    createDoc: async (slug, title) => (slug === 'new' ? { key: 'doc.new', data: { title }, updatedAt: 'x' } : null),
+  },
 });
 const auth = { cookies: { pi_session: 'tok' } };
+
+describe('docs pages', () => {
+  it('renders legal doc from db with company placeholders', async () => {
+    const r = await app.inject('/docs/privacy');
+    expect(r.statusCode).toBe(200);
+    expect(String(r.headers['content-type'])).toMatch(/text\/html/);
+    expect(r.body).toContain('ИНН 7811463242');
+    expect(r.body).toContain('<strong>один</strong>');
+    expect(r.body).toContain('<h2>Оператор</h2>');
+  });
+  it('renders company requisites and 404 for unknown', async () => {
+    expect((await app.inject('/docs/company')).body).toContain('1107847140422');
+    expect((await app.inject('/docs/nope')).statusCode).toBe(404);
+    expect((await app.inject('/api/docs')).json().docs[0].slug).toBe('privacy');
+  });
+  it('orders require consent', async () => {
+    const r = await app.inject({ method: 'POST', url: '/api/orders', payload: { name: 'Анна', phone: '89990001122', eventDate: '2026-10-10' } });
+    expect(r.statusCode).toBe(422);
+    expect(r.json().fields.consent).toBeTruthy();
+  });
+});
+
+describe('admin content', () => {
+  const auth = { cookies: { pi_session: 'tok' } };
+  it('settings put validates key', async () => {
+    expect((await app.inject({ method: 'PUT', url: '/api/admin/settings/hack', payload: { value: {} }, ...auth })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'PUT', url: '/api/admin/settings/company', payload: { value: { inn: '1' } }, ...auth })).statusCode).toBe(200);
+    expect((await app.inject({ method: 'GET', url: '/api/admin/settings' })).statusCode).toBe(401);
+  });
+  it('blocks patch and doc create', async () => {
+    const r = await app.inject({ method: 'PATCH', url: '/api/admin/blocks/park.tower', payload: { text: 'Новый текст' }, ...auth });
+    expect(r.json().block.data.text).toBe('Новый текст');
+    expect((await app.inject({ method: 'PATCH', url: '/api/admin/blocks/park.tower', payload: {}, ...auth })).statusCode).toBe(422);
+    expect((await app.inject({ method: 'POST', url: '/api/admin/docs', payload: { slug: 'new', title: 'Док' }, ...auth })).statusCode).toBe(201);
+    expect((await app.inject({ method: 'POST', url: '/api/admin/docs', payload: { slug: 'privacy', title: 'Док' }, ...auth })).statusCode).toBe(409);
+    expect((await app.inject({ method: 'POST', url: '/api/admin/docs', payload: { slug: 'Плохой', title: 'Док' }, ...auth })).statusCode).toBe(422);
+  });
+});
 
 describe('public api', () => {
   it('health', async () => expect((await app.inject('/health')).json()).toEqual({ ok: true }));
   it('catalog', async () => expect((await app.inject('/api/catalog')).json().categories[0].kind).toBe('package'));
+  it('settings and reviews are public and cached', async () => {
+    const r = await app.inject('/api/settings');
+    expect(r.json().contacts.phone).toBe('+7 981 818-01-34');
+    expect(r.json().holidays).toEqual(['2026-11-04']);
+    expect(String(r.headers['cache-control'])).toMatch(/max-age=60/);
+    expect((await app.inject('/api/reviews')).json().reviews[0].rating).toBe(5);
+  });
   it('content', async () => expect((await app.inject('/api/content')).json().blocks[0].images[0].src).toBe('/media/park/a.jpeg'));
   it('rejects invalid order', async () => {
     const r = await app.inject({ method: 'POST', url: '/api/orders', payload: { name: 'A', phone: '12', eventDate: '10.10.2026' } });
     expect(r.statusCode).toBe(422);
-    expect(Object.keys(r.json().fields).sort()).toEqual(['eventDate', 'name', 'phone']);
+    expect(Object.keys(r.json().fields).sort()).toEqual(['consent', 'eventDate', 'name', 'phone']);
   });
   it('accepts order, normalizes phone', async () => {
-    const r = await app.inject({ method: 'POST', url: '/api/orders', payload: { name: 'Анна', phone: '8 (999) 000-11-22', eventDate: '2026-10-10', kids: '12' } });
+    const r = await app.inject({ method: 'POST', url: '/api/orders', payload: { name: 'Анна', phone: '8 (999) 000-11-22', eventDate: '2026-10-10', kids: '12', consent: true } });
     expect(r.statusCode).toBe(201);
     expect(saved[0]).toMatchObject({ phone: '+79990001122', kids: 12, extras: [] });
   });

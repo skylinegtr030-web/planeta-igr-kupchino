@@ -34,3 +34,17 @@ export const AdminImage = z.object({ id: z.string(), src: z.string(), alt: z.str
 export type AdminImage = z.infer<typeof AdminImage>;
 export const AdminGallery = z.object({ slug: z.string(), title: z.string(), images: z.array(AdminImage) });
 export type AdminGallery = z.infer<typeof AdminGallery>;
+
+export const SETTINGS_KEYS = ['contacts', 'company', 'ages', 'tiers', 'booking_rules'] as const;
+export const SettingsKey = z.enum(SETTINGS_KEYS);
+export type SettingsKey = z.infer<typeof SettingsKey>;
+export const SettingsPut = z.object({ value: z.record(z.unknown()) });
+export type SettingsPut = z.infer<typeof SettingsPut>;
+
+export const BlockPatch = z.object({
+  title: z.string().trim().min(1).max(200).optional(), text: z.string().max(2000).optional(), body: z.string().max(60_000).optional(),
+  published: z.boolean().optional(), sort: z.number().int().min(0).max(10_000).optional(),
+}).refine(nonEmpty, 'Нечего менять');
+export type BlockPatch = z.infer<typeof BlockPatch>;
+export const AdminBlock = z.object({ key: z.string(), data: z.record(z.unknown()), updatedAt: z.string() });
+export type AdminBlock = z.infer<typeof AdminBlock>;

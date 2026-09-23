@@ -1,0 +1,14 @@
+---
+interface Props { sub?: string }
+const { sub = 'Купчино · Балкания Nova' } = Astro.props;
+---
+<a class="logo" href="#top" aria-label="Планета Игр — на главную">
+  <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+    <circle cx="24" cy="24" r="13" fill="#1f5fd6"/>
+    <path d="M13 19c4-3 9-4 15-3 4 1 7 3 8 6" stroke="#22a559" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M12 27c5 3 12 4 19 1" stroke="#ffc72c" stroke-width="3.2" stroke-linecap="round"/>
+    <ellipse cx="24" cy="26" rx="21" ry="7" stroke="#e2231a" stroke-width="2.6" transform="rotate(-18 24 26)"/>
+    <circle cx="41" cy="12" r="2.6" fill="#ffc72c"/>
+  </svg>
+  <span>Планета Игр<small>{sub}</small></span>
+</a>

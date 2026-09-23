@@ -1,16 +1,23 @@
 ---
-import '../styles/tokens.css';
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Park from '../components/Park.astro';
+import Programs from '../components/Programs.astro';
+import Shows from '../components/Shows.astro';
+import Tickets from '../components/Tickets.astro';
+import Booking from '../components/Booking.astro';
+import Footer from '../components/Footer.astro';
 ---
-<!doctype html>
-<html lang="ru">
-<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>Планета Игр — v2</title></head>
-<body>
-  <main style="min-height:100svh;display:grid;place-items:center;background:var(--c-ink);color:#fff;text-align:center;padding:var(--gutter)">
-    <div>
-      <p style="font:500 .75rem var(--f-mono);letter-spacing:.2em;color:var(--c-mut-d)">PLANETA IGR · V2 · STAGING</p>
-      <h1 style="font:800 clamp(2rem,7vw,6rem)/1 var(--f-display);text-transform:uppercase;margin:24px 0">Фундамент готов</h1>
-      <p><a style="color:var(--c-gold)" href="/api/content">/api/content</a> · <a style="color:var(--c-gold)" href="/api/catalog">/api/catalog</a></p>
-    </div>
+<Base title="Планета Игр — детский парк развлечений и дни рождения в Купчино" description="Детский парк развлечений «Планета Игр» в ТРК «Балкания Nova»: звёздная башня, лабиринт с пушками, неоновая арена, дни рождения под ключ с банкетной комнатой и аниматорами.">
+  <Header />
+  <main>
+    <Hero />
+    <Park />
+    <Programs />
+    <Shows />
+    <Tickets />
+    <Booking />
   </main>
-</body>
-</html>
+  <Footer />
+</Base>

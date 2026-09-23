@@ -8,7 +8,7 @@ export const orderService = (db: Db): OrderService => ({
     try {
       await c.query('begin');
       const { rows } = await c.query<{ id: string; number: number }>(
-        `insert into orders (customer_name, phone, event_date, guests, comment) values ($1,$2,$3,$4,$5) returning id, number`,
+        `insert into orders (customer_name, phone, event_date, guests, comment, consent_at) values ($1,$2,$3,$4,$5, now()) returning id, number`,
         [o.name, o.phone, o.eventDate, o.kids ?? null, o.comment ?? null]);
       const order = rows[0]!;
       const slugs = [o.packageSlug, ...o.extras].filter((s): s is string => Boolean(s));

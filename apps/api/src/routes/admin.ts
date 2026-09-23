@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { LoginInput, MediaPatch, OrderPatch, OrderStatus, ProductPatch } from '@pi/shared';
+import { BlockPatch, LoginInput, MediaPatch, OrderPatch, OrderStatus, ProductPatch, SettingsKey, SettingsPut } from '@pi/shared';
+import type { AdminContentService } from '../services/admin-content.js';
 import type { AuthService } from '../services/auth.js';
 import type { AdminOrderService } from '../services/admin-orders.js';
 import type { AdminCatalogService } from '../services/admin-catalog.js';
@@ -12,7 +13,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 type IdReq = { Params: { id: string } };
 
 export interface AdminDeps {
-  auth: AuthService; orders: AdminOrderService; catalog: AdminCatalogService; media: AdminMediaService; secureCookies: boolean;
+  auth: AuthService; orders: AdminOrderService; catalog: AdminCatalogService; media: AdminMediaService; content: AdminContentService; secureCookies: boolean;
 }
 
 export default function adminRoutes(d: AdminDeps) {
@@ -82,6 +83,30 @@ export default function adminRoutes(d: AdminDeps) {
         const p = MediaPatch.safeParse(req.body);
         if (!p.success) return reply.code(422).send(bad(p.error.issues));
         return (await d.media.patch(req.params.id, p.data, req.admin!.id)) ? { ok: true } : reply.code(404).send({ ok: false, error: 'not_found' });
+      });
+
+      priv.get('/api/admin/settings', async () => ({ ok: true, settings: await d.content.settings() }));
+      priv.put<{ Params: { key: string } }>('/api/admin/settings/:key', async (req, reply) => {
+        const k = SettingsKey.safeParse(req.params.key);
+        if (!k.success) return reply.code(404).send({ ok: false, error: 'not_found' });
+        const p = SettingsPut.safeParse(req.body);
+        if (!p.success) return reply.code(422).send(bad(p.error.issues));
+        await d.content.putSetting(k.data, p.data.value, req.admin!.id);
+        return { ok: true };
+      });
+      priv.get('/api/admin/blocks', async () => ({ ok: true, blocks: await d.content.blocks() }));
+      priv.patch<{ Params: { key: string } }>('/api/admin/blocks/:key', async (req, reply) => {
+        if (!/^[a-z0-9.-]{3,80}$/.test(req.params.key)) return reply.code(404).send({ ok: false, error: 'not_found' });
+        const p = BlockPatch.safeParse(req.body);
+        if (!p.success) return reply.code(422).send(bad(p.error.issues));
+        const block = await d.content.patchBlock(req.params.key, p.data, req.admin!.id);
+        return block ? { ok: true, block } : reply.code(404).send({ ok: false, error: 'not_found' });
+      });
+      priv.post('/api/admin/docs', async (req, reply) => {
+        const p = z.object({ slug: z.string().regex(/^[a-z0-9-]{2,60}$/, 'Только латиница, цифры и дефис'), title: z.string().trim().min(1).max(200) }).safeParse(req.body);
+        if (!p.success) return reply.code(422).send(bad(p.error.issues));
+        const block = await d.content.createDoc(p.data.slug, p.data.title, req.admin!.id);
+        return block ? reply.code(201).send({ ok: true, block }) : reply.code(409).send({ ok: false, error: 'exists' });
       });
     });
   };

@@ -1,0 +1,20 @@
+---
+import Logo from './Logo.astro';
+---
+<header class="hdr" id="hdr">
+  <div class="wrap">
+    <Logo />
+    <nav class="nav" id="nav" aria-label="Разделы">
+      <a href="#park">Парк</a>
+      <a href="#programs">Программы</a>
+      <a href="#shows">Шоу</a>
+      <a href="#tickets">Билеты</a>
+      <a href="#contacts">Контакты</a>
+    </nav>
+    <div class="hdr-cta">
+      <a class="hdr-phone" href="tel:" data-phone-link>…</a>
+      <a class="btn btn-red" href="#book">Забронировать <span class="ar">↗</span></a>
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Меню"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>

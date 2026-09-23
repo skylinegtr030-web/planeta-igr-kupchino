@@ -12,6 +12,7 @@ export const OrderCreate = z.object({
   packageSlug: z.string().max(80).optional(),
   extras: z.array(z.string().max(80)).max(20).default([]),
   comment: z.string().trim().max(1000).optional(),
+  consent: z.literal(true, { errorMap: () => ({ message: 'Нужно согласие на обработку персональных данных' }) }),
 });
 export type OrderCreate = z.infer<typeof OrderCreate>;
 export const OrderCreated = z.object({ ok: z.literal(true), id: z.number().int() });
