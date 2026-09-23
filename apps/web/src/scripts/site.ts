@@ -97,7 +97,11 @@ function renderContent(blocks: Block[]) {
   const zones = blocks.filter((b) => b.data.kind === 'zone' && b.data.published && b.images.length && b.key !== 'park.mascot').sort((a, b) => a.data.sort - b.data.sort);
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
   const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
-  const marq = $('#marq'); if (marq) { const names = zones.map((z) => `<span>${esc(z.data.title)}</span>`).join(''); marq.innerHTML = names + names; }
+  const marq = $('#marq'); if (marq) {
+    const items = zones.map((z, i) => `<button type="button" class="rb-item" data-g="${i}"><img src="${z.images[0].src}" alt="" width="40" height="40" loading="lazy" decoding="async" /><b>${esc(z.data.title)}</b><i>${z.images.length} фото</i></button>`).join('');
+    marq.innerHTML = items + items;
+    marq.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('.rb-item'); if (b) openLB(Number(b.dataset.g), 0); });
+  }
   const zEl = $('#zones')!;
   zEl.innerHTML = zones.map((z, i) => `<button type="button" class="zone rv" data-g="${i}" style="transition-delay:${Math.min(i, 4) * 0.08}s">
       <img src="${z.images[0].src}" alt="${esc(z.images[0].alt || z.data.title)}" width="${z.images[0].w}" height="${z.images[0].h}" loading="lazy" decoding="async" />
@@ -119,6 +123,10 @@ function renderCatalog(cats: Category[]) {
   state.catalog = cats;
   const packs = byKind('package');
   const pf = $('[data-fact="programs"]'); if (pf) pf.textContent = String(packs.length);
+  const m2 = $('#marq2'); if (m2) {
+    const line = [...packs.map((p) => `<span><em>${esc(p.title)}</em> от ${fmt(p.priceWeekday)}</span>`), ...byKind('ticket').map((t) => `<span><em>${esc(t.title)}</em> ${fmt(t.priceWeekday)}</span>`), ...byKind('activity').map((a) => `<span><em>${esc(a.title)}</em></span>`)].join('<u>★</u>');
+    m2.innerHTML = line + '<u>★</u>' + line + '<u>★</u>';
+  }
   const pEl = $('#packs')!;
   pEl.innerHTML = packs.map((p, i) => `<article class="pack rv ${PACK_TONE[p.slug] ?? ''}" style="transition-delay:${i * 0.1}s">
       ${p.mark ? `<span class="mark">${esc(p.mark)}</span>` : ''}
