@@ -119,6 +119,8 @@ async function adminCheck(req, res) {
   json(res, 200, { ok: true, role: s.role });
 }
 
+const { quote } = require('./quote');
+
 // ─ POST /api/order ──────────────────────────────────────────────────────────────
 async function saveOrder(req, res) {
   const input = await parseBody(req);
@@ -143,12 +145,26 @@ async function saveOrder(req, res) {
     source: 'website'
   };
   const eventDate = clean(input.eventDate, 20) || null;
+  let q = null;
+  try {
+    if (input.selection && typeof input.selection === 'object')
+      q = await quote(pool, Object.assign({}, input.selection, { date: eventDate, promo: input.promo }));
+  } catch (err) { console.error('quote failed:', err.message); }
+  if (q) {
+    payload.clientPriceText = payload.priceText;
+    payload.priceText = q.total.toLocaleString('ru-RU') + ' ₽' +
+      (q.discount ? ' (скидка ' + q.discount.toLocaleString('ru-RU') + ' ₽, ' + q.promo + ')' : '');
+    payload.priceMismatch = !String(payload.clientPriceText || '').replace(/\s/g, '').includes(String(q.total));
+    if (q.unknown.length) payload.unknownItems = q.unknown;
+    if (q.dayKind) payload.dayKind = q.dayKind;
+  }
   const { rows } = await pool.query(
-    `insert into orders (name, phone, event_date, payload)
-     values ($1, $2, $3, $4) returning id, created_at`,
-    [name, phone, eventDate, JSON.stringify(payload)]
+    `insert into orders (name, phone, event_date, payload, items, subtotal, discount, total, promo_code)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, created_at`,
+    [name, phone, eventDate, JSON.stringify(payload), JSON.stringify(q ? q.items : []), q ? q.subtotal : null, q ? q.discount : 0, q ? q.total : null, q && q.promo ? q.promo : null]
   );
-  json(res, 201, { ok: true, id: rows[0].id, createdAt: rows[0].created_at });
+  if (q && q.promo) await pool.query('update promo_codes set used_count = used_count + 1 where upper(code) = $1', [q.promo]).catch(() => {});
+  json(res, 201, { ok: true, id: rows[0].id, createdAt: rows[0].created_at, total: q ? q.total : null });
 }
 
 // ─ GET /api/orders ────────────────────────────────────────────────────────────
@@ -291,7 +307,7 @@ async function legacySettingsPut(key, value) {
   const v = value || {};
   const num = x => { const n = Number(x); return Number.isFinite(n) && n >= 0 ? n : null; };
   const setPrice = (slug, x) => num(x) === null ? null :
-    pool.query('update products set price_weekday=$2, price_weekend=$2 where slug=$1', [slug, num(x)]);
+    pool.query('update products set price_weekend = case when price_weekend is null or price_weekend = price_weekday then $2 else price_weekend end, price_weekday=$2 where slug=$1', [slug, num(x)]);
   const jobs = [];
   if (key === 'extras') for (const [slug, x] of Object.entries(v)) jobs.push(setPrice(slug, x));
   if (key === 'tiers')  for (const [k, slug] of Object.entries(TIER_SLUGS)) if (k in v) jobs.push(setPrice(slug, v[k]));
@@ -333,7 +349,7 @@ async function apiExtraPatch(req, res, slug) {
   if (!Number.isFinite(price) || price < 0) { json(res, 400, { ok: false, error: 'bad_price' }); return; }
   const desc = input.description == null ? null : clean(input.description, 500);
   await pool.query(
-    `update products set price_weekday=$1, price_weekend=$1, description=coalesce($2, description) where slug=$3`,
+    `update products set price_weekend = case when price_weekend is null or price_weekend = price_weekday then $1 else price_weekend end, price_weekday=$1, description=coalesce($2, description) where slug=$3`,
     [price, desc, slug]);
   json(res, 200, { ok: true });
 }
@@ -449,6 +465,7 @@ async function handler(req, res) {
   if (pkgPatch && method==='PATCH') { await apiPackagePatch(req,res,pkgPatch[1]); return; }
 
   // extras
+  if (pathname==='/api/quote' && method==='POST') { const b = await parseBody(req); json(res, 200, Object.assign({ ok: true }, await quote(pool, b))); return; }
   if (pathname==='/api/extras' && method==='GET') { await apiExtras(res); return; }
   const extPatch = pathname.match(/^\/api\/admin\/extras\/([\w-]+)$/);
   if (extPatch && method==='PATCH') { await apiExtraPatch(req,res,extPatch[1]); return; }

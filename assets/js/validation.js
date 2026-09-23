@@ -70,6 +70,7 @@
     recalc();
     const priceEl = form.querySelector('[name=priceText]');
     const payload = { ...checked.data, website: form.website.value, priceText: priceEl ? priceEl.value : '' };
+    payload.selection = window.pgSelection ? window.pgSelection() : null;
     const signature = JSON.stringify(payload);
     if (signature !== lastPayload || !requestId) {
       requestId = crypto.randomUUID();
