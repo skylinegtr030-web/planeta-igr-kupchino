@@ -14,11 +14,3 @@
 .quote p .qw{filter:none!important}
 .alive{will-change:auto!important}
 header{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(255,250,242,.97)!important}
-/*pgl-v1*/
-.hero{isolation:isolate;background:#1238c8}
-#pgl{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:-1;pointer-events:none}
-.pgl-on .hero .slide,.pgl-on .hero .slides{display:none!important}
-.panel>img.real{display:none!important}
-.laser-p.has-photo .beams,.lava-p.has-photo canvas{opacity:1!important}
-.hs .panel{filter:none!important}.glare{display:none!important}.alive{will-change:auto!important}
-header{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
