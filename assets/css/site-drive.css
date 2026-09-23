@@ -1,0 +1,32 @@
+#prog{position:fixed;top:0;left:0;right:0;height:5px;z-index:100;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,#e2231a,#ffc72c,#28a745,#1f5fd6,#8b5cf6);box-shadow:0 0 12px rgba(255,199,44,.7)}
+.hero::before{content:'';position:absolute;left:75%;top:50%;width:240vmax;height:240vmax;margin:-120vmax 0 0 -120vmax;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.055) 0 7deg,transparent 7deg 17deg);animation:rays 70s linear infinite;pointer-events:none}
+@keyframes rays{to{rotate:360deg}}
+.hero h1 .w{display:inline-block;opacity:0;animation:drop .8s cubic-bezier(.2,1.7,.4,1) forwards;animation-delay:calc(.2s + var(--i) * .09s)}
+@keyframes drop{from{opacity:0;transform:translateY(-100px) rotate(-14deg) scale(.6)}to{opacity:1;transform:none}}
+.hero h1 em.stamp{display:inline-block;animation:stamp .75s cubic-bezier(.2,1.8,.4,1) both,shine 4s linear infinite;animation-delay:calc(.35s + var(--i) * .09s),0s}
+@keyframes stamp{from{opacity:0;transform:scale(2.8) rotate(10deg)}to{opacity:1;transform:none}}
+.hero .actions .btn:not(.ghost){animation:throb 1.6s ease-in-out infinite}
+@keyframes throb{0%,100%{box-shadow:0 6px 0 #9e130d,0 0 0 0 rgba(255,199,44,.75)}50%{box-shadow:0 6px 0 #9e130d,0 0 0 18px rgba(255,199,44,0)}}
+.btn{transition:transform .15s,box-shadow .15s,translate .25s ease-out}.btn:hover{transform:translateY(-3px) scale(1.05)}
+.reveal{opacity:0;transform:translateY(70px) scale(.92) rotate(-1.5deg);transition:opacity .6s ease,transform .9s cubic-bezier(.2,1.5,.4,1)}
+.reveal.visible{opacity:1;transform:none}
+.heading.visible h2{animation:wiggle .9s .25s}
+@keyframes wiggle{20%{rotate:-2.5deg}40%{rotate:2deg}60%{rotate:-1deg}80%{rotate:.5deg}}
+#packGrid .card::before{content:'';position:absolute;top:0;left:-70%;width:45%;height:100%;z-index:4;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);pointer-events:none;transition:left .75s ease}
+#packGrid .card:hover::before{left:135%}
+#packGrid .card:hover .lvl{animation:throb 1.2s infinite}
+.jelly{animation:jelly .65s}
+@keyframes jelly{0%{scale:1}30%{scale:1.08 .92}50%{scale:.94 1.06}70%{scale:1.03 .97}100%{scale:1}}
+.trail{position:fixed;pointer-events:none;z-index:300;font-style:normal;font-size:15px;translate:-50% -50%;animation:trail .7s ease-out forwards}
+@keyframes trail{to{opacity:0;transform:translateY(26px) scale(.3) rotate(120deg)}}
+.flyby{position:fixed;left:-90px;z-index:41;font-size:3.2rem;line-height:1;background:none;border:0;padding:0;cursor:pointer;animation:fly 6s linear forwards;filter:drop-shadow(0 8px 12px rgba(0,0,0,.3))}
+@keyframes fly{to{translate:calc(100vw + 180px) -28vh}}
+.puff{position:fixed;width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.9);pointer-events:none;z-index:40;translate:-50% -50%;animation:puff .9s ease-out forwards;box-shadow:0 0 0 3px rgba(255,199,44,.45)}
+@keyframes puff{to{opacity:0;scale:2.6}}
+.floaty{position:fixed;z-index:300;pointer-events:none;font:800 1.5rem Unbounded,sans-serif;color:#e2231a;-webkit-text-stroke:1px #fff;text-shadow:0 4px 0 #ffc72c;translate:-50% -50%;white-space:nowrap;animation:floaty 1.15s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes floaty{0%{opacity:0;transform:scale(.4)}20%{opacity:1;transform:scale(1.25)}100%{opacity:0;transform:translateY(-80px) scale(1)}}
+main.shake{animation:shake .35s}
+@keyframes shake{20%{translate:-7px 2px}40%{translate:7px -3px}60%{translate:-4px 3px}80%{translate:3px -1px}}
+.floater{position:absolute;font-size:3.6rem;opacity:.55;pointer-events:none;z-index:0;animation:bob 5s ease-in-out infinite;filter:drop-shadow(0 10px 14px rgba(10,20,70,.18))}
+#sound{position:fixed;left:16px;bottom:68px;z-index:45;border:0;border-radius:999px;padding:8px 14px;background:#fff;color:#0a1446;font:900 .85rem Nunito,sans-serif;box-shadow:0 10px 30px rgba(10,20,70,.2);cursor:pointer}
+@media(max-width:900px){#sound{bottom:auto;top:120px;left:12px}.floater{font-size:2.2rem;opacity:.4}.flyby{font-size:2.4rem}}
