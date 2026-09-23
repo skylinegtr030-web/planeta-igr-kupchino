@@ -587,10 +587,10 @@ footer{text-align:center;padding:30px;font-size:.9rem;color:#6b7690;position:rel
 <script>
 /* ===== Data ===== */
 const PACKS = {
-  malysh:{name:'Малыш JO', price:24500, guests:'До 6 гостей', duration:180},
-  jungle:{name:'Гости в джунглях', price:33000, guests:'До 8 гостей', duration:180},
-  king:{name:'Король саванны', price:50500, guests:'До 10 гостей', duration:240},
-  cyber:{name:'Кибер Пати', price:36500, guests:'До 10 гостей', duration:180},
+  malysh:{name:'Малыш JO', price:24000, guests:'До 6 гостей', duration:180},
+  jungle:{name:'Гости в джунглях', price:37900, guests:'До 8 гостей', duration:180},
+  king:{name:'Король саванны', price:84100, guests:'До 10 гостей', duration:240},
+  cyber:{name:'Кибер Пати', price:45900, guests:'До 10 гостей', duration:180},
 };
 const ROOMS = {
   'jungle-room':{name:'Банкетная комната «Джунгли»'},
@@ -751,7 +751,7 @@ function renderOrderOptions(){
   Object.keys(ROOMS).forEach(id=>{
     const r=ROOMS[id];
     const rc=(window.PG_CONTENT&&window.PG_CONTENT.rooms)||{};
-    const roomPrice=id==='duo-room'?(rc.duoBase||10000):(rc.roomBase||7000);
+    const roomPrice=id==='duo-room'?(rc.duoBase||10000):(rc.roomBase||5000);
     roomBox.innerHTML+=`<label class="order-opt"><input type="radio" name="room" value="${id}" onchange="recalc()"> <span class="oo-name">${r.name}</span><span class="oo-meta">${roomPrice.toLocaleString('ru-RU')} ₽ · 2 ч</span></label>`;
   });
 
