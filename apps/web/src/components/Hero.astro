@@ -36,12 +36,27 @@
   </div>
   <div class="hero-scroll"><i></i>Листайте</div>
 </section>
-<section class="deck-wrap" id="deck" aria-label="Фотографии парка">
-  <div class="deck-word" id="deckWord" aria-hidden="true"><span>Планета</span><span class="o">игр</span><span>Планета</span><span class="o">игр</span></div>
-  <div class="deck" id="deckCards"></div>
-  <div class="deck-cap">
-    <span class="deck-line"><i id="deckBar"></i></span>
-    <span class="label">Настоящие фото парка</span>
-    <span class="deck-hint">Листайте — колода раскроется. Нажмите на кадр, чтобы открыть галерею.</span>
+<section class="cmp-wrap" id="cmp" aria-labelledby="cmp-h">
+  <div class="wrap">
+    <div class="cmp-head">
+      <div>
+        <span class="label rv"><i class="dot"></i>Сравните сами</span>
+        <h2 id="cmp-h" class="h-display h-2 rv rv-d1">Праздник у других<br/><span class="cmp-vs">и</span> <span class="hl">у нас</span></h2>
+      </div>
+      <p class="lead rv rv-d2">Потяните за ползунок. Слева — как обычно бывает. Справа — как бывает у нас.</p>
+    </div>
+    <div class="cmp rv rv-d2" id="cmpBox" style="--x:50">
+      <div class="cmp-side cmp-other" id="cmpA">
+      </div>
+      <div class="cmp-side cmp-ours" id="cmpB">
+        <div class="cmp-glow" aria-hidden="true"></div>
+        <div class="cmp-confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="cmp-tag"><b>У других</b><i>серо · тихо · скучно</i></div>
+      <div class="cmp-tag right"><b>У нас</b><i>ярко · громко · все счастливы</i></div>
+      <div class="cmp-handle" aria-hidden="true"><span class="cmp-knob">⟷</span></div>
+      <input class="cmp-range" id="cmpRange" type="range" min="0" max="100" step="0.1" value="50" aria-label="Сравнить: у других / у нас" />
+      <div class="cmp-foot"><span class="cmp-foot-a">Обычный детский праздник</span><span class="cmp-foot-b">Планета игр · Купчино</span></div>
+    </div>
   </div>
 </section>

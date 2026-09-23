@@ -49,59 +49,41 @@ const hdr = $('#hdr')!;
 let lastY = 0, ticking = false;
 addEventListener('scroll', () => {
   if (ticking) return; ticking = true;
-  requestAnimationFrame(() => { const y = scrollY; hdr.classList.toggle('solid', y > 40); lastY = y; parallax(y); deckProgress(); ticking = false; });
+  requestAnimationFrame(() => { const y = scrollY; hdr.classList.toggle('solid', y > 40); lastY = y; parallax(y); ticking = false; });
 }, { passive: true });
 const burger = $('#burger') as HTMLButtonElement;
 burger.addEventListener('click', () => { const open = document.body.classList.toggle('menu-open'); burger.setAttribute('aria-expanded', String(open)); });
 $$('#nav a').forEach((a) => a.addEventListener('click', () => { document.body.classList.remove('menu-open'); burger.setAttribute('aria-expanded', 'false'); }));
 
-// ───────── колода фотографий ─────────
-const deckWrap = $('#deck'), deckEl = $('#deckCards'), deckWord = $('#deckWord'), deckBar = $('#deckBar');
-let deckTarget = 0, deckCur = -1, deckRaf = 0, deckVisible = false;
-const DECK_TAPE = ['yellow', 'red', 'blue', 'green'];
-function renderDeck(zones: Block[]) {
-  if (!deckEl || !deckWrap) return;
-  const pick = zones.slice(0, matchMedia('(max-width:640px)').matches ? 5 : 7);
-  const n = pick.length, mid = (n - 1) / 2;
-  deckEl.innerHTML = pick.map((z, i) => {
-    const k = i - mid; const img = z.images[Math.min(1, z.images.length - 1)];
-    return `<div class="dcard" style="--k:${k};--r:${(k * 5.5).toFixed(1)}deg;--rs:${((i % 2 ? -1 : 1) * (1.5 + i * 0.8)).toFixed(1)}deg;--z:${i};--d:${(i * 0.37).toFixed(2)}s">
-      <button type="button" class="dcard-in" data-g="${zones.indexOf(z)}" aria-label="${esc(z.data.title)} — открыть галерею">
-        <img src="${pic(img.src, 480)}" alt="" width="${img.w}" height="${img.h}" loading="lazy" decoding="async" />
-        <span class="dcard-tape ${DECK_TAPE[i % 4]}"></span>
-        <span class="dcard-n">Frame ${pad(i + 1)} · ${z.images.length} фото</span>
-        <span class="dcard-t"><b>${esc(z.data.title)}</b><i>${pad(i + 1)} / ${pad(n)} · смотреть →</i></span>
-      </button></div>`;
-  }).join('');
-  deckEl.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('.dcard-in'); if (b) openLB(Number(b.dataset.g), 0); });
-  // анимация только пока секция на экране
-  new IntersectionObserver((es) => { deckVisible = es[0]!.isIntersecting; if (deckVisible) deckTick(); }, { rootMargin: '20% 0px' }).observe(deckWrap);
-  if (!reduced && matchMedia('(pointer:fine)').matches) {
-    let raf = 0, tx = 0, ty = 0;
-    deckWrap.addEventListener('pointermove', (e) => {
-      const b = deckWrap.getBoundingClientRect(); tx = (e.clientX - b.left) / b.width - 0.5; ty = (e.clientY - b.top) / b.height - 0.5;
-      if (!raf) raf = requestAnimationFrame(() => { deckEl.style.setProperty('--mx', tx.toFixed(3)); deckEl.style.setProperty('--my', ty.toFixed(3)); raf = 0; });
-    });
-    deckWrap.addEventListener('pointerleave', () => { deckEl.style.setProperty('--mx', '0'); deckEl.style.setProperty('--my', '0'); });
-  }
-}
-function deckProgress() {
-  if (!deckWrap) return;
-  const b = deckWrap.getBoundingClientRect(); const vh = innerHeight;
-  deckTarget = Math.min(1, Math.max(0, (vh * 0.92 - b.top) / (vh * 0.8)));
-  if (deckVisible && !deckRaf) deckTick();
-}
-function deckTick() {
-  if (!deckEl) return;
-  deckRaf = 0;
-  if (reduced) { deckEl.style.setProperty('--p', '1'); return; }
-  // плавное догоняние цели — без рывков при резком скролле
-  deckCur = deckCur < 0 ? deckTarget : deckCur + (deckTarget - deckCur) * 0.14;
-  const e = 1 - Math.pow(1 - deckCur, 3);
-  deckEl.style.setProperty('--p', e.toFixed(4));
-  if (deckWord) deckWord.style.transform = `translate3d(${(-6 - deckCur * 16).toFixed(2)}%,0,0)`;
-  if (deckBar) deckBar.style.transform = `scaleX(${e.toFixed(4)})`;
-  if (Math.abs(deckTarget - deckCur) > 0.0015 && deckVisible) deckRaf = requestAnimationFrame(deckTick);
+// ───────── сравнение «у других / у нас» ─────────
+function renderCompare(blocks: Block[]) {
+  const box = $('#cmpBox'), a = $('#cmpA'), b = $('#cmpB'), range = $<HTMLInputElement>('#cmpRange');
+  if (!box || !a || !b || !range) return;
+  const src = blocks.find((x) => x.key === 'park.party')?.images[0] ?? blocks.find((x) => x.key === 'park.hero')?.images[0] ?? blocks.find((x) => x.images.length)?.images[0];
+  if (!src) return;
+  const im = (alt: string) => `<img src="${pic(src.src, 1600)}" alt="${esc(alt)}" width="${src.w}" height="${src.h}" loading="lazy" decoding="async" draggable="false" />`;
+  a.insertAdjacentHTML('afterbegin', im('Обычный праздник: серо и скучно')); b.insertAdjacentHTML('afterbegin', im('Праздник в Планете игр: ярко и весело'));
+  let x = 50, touched = false, raf = 0, t0 = 0;
+  const apply = (v: number) => { x = Math.min(100, Math.max(0, v)); box.style.setProperty('--x', x.toFixed(2)); range.value = x.toFixed(1); };
+  range.addEventListener('input', () => { touched = true; apply(Number(range.value)); });
+  const fromEvent = (e: PointerEvent) => { const r = box.getBoundingClientRect(); apply(((e.clientX - r.left) / r.width) * 100); };
+  box.addEventListener('pointerdown', (e) => { if (e.button !== 0) return; e.preventDefault(); touched = true; box.classList.add('grab'); box.setPointerCapture(e.pointerId); fromEvent(e); });
+  box.addEventListener('pointermove', (e) => { if (box.classList.contains('grab')) fromEvent(e); });
+  const end = () => box.classList.remove('grab');
+  box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
+  if (reduced) return;
+  // при появлении: ползунок уезжает от края к центру, потом слегка покачивается, пока никто не тронул
+  const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+  const loop = (now: number) => {
+    if (touched) return;
+    if (!t0) t0 = now; const t = (now - t0) / 1000;
+    if (t < 1.8) apply(94 - ease(Math.min(1, t / 1.8)) * 44); else apply(50 + Math.sin((t - 1.8) * 0.9) * 5);
+    raf = requestAnimationFrame(loop);
+  };
+  new IntersectionObserver((es) => {
+    if (es[0]!.isIntersecting) { if (!touched && !raf) raf = requestAnimationFrame(loop); }
+    else { cancelAnimationFrame(raf); raf = 0; }
+  }, { threshold: 0.35 }).observe(box);
 }
 
 // ───────── hero: параллакс и наклон ─────────
@@ -147,7 +129,7 @@ function renderContent(blocks: Block[]) {
   }
   const zones = blocks.filter((b) => b.data.kind === 'zone' && b.data.published && b.images.length && b.key !== 'park.mascot').sort((a, b) => a.data.sort - b.data.sort);
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
-  renderDeck(zones);
+  renderCompare(blocks);
   const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
   renderZoneIndex(zones);
 }
