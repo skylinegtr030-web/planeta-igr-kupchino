@@ -4,6 +4,7 @@ COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+COPY apps/admin/package.json apps/admin/
 RUN npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
@@ -15,11 +16,13 @@ COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+COPY apps/admin/package.json apps/admin/
 RUN npm ci --omit=dev --no-audit --no-fund --workspace=@pi/api --workspace=@pi/shared && npm cache clean --force
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/apps/api/dist apps/api/dist
 COPY apps/api/migrations apps/api/migrations
 COPY --from=build /app/apps/web/dist apps/web/dist
+COPY --from=build /app/apps/admin/dist apps/admin/dist
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=3s CMD wget -qO- http://127.0.0.1:3000/health || exit 1

@@ -11,24 +11,32 @@ import type { ContentService } from './services/content.js';
 import type { OrderService } from './services/orders.js';
 import type { AuthService } from './services/auth.js';
 import type { AdminOrderService } from './services/admin-orders.js';
+import type { AdminCatalogService } from './services/admin-catalog.js';
+import type { AdminMediaService } from './services/admin-media.js';
 
 export interface Deps {
   catalog: CatalogService; content: ContentService; orders: OrderService;
-  auth: AuthService; adminOrders: AdminOrderService;
-  webDist?: string; uploadsDir?: string; secureCookies?: boolean; logger?: boolean;
+  auth: AuthService; adminOrders: AdminOrderService; adminCatalog: AdminCatalogService; adminMedia: AdminMediaService;
+  webDist?: string; adminDist?: string; uploadsDir?: string; secureCookies?: boolean; logger?: boolean;
 }
+
+const dir = (p?: string) => (p && existsSync(resolve(p)) ? resolve(p) : '');
 
 export function buildApp(d: Deps) {
   const app = Fastify({ logger: d.logger ?? false, bodyLimit: 64 * 1024, trustProxy: true });
   app.decorateRequest('admin', null);
   app.register(fastifyCookie);
   app.register(publicRoutes(d));
-  app.register(adminRoutes({ auth: d.auth, orders: d.adminOrders, secureCookies: d.secureCookies ?? false }));
-  const uploads = d.uploadsDir ? resolve(d.uploadsDir) : '';
-  if (uploads && existsSync(uploads))
-    app.register(fastifyStatic, { root: uploads, prefix: '/media/', decorateReply: false, maxAge: '30d', immutable: true });
-  const web = d.webDist ? resolve(d.webDist) : '';
-  if (web && existsSync(web)) app.register(fastifyStatic, { root: web, prefix: '/', wildcard: false });
+  app.register(adminRoutes({ auth: d.auth, orders: d.adminOrders, catalog: d.adminCatalog, media: d.adminMedia, secureCookies: d.secureCookies ?? false }));
+  const uploads = dir(d.uploadsDir);
+  if (uploads) app.register(fastifyStatic, { root: uploads, prefix: '/media/', decorateReply: false, maxAge: '30d', immutable: true });
+  const admin = dir(d.adminDist);
+  if (admin) {
+    app.get('/admin', (_req, reply) => reply.redirect('/admin/'));
+    app.register(fastifyStatic, { root: admin, prefix: '/admin/', decorateReply: false });
+  }
+  const web = dir(d.webDist);
+  if (web) app.register(fastifyStatic, { root: web, prefix: '/', wildcard: false });
   app.setNotFoundHandler((req, reply) =>
     req.url.startsWith('/api/') ? reply.code(404).send({ ok: false, error: 'not_found' }) : reply.code(404).type('text/html').send('Not found'));
   app.setErrorHandler((err, req, reply) => { req.log.error(err); reply.code(500).send({ ok: false, error: 'internal' }); });

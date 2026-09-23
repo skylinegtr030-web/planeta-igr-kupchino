@@ -1,0 +1,20 @@
+:root{--ink:#0b0f1e;--paper:#f6f4ef;--line:#e2ded4;--mut:#7a7f93;--acc:#2f5bff;--red:#e5484d;--green:#1f9d63;--gold:#d99a00;font:14px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink);background:var(--paper)}
+*{box-sizing:border-box}body{margin:0}h1{font-size:20px;margin:0}h2{font-size:16px;margin:24px 0 10px}
+button,select,input,textarea{font:inherit;border:1px solid var(--line);border-radius:8px;background:#fff;padding:6px 10px}
+button{cursor:pointer}button:disabled{opacity:.45;cursor:default}.primary{background:var(--acc);border-color:var(--acc);color:#fff}.ghost{background:none}
+.muted{color:var(--mut)}.err{color:var(--red)}.center{display:grid;place-items:center;min-height:100vh}.nowrap{white-space:nowrap}.num{font-weight:700}
+.top{position:sticky;top:0;z-index:5;display:flex;gap:16px;align-items:center;padding:10px 24px;background:var(--ink);color:#fff}
+.top nav{display:flex;gap:4px;flex:1}.brand{letter-spacing:.02em}.top .muted{color:#9aa0bd}.top .ghost{color:#fff;border-color:#333a55}
+.tab{background:none;border:0;color:#c8cbe0}.tab.on{background:#fff;color:var(--ink)}
+main{padding:20px 24px;max-width:1400px;margin:0 auto}.bar{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-size:12px;color:var(--mut);font-weight:600;background:#faf9f6}
+td input[type=number]{width:110px}textarea{width:200px;min-height:38px;resize:vertical}
+tr.cat td{background:#f1eee6;font-weight:700}tr.off td{opacity:.5}
+tr.st-new td:first-child{box-shadow:inset 3px 0 var(--acc)}tr.st-in_progress td:first-child{box-shadow:inset 3px 0 var(--gold)}
+tr.st-confirmed td:first-child{box-shadow:inset 3px 0 var(--green)}tr.st-cancelled td{opacity:.55}
+.login{max-width:340px;margin:12vh auto;display:grid;gap:14px;background:#fff;padding:28px;border-radius:16px;box-shadow:0 10px 40px #0001}
+.login label{display:grid;gap:4px;font-size:13px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+figure{margin:0;background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--line)}figure.off img{opacity:.3;filter:grayscale(1)}
+figure img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}figure label{display:flex;gap:6px;align-items:center;padding:6px 8px;font-size:12px}

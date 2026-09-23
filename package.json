@@ -10,8 +10,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "npm run build -w @pi/shared && npm run build -w @pi/web && npm run build -w @pi/api",
-    "typecheck": "npm run build -w @pi/shared && tsc -p apps/api --noEmit",
+    "build": "npm run build -w @pi/shared && npm run build -w @pi/web && npm run build -w @pi/admin && npm run build -w @pi/api",
+    "typecheck": "npm run build -w @pi/shared && tsc -p apps/api --noEmit && tsc -p apps/admin --noEmit",
     "test": "npm run build -w @pi/shared && vitest run"
   },
   "devDependencies": {

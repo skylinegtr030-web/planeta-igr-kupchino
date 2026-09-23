@@ -8,14 +8,16 @@ import { contentService } from './services/content.js';
 import { orderService } from './services/orders.js';
 import { authService } from './services/auth.js';
 import { adminOrderService } from './services/admin-orders.js';
+import { adminCatalogService } from './services/admin-catalog.js';
+import { adminMediaService } from './services/admin-media.js';
 
 const cfg = loadConfig();
 const db = createPool(cfg.DATABASE_URL);
 const applied = await migrate(db, resolve('apps/api/migrations'));
 const app = buildApp({
   catalog: catalogService(db), content: contentService(db), orders: orderService(db),
-  auth: authService(db), adminOrders: adminOrderService(db),
-  webDist: cfg.WEB_DIST, uploadsDir: cfg.UPLOADS_DIR, secureCookies: cfg.NODE_ENV === 'production', logger: true,
+  auth: authService(db), adminOrders: adminOrderService(db), adminCatalog: adminCatalogService(db), adminMedia: adminMediaService(db),
+  webDist: cfg.WEB_DIST, adminDist: cfg.ADMIN_DIST, uploadsDir: cfg.UPLOADS_DIR, secureCookies: cfg.COOKIE_SECURE === 'true', logger: true,
 });
 if (applied.length) app.log.info({ applied }, 'migrations applied');
 await app.listen({ port: cfg.PORT, host: '0.0.0.0' });
