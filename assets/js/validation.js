@@ -182,7 +182,7 @@
     } else if (roomVal) {
       const rc = (window.PG_CONTENT && window.PG_CONTENT.rooms) || {};
       duration += 120;
-      price += roomVal === 'duo-room' ? (rc.duoBase || 10000) : (rc.roomBase || 7000);
+      price += roomVal === 'duo-room' ? (rc.duoBase || 10000) : (rc.roomBase || 5000);
     }
     extraChecks.forEach(id => { duration += EXTRAS[id].duration; price += EXTRAS[id].price; });
     const promo = (form.promo.value || '').trim().toUpperCase();
@@ -231,7 +231,7 @@
     document.head.appendChild(css);
 
     var rc = (window.PG_CONTENT && window.PG_CONTENT.rooms) || {};
-    var priceHtml = String(rc.roomBase || 7000).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' \u20bd<small>за 2 часа \u00b7 любая из комнат</small>';
+    var priceHtml = String(rc.roomBase || 5000).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' \u20bd<small>за 2 часа \u00b7 любая из комнат</small>';
     var singles = rooms.querySelectorAll('.activity');
     Array.prototype.forEach.call(singles, function (row) {
       var link = row.querySelector('a.btn');
@@ -276,7 +276,7 @@
   function refreshRoomPrices() {
     var rc = (window.PG_CONTENT && window.PG_CONTENT.rooms) || {};
     function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
-    var single = rc.roomBase || 7000;
+    var single = rc.roomBase || 5000;
     var duoP = rc.duoBase || 10000;
     Array.prototype.forEach.call(
       document.querySelectorAll('#rooms .activity:not(#roomDuo) .rm-price'),
