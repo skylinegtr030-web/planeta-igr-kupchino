@@ -47,11 +47,44 @@ const hdr = $('#hdr')!;
 let lastY = 0, ticking = false;
 addEventListener('scroll', () => {
   if (ticking) return; ticking = true;
-  requestAnimationFrame(() => { const y = scrollY; hdr.classList.toggle('solid', y > 40); lastY = y; parallax(y); ticking = false; });
+  requestAnimationFrame(() => { const y = scrollY; hdr.classList.toggle('solid', y > 40); lastY = y; parallax(y); deckProgress(); ticking = false; });
 }, { passive: true });
 const burger = $('#burger') as HTMLButtonElement;
 burger.addEventListener('click', () => { const open = document.body.classList.toggle('menu-open'); burger.setAttribute('aria-expanded', String(open)); });
 $$('#nav a').forEach((a) => a.addEventListener('click', () => { document.body.classList.remove('menu-open'); burger.setAttribute('aria-expanded', 'false'); }));
+
+// ───────── колода фотографий ─────────
+const deckWrap = $('#deck'), deckEl = $('#deckCards'), deckWord = $('#deckWord');
+function renderDeck(zones: Block[]) {
+  if (!deckEl || !deckWrap) return;
+  const pick = zones.slice(0, matchMedia('(max-width:640px)').matches ? 5 : 7);
+  const n = pick.length, mid = (n - 1) / 2;
+  deckEl.innerHTML = pick.map((z, i) => {
+    const k = i - mid; const img = z.images[Math.min(1, z.images.length - 1)];
+    return `<button type="button" class="dcard" data-g="${zones.indexOf(z)}" style="--k:${k};--r:${(k * 5.5).toFixed(1)}deg;--rs:${((i % 2 ? -1 : 1) * (2 + i)).toFixed(1)}deg;--z:${i}">
+      <img src="${img.src}" alt="${esc(img.alt || z.data.title)}" width="${img.w}" height="${img.h}" loading="lazy" decoding="async" />
+      <span class="dcard-t"><b>${esc(z.data.title)}</b><i>${pad(i + 1)} / ${pad(n)}</i></span></button>`;
+  }).join('');
+  deckEl.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('.dcard'); if (b) openLB(Number(b.dataset.g), 0); });
+  deckProgress();
+  if (!reduced && matchMedia('(pointer:fine)').matches) {
+    let raf = 0, tx = 0, ty = 0;
+    deckWrap.addEventListener('pointermove', (e) => {
+      const b = deckWrap.getBoundingClientRect(); tx = ((e.clientX - b.left) / b.width - 0.5); ty = ((e.clientY - b.top) / b.height - 0.5);
+      if (!raf) raf = requestAnimationFrame(() => { deckEl.style.setProperty('--mx', tx.toFixed(3)); deckEl.style.setProperty('--my', ty.toFixed(3)); raf = 0; });
+    });
+    deckWrap.addEventListener('pointerleave', () => { deckEl.style.setProperty('--mx', '0'); deckEl.style.setProperty('--my', '0'); });
+  }
+}
+function deckProgress() {
+  if (!deckWrap || !deckEl) return;
+  const b = deckWrap.getBoundingClientRect(); const vh = innerHeight;
+  // 0 — секция только показалась снизу, 1 — её центр дошёл до середины экрана
+  const p = Math.min(1, Math.max(0, (vh * 0.9 - b.top) / (vh * 0.85)));
+  const e = 1 - Math.pow(1 - p, 3);
+  deckEl.style.setProperty('--p', reduced ? '1' : e.toFixed(4));
+  if (deckWord) deckWord.style.transform = `translateX(${(-8 - p * 14).toFixed(2)}%)`;
+}
 
 // ───────── hero: параллакс и наклон ─────────
 const strip = $('#strip'), stripInner = $('#stripInner');
@@ -96,13 +129,9 @@ function renderContent(blocks: Block[]) {
   }
   const zones = blocks.filter((b) => b.data.kind === 'zone' && b.data.published && b.images.length && b.key !== 'park.mascot').sort((a, b) => a.data.sort - b.data.sort);
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
+  renderDeck(zones);
   const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
-  const marq = $('#marq'); if (marq) {
-    const items = zones.map((z, i) => `<button type="button" class="rb-item" data-g="${i}"><img src="${z.images[0].src}" alt="" width="40" height="40" loading="lazy" decoding="async" /><b>${esc(z.data.title)}</b><i>${z.images.length} фото</i></button>`).join('');
-    marq.innerHTML = items + items;
-    marq.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('.rb-item'); if (b) openLB(Number(b.dataset.g), 0); });
-  }
-  const zEl = $('#zones')!;
+    const zEl = $('#zones')!;
   zEl.innerHTML = zones.map((z, i) => `<button type="button" class="zone rv" data-g="${i}" style="transition-delay:${Math.min(i, 4) * 0.08}s">
       <img src="${z.images[0].src}" alt="${esc(z.images[0].alt || z.data.title)}" width="${z.images[0].w}" height="${z.images[0].h}" loading="lazy" decoding="async" />
       <span class="n">Зона ${pad(i + 1)}</span><span class="cnt">${z.images.length} фото</span>
@@ -123,10 +152,6 @@ function renderCatalog(cats: Category[]) {
   state.catalog = cats;
   const packs = byKind('package');
   const pf = $('[data-fact="programs"]'); if (pf) pf.textContent = String(packs.length);
-  const m2 = $('#marq2'); if (m2) {
-    const line = [...packs.map((p) => `<span><em>${esc(p.title)}</em> от ${fmt(p.priceWeekday)}</span>`), ...byKind('ticket').map((t) => `<span><em>${esc(t.title)}</em> ${fmt(t.priceWeekday)}</span>`), ...byKind('activity').map((a) => `<span><em>${esc(a.title)}</em></span>`)].join('<u>★</u>');
-    m2.innerHTML = line + '<u>★</u>' + line + '<u>★</u>';
-  }
   const pEl = $('#packs')!;
   pEl.innerHTML = packs.map((p, i) => `<article class="pack rv ${PACK_TONE[p.slug] ?? ''}" style="transition-delay:${i * 0.1}s">
       ${p.mark ? `<span class="mark">${esc(p.mark)}</span>` : ''}
