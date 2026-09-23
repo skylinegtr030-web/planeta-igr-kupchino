@@ -1,3 +1,6 @@
+---
+import CompareScenes from './CompareScenes.astro';
+---
 <section class="hero" id="top">
   <div class="blobs" aria-hidden="true"><i class="blob y"></i><i class="blob b"></i><i class="blob r"></i></div>
   <div class="grid-bg" aria-hidden="true"></div>
@@ -43,15 +46,10 @@
         <span class="label rv"><i class="dot"></i>Сравните сами</span>
         <h2 id="cmp-h" class="h-display h-2 rv rv-d1">Праздник у других<br/><span class="cmp-vs">и</span> <span class="hl">у нас</span></h2>
       </div>
-      <p class="lead rv rv-d2">Потяните за ползунок. Слева — как обычно бывает. Справа — как бывает у нас.</p>
+      <p class="lead rv rv-d2">Потяните за ползунок. Слева — как обычно бывает. Справа — как у нас: ярко, шумно и все счастливы.</p>
     </div>
     <div class="cmp rv rv-d2" id="cmpBox" style="--x:50">
-      <div class="cmp-side cmp-other" id="cmpA">
-      </div>
-      <div class="cmp-side cmp-ours" id="cmpB">
-        <div class="cmp-glow" aria-hidden="true"></div>
-        <div class="cmp-confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      </div>
+      <CompareScenes />
       <div class="cmp-tag"><b>У других</b><i>серо · тихо · скучно</i></div>
       <div class="cmp-tag right"><b>У нас</b><i>ярко · громко · все счастливы</i></div>
       <div class="cmp-handle" aria-hidden="true"><span class="cmp-knob">⟷</span></div>

@@ -56,13 +56,9 @@ burger.addEventListener('click', () => { const open = document.body.classList.to
 $$('#nav a').forEach((a) => a.addEventListener('click', () => { document.body.classList.remove('menu-open'); burger.setAttribute('aria-expanded', 'false'); }));
 
 // ───────── сравнение «у других / у нас» ─────────
-function renderCompare(blocks: Block[]) {
-  const box = $('#cmpBox'), a = $('#cmpA'), b = $('#cmpB'), range = $<HTMLInputElement>('#cmpRange');
-  if (!box || !a || !b || !range) return;
-  const src = blocks.find((x) => x.key === 'park.party')?.images[0] ?? blocks.find((x) => x.key === 'park.hero')?.images[0] ?? blocks.find((x) => x.images.length)?.images[0];
-  if (!src) return;
-  const im = (alt: string) => `<img src="${pic(src.src, 1600)}" alt="${esc(alt)}" width="${src.w}" height="${src.h}" loading="lazy" decoding="async" draggable="false" />`;
-  a.insertAdjacentHTML('afterbegin', im('Обычный праздник: серо и скучно')); b.insertAdjacentHTML('afterbegin', im('Праздник в Планете игр: ярко и весело'));
+function initCompare() {
+  const box = $('#cmpBox'), range = $<HTMLInputElement>('#cmpRange');
+  if (!box || !range) return;
   let x = 50, touched = false, raf = 0, t0 = 0;
   const apply = (v: number) => { x = Math.min(100, Math.max(0, v)); box.style.setProperty('--x', x.toFixed(2)); range.value = x.toFixed(1); };
   range.addEventListener('input', () => { touched = true; apply(Number(range.value)); });
@@ -81,10 +77,13 @@ function renderCompare(blocks: Block[]) {
     raf = requestAnimationFrame(loop);
   };
   new IntersectionObserver((es) => {
-    if (es[0]!.isIntersecting) { if (!touched && !raf) raf = requestAnimationFrame(loop); }
+    const on = es[0]!.isIntersecting; box.classList.toggle('paused', !on);
+    if (on) { if (!touched && !raf) raf = requestAnimationFrame(loop); }
     else { cancelAnimationFrame(raf); raf = 0; }
-  }, { threshold: 0.35 }).observe(box);
+  }, { threshold: 0.2 }).observe(box);
 }
+
+initCompare();
 
 // ───────── hero: параллакс и наклон ─────────
 const strip = $('#strip'), stripInner = $('#stripInner');
@@ -129,7 +128,6 @@ function renderContent(blocks: Block[]) {
   }
   const zones = blocks.filter((b) => b.data.kind === 'zone' && b.data.published && b.images.length && b.key !== 'park.mascot').sort((a, b) => a.data.sort - b.data.sort);
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
-  renderCompare(blocks);
   const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
   renderZoneIndex(zones);
 }
