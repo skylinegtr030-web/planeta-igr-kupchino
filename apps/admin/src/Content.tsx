@@ -12,8 +12,7 @@ const CONTACT_FIELDS: Field[] = [
 const COMPANY_FIELDS: Field[] = [
   { key: 'name', label: 'Полное наименование', wide: true }, { key: 'shortName', label: 'Короткое наименование' }, { key: 'legalAddress', label: 'Юридический адрес', wide: true },
   { key: 'inn', label: 'ИНН' }, { key: 'kpp', label: 'КПП' }, { key: 'ogrn', label: 'ОГРН' },
-  { key: 'bank', label: 'Банк', wide: true }, { key: 'bik', label: 'БИК' }, { key: 'account', label: 'Расчётный счёт' }, { key: 'corrAccount', label: 'Корр. счёт' },
-  { key: 'director', label: 'Руководитель', wide: true }, { key: 'phone', label: 'Телефон (юр.)' }, { key: 'email', label: 'E-mail' },
+  { key: 'email', label: 'E-mail' },
 ];
 
 function SettingsForm({ title, k, fields, value, onSaved }: { title: string; k: string; fields: Field[]; value: Record<string, unknown>; onSaved: (m: string) => void }) {
