@@ -86,8 +86,8 @@
 .hero h1{margin:0 0 clamp(20px,2.6vw,34px)}
 .hero h1 .ln{display:block}
 .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:clamp(24px,3vw,40px)}
-.hero-facts{display:flex;flex-wrap:wrap;gap:clamp(20px,3vw,44px);margin-top:clamp(34px,4vw,56px);padding-top:26px;border-top:1px solid var(--c-line)}
-.fact b{display:block;font-family:var(--f-display);font-size:clamp(1.3rem,2vw,1.8rem);line-height:1}
+.hero-facts{display:flex;flex-wrap:wrap;gap:clamp(16px,2.4vw,36px);margin-top:clamp(34px,4vw,56px);padding-top:26px;border-top:1px solid var(--c-line)}
+.fact b{display:block;font-family:var(--f-display);font-size:clamp(1.2rem,1.75vw,1.6rem);line-height:1}
 .fact span{font-size:.8rem;color:var(--c-mute);font-weight:600;letter-spacing:.02em}
 .strip{position:relative;height:min(78vh,720px);perspective:1400px}
 .strip-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .6s var(--ease)}
@@ -535,3 +535,13 @@ html,body{overflow-x:clip}
 
 .cookie-btns{display:flex;gap:10px;flex-shrink:0}.btn-ghost-w{border:2px solid rgba(255,255,255,.35);color:#fff}.btn-ghost-w:hover{background:rgba(255,255,255,.12)}
 @media (max-width:700px){.cookie{flex-direction:column;align-items:stretch}.cookie-btns{justify-content:stretch}.cookie-btns .btn{flex:1;justify-content:center}}
+
+/* площадь парка: набегающий счётчик + полоска заполнения */
+.fact.area{position:relative;padding-bottom:10px;--k:0}
+.fact.area b{display:flex;align-items:baseline;gap:4px;font-variant-numeric:tabular-nums}
+.fact.area b .cnt{display:inline-block;font:inherit;color:inherit;letter-spacing:inherit}
+.fact.area b small{font:800 .55em/1 var(--f-display);color:var(--c-red)}
+.fact.area .fill{position:absolute;left:0;bottom:0;height:3px;width:100%;border-radius:2px;background:var(--c-line);overflow:hidden}
+.fact.area .fill::before{content:'';position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--k));background:linear-gradient(90deg,var(--c-red),var(--c-yellow),var(--c-blue))}
+.fact.area.done .fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);animation:fillShine 1.6s ease-out 1}
+@keyframes fillShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}

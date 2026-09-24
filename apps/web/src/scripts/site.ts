@@ -8,6 +8,7 @@ type Review = { author: string; text: string; rating: number; source: string | n
 
 const $ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => r.querySelector(s) as T | null;
 const $$ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => Array.from(r.querySelectorAll(s)) as T[];
+const fmtNum = (n: number) => new Intl.NumberFormat('ru-RU').format(n);
 const fmt = (n: number) => new Intl.NumberFormat('ru-RU').format(n) + '\u00a0₽';
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -120,6 +121,19 @@ function initCompare() {
 
 initCompare();
 
+// ───────── счётчик площади на первом экране ─────────
+$$<HTMLElement>('[data-count]').forEach((el) => {
+  const to = Number(el.dataset.count); const wrap = el.closest<HTMLElement>('.fact');
+  if (reduced) { el.textContent = fmtNum(to); wrap?.classList.add('done'); return; }
+  const t0 = performance.now() + 500, dur = 1800;
+  const step = (t: number) => {
+    const k = Math.min(1, Math.max(0, (t - t0) / dur)); const e = 1 - Math.pow(1 - k, 4);
+    el.textContent = fmtNum(Math.round(to * e)); wrap?.style.setProperty('--k', String(e));
+    if (k < 1) requestAnimationFrame(step); else wrap?.classList.add('done');
+  };
+  requestAnimationFrame(step);
+});
+
 // ───────── hero: параллакс и наклон ─────────
 const strip = $('#strip'), stripInner = $('#stripInner');
 function parallax(y: number) {
@@ -173,7 +187,6 @@ function renderContent(blocks: Block[]) {
   });
   const zones = blocks.filter((b) => b.data.kind === 'zone' && b.data.published && b.images.length && !NOT_ZONES.has(b.key)).sort((a, b) => a.data.sort - b.data.sort);
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
-  const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
   renderZoneIndex(zones);
   renderRooms();
 }
