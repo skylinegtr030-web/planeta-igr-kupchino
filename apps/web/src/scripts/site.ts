@@ -1,7 +1,7 @@
 /* Планета Игр — клиентская логика сайта. Все данные приходят из API (PostgreSQL). Без canvas. */
 type Img = { src: string; alt: string; w: number; h: number };
 type Block = { key: string; data: { title: string; kind: string; gallery: string; sort: number; text: string; published: boolean }; images: Img[] };
-type Product = { slug: string; title: string; description: string; features: string[]; priceWeekday: number; priceWeekend: number; priceFrom: boolean; durationMin: number | null; cover: string | null; mark: string | null; short?: string | null; capacity?: string | null; guests?: number | null; extendPerHour?: number | null; options?: { label: string; price: number; from?: boolean }[] };
+type Product = { slug: string; title: string; description: string; features: string[]; priceWeekday: number; priceWeekend: number; priceFrom: boolean; durationMin: number | null; cover: string | null; mark: string | null; short?: string | null; capacity?: string | null; guests?: number | null; extendPerHour?: number | null; options?: { label: string; price: number; from?: boolean }[]; minAge?: number | null };
 type Category = { slug: string; title: string; kind: string; items: Product[] };
 type Settings = { contacts: { phone: string; hours: string; addressFull: string; addressShort: string; mapQuery: string }; ages: Record<string, number>; tiers: Record<string, number>; weekendDays: number[]; holidays: string[] };
 type Review = { author: string; text: string; rating: number; source: string | null };
@@ -26,8 +26,8 @@ const ZONE_TEXT: Record<string, string> = {
   'park.arcade': 'Игровые автоматы, гонки и призовые аппараты. Тайм-карты на 30 и 60 минут.',
   'park.party': 'Праздники с аниматорами и шоу-программами прямо в парке.',
   'park.banquet': 'Уютные банкетные комнаты для торта, подарков и родительского отдыха.',
-  'park.lasertag': 'Лазерные бои на неоновой арене с укрытиями и подсветкой. Командная игра на 20 минут.',
-  'park.lava': 'Интерактивный светящийся пол: плитки меняют цвет под ногами, игры на реакцию и танцы.',
+  'park.lasertag': 'Лазерные бои на неоновой арене с укрытиями и подсветкой. Командная игра на 20 минут, с 6 лет.',
+  'park.lava': 'Лавапол — интерактивный светящийся пол: плитки меняют цвет под ногами, игры на реакцию и танцы.',
   'park.jungle': 'Зелёная комната с настенными джунглями, живым декором и неоновой надписью. До 20 гостей.',
   'park.loft': 'Чёрно-золотая комната в стиле лофт: белый кирпич, светящаяся звезда и гирлянда лампочек.',
 };
@@ -165,7 +165,7 @@ function renderSettings(s: Settings) {
   const af = $('[data-fact="age"]'); if (af) af.textContent = '0+';
   const ages = $('#ages');
   if (ages) ages.innerHTML = [
-    s.ages.lavaFloor ? `Лава-пол — с <b>${s.ages.lavaFloor}</b> лет` : '',
+    s.ages.lavaFloor ? `Лавапол — с <b>${s.ages.lavaFloor}</b> лет` : '',
     s.ages.kuzar ? `Лазертаг Q-ZAR — с <b>${s.ages.kuzar}</b> лет` : '',
     `Носки обязательны · Родители бесплатно`,
   ].filter(Boolean).map((t) => `<span>${t}</span>`).join('');
@@ -315,8 +315,8 @@ function renderCatalog(cats: Category[]) {
     } else if (kind === 'entry') {
       const we = p.priceWeekend && p.priceWeekend !== p.priceWeekday ? p.priceWeekend : t.unlimitedWeekend ?? 1800;
       note = 'будни · весь день'; lines = [`Выходные и праздники — ${fmt(we)}`];
-    } else if (kind === 'lava') { note = p.durationMin ? mins(p.durationMin) : '10 минут'; }
-    else if (kind === 'qzar') { note = p.durationMin ? mins(p.durationMin) : '20 минут'; }
+    } else if (kind === 'lava') { const age = p.minAge ?? state.settings?.ages.lavaFloor; note = `${p.durationMin ? mins(p.durationMin) : '10 минут'}${age ? ` · с ${age} лет` : ''}`; }
+    else if (kind === 'qzar') { const age = p.minAge ?? t.kuzar ?? state.settings?.ages.kuzar; note = `${p.durationMin ? mins(p.durationMin) : '20 минут'}${age ? ` · с ${age} лет` : ''}`; }
     else if (p.priceWeekend && p.priceWeekend !== p.priceWeekday) { note = 'будни'; lines = [`Выходные и праздники — ${fmt(p.priceWeekend)}`]; }
     label = kind === 'cards' ? 'Автоматы' : kind === 'entry' ? 'Вход в парк' : 'Активность';
     return `<article class="tix rv" style="transition-delay:${i * 0.08}s"><span class="label">${pad(i + 1)} · ${label}</span><div><h4>${esc(p.title)}</h4><div class="big">${big}${note ? `<small>${esc(note)}</small>` : ''}</div>${lines.map((l) => `<p class="opt">${esc(l)}</p>`).join('')}${p.description ? `<p>${esc(p.description)}</p>` : ''}</div></article>`;

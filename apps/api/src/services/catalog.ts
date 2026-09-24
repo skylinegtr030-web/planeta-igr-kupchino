@@ -8,7 +8,7 @@ export const catalogService = (db: Db): CatalogService => ({
       select c.slug, c.title, c.kind,
         coalesce(json_agg(json_build_object(
           'slug', p.slug, 'title', p.title, 'description', p.description, 'short', p.short_desc,
-          'capacity', p.attrs->>'capacity', 'guests', p.guests, 'extendPerHour', (p.attrs->>'extendPerHour')::float8, 'options', coalesce(p.attrs->'options', '[]'::jsonb),
+          'capacity', p.attrs->>'capacity', 'guests', p.guests, 'minAge', p.min_age, 'extendPerHour', (p.attrs->>'extendPerHour')::float8, 'options', coalesce(p.attrs->'options', '[]'::jsonb),
           'features', coalesce(p.attrs->'features', p.attrs->'items', '[]'::jsonb), 'mark', p.attrs->>'mark',
           'priceWeekday', p.price_weekday::float8, 'priceWeekend', p.price_weekend::float8,
           'priceFrom', p.price_from, 'durationMin', nullif(p.duration_min, 0),

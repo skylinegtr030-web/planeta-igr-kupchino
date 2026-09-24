@@ -147,7 +147,7 @@ export function Settings() {
       <div className="bar"><h1>Цены билетов, дни и промокоды</h1></div>
       <div className="grid2">
         <KvForm title="Тарифы билетов" k="tiers" fields={TIERS} hint="Резервные значения для карточек билетов; основные цены — в Каталоге." />
-        <KvForm title="Возрастные ограничения" k="ages" fields={[['kuzar', 'Лазертаг Q-ZAR, лет от'], ['lavaFloor', 'Лава-пол, лет от']]} />
+        <KvForm title="Возрастные ограничения" k="ages" fields={[['kuzar', 'Лазертаг Q-ZAR, лет от'], ['lavaFloor', 'Лавапол, лет от']]} />
         <WeekendForm />
         <SpecialDays />
       </div>

@@ -10,7 +10,7 @@ export const Product = z.object({
   cover: z.string().nullable().default(null),
   mark: z.string().nullable().default(null),
   short: z.string().nullable().default(''),
-  capacity: z.string().nullable().default(null), guests: z.number().int().nullable().default(null),
+  capacity: z.string().nullable().default(null), guests: z.number().int().nullable().default(null), minAge: z.number().int().nullable().default(null),
   extendPerHour: z.number().nullable().default(null),
   options: z.array(z.object({ label: z.string(), price: z.number(), from: z.boolean().optional() })).default([]),
 });
