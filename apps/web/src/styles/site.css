@@ -164,13 +164,17 @@
 .cmp.grab{cursor:grabbing}
 .cmp-side{position:absolute;inset:0}
 .cmp-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
-.cmp-ours{clip-path:inset(0 0 0 calc(var(--x) * 1%));will-change:clip-path;background:#fff3c4}
-.cmp-ours::before{content:'';position:absolute;inset:-20%;background:linear-gradient(120deg,#ffd6e0,#fff1b8,#c8f7ef,#cfe0ff,#e9d6ff,#ffd6e0);background-size:300% 300%;animation:shimmer 14s ease-in-out infinite}
-.cmp-ours::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 0 38%,rgba(255,255,255,.32) 46%,rgba(255,255,255,0) 54%,transparent 100%),linear-gradient(65deg,transparent 0 60%,rgba(255,255,255,.22) 70%,transparent 80%);background-size:200% 100%,260% 100%;animation:sheen 7s linear infinite;mix-blend-mode:screen}
+.cmp-ours{clip-path:inset(0 0 0 calc(var(--x) * 1%));will-change:clip-path;background:#ffe27a;overflow:clip}
+.cmp-ours::before{content:'';position:absolute;left:50%;top:50%;width:260%;aspect-ratio:1;margin:-130% 0 0 -130%;background:conic-gradient(from 0deg,#ff4d5e,#ff9f1c,#ffd600,#7be495,#2ec4b6,#3a86ff,#8338ec,#ff4d9e,#ff4d5e);animation:spin 26s linear infinite;will-change:transform}
+.cmp-ours .cmp-svg{background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.18) 60%,rgba(255,255,255,0))}
+.cmp-ours::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 0 38%,rgba(255,255,255,.5) 46%,rgba(255,255,255,0) 54%,transparent 100%),linear-gradient(65deg,transparent 0 60%,rgba(255,255,255,.35) 70%,transparent 80%);background-size:200% 100%,260% 100%;animation:sheen 6s linear infinite;mix-blend-mode:screen;pointer-events:none}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes sheen{0%{background-position:200% 0,260% 0}100%{background-position:-200% 0,-260% 0}}
 .cmp-svg .bokeh{animation:bokeh 10s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-@keyframes bokeh{0%,100%{transform:translate(0,0) scale(1);opacity:.12}50%{transform:translate(30px,-40px) scale(1.25);opacity:.26}}
+@keyframes bokeh{0%,100%{transform:translate(0,0) scale(1);opacity:.2}50%{transform:translate(30px,-40px) scale(1.3);opacity:.45}}
+.cmp-svg .star{animation:star 2s ease-in-out infinite}
+@keyframes star{0%,100%{transform:scale(.4) rotate(0);opacity:.2}50%{transform:scale(1.3) rotate(40deg);opacity:1}}
 .cmp.paused .cmp-ours::before,.cmp.paused .cmp-ours::after{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){.cmp-ours::before,.cmp-ours::after{animation:none}}
 /* сцена «у других»: медленно и уныло */
@@ -206,8 +210,6 @@
 @keyframes beams{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
 .cmp-svg .disco{animation:disco 4s linear infinite}
 @keyframes disco{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
-.cmp-svg .rainbow{animation:rainbow 8s ease-in-out infinite}
-@keyframes rainbow{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 .cmp-svg .bulb{animation:bulb 1.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 @keyframes bulb{0%,100%{opacity:.45;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
 .cmp-svg .flame{animation:flame .5s ease-in-out infinite alternate}
