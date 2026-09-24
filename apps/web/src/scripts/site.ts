@@ -33,6 +33,8 @@ const ROOM_META: Record<string, { n: string; gallery: string[]; text: string; fe
   loft: { n: '02', gallery: ['park.loft'], cap: 'до 20 гостей', text: 'Чёрно-золотая комната в индустриальном стиле — белый кирпич, деревянные панели, светящаяся звезда и гирлянда лампочек. Эффектные фото гарантированы.', feats: ['Светящаяся звезда', 'Гирлянда лампочек', 'Золотая сервировка', 'Белый кирпич и дерево'] },
   duo: { n: '01 + 02', gallery: ['park.jungle', 'park.loft'], cap: 'большая компания', text: 'Обе комнаты сразу — «Джунгли» и «Лофт» рядом. Детям простор, родителям отдельный стол, и никто никому не мешает.', feats: ['Две комнаты рядом', 'Два стола и две зоны', 'Общий праздник для всех гостей'] },
 };
+/** блоки, которые не показываем в списке зон парка: маскот и банкетные комнаты (у них своя секция) */
+const NOT_ZONES = new Set(['park.mascot', 'park.banquet', 'park.jungle', 'park.loft']);
 const roomKey = (slug: string) => (/duo|both|two/.test(slug) ? 'duo' : /loft/.test(slug) ? 'loft' : /jungle|dzhung/.test(slug) ? 'jungle' : '');
 const PACK_TONE: Record<string, string> = { malysh: 't-berry', jungle: 't-jungle', king: 't-king', cyber: 't-cyber' };
 
@@ -135,7 +137,7 @@ function renderContent(blocks: Block[]) {
   if (hero?.images.length) {
     $$('.card-ph').forEach((f) => { const i = Number(f.dataset.hero); const img = hero.images[i] ?? hero.images[0]; f.classList.remove('sk'); f.innerHTML = `<img src="${pic(img.src, 960)}" alt="${esc(img.alt || 'Планета Игр')}" width="${img.w}" height="${img.h}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} /><span class="tag"><i></i>${['Парк', 'Башня', 'Арена', 'Праздник'][i] ?? 'Парк'}</span>`; });
   }
-  const zones = blocks.filter((b) => b.data.kind === 'zone' && b.data.published && b.images.length && b.key !== 'park.mascot').sort((a, b) => a.data.sort - b.data.sort);
+  const zones = blocks.filter((b) => b.data.kind === 'zone' && b.data.published && b.images.length && !NOT_ZONES.has(b.key)).sort((a, b) => a.data.sort - b.data.sort);
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
   const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
   renderZoneIndex(zones);
