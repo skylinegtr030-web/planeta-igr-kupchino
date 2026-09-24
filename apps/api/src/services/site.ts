@@ -16,7 +16,7 @@ export const siteService = (db: Db): SiteService => ({
     const s = Object.fromEntries(rows.map((r) => [r.key, r.value ?? {}]));
     const c = (s.contacts ?? {}) as Record<string, unknown>;
     const contacts: Contacts = {
-      phone: String(c.phone || '+7 981 818-01-34'), hours: String(c.hours || '10:00–22:00'),
+      phone: String(c.phone ?? ''), hours: String(c.hours || '10:00–22:00'),
       addressFull: String(c.addressFull || 'Балканская ул., 17, ТРК «Балкания Nova», 3 этаж'), addressShort: String(c.addressShort || 'Купчино · Балкания Nova'),
       mapQuery: String(c.mapQuery || 'Санкт-Петербург, Балканская улица, 17, ТРК Балкания Nova'),
       mapLat: typeof c.mapLat === 'number' ? c.mapLat : null, mapLon: typeof c.mapLon === 'number' ? c.mapLon : null,

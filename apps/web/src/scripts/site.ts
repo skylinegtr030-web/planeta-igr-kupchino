@@ -114,7 +114,7 @@ if (strip && stripInner && !reduced && matchMedia('(pointer:fine)').matches) {
 function renderSettings(s: Settings) {
   state.settings = s;
   const tel = 'tel:' + s.contacts.phone.replace(/[^\d+]/g, '');
-  $$<HTMLAnchorElement>('[data-phone-link]').forEach((a) => { a.href = tel; if (a.textContent?.trim() === '…' || a.classList.contains('big')) a.textContent = s.contacts.phone; });
+  $$<HTMLAnchorElement>('[data-phone-link]').forEach((a) => { if (!s.contacts.phone) { a.remove(); return; } a.href = tel; if (a.textContent?.trim() === '…' || a.classList.contains('big')) a.textContent = s.contacts.phone; });
   $$('[data-hours]').forEach((e) => (e.textContent = `Ежедневно ${s.contacts.hours}`));
   $$('[data-address]').forEach((e) => (e.textContent = s.contacts.addressFull));
   $$('[data-address-full]').forEach((e) => (e.textContent = `Санкт-Петербург, ${s.contacts.addressFull}`));
@@ -347,7 +347,7 @@ form.addEventListener('submit', async (e) => {
     const j = await r.json().catch(() => ({}));
     if (r.status === 201 && j.ok) { $('#okNum')!.textContent = `№ ${j.id}`; form.classList.add('done'); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
     if (r.status === 422 && j.fields) { Object.entries(j.fields as Record<string, string>).forEach(([k, v]) => setErr(k, v)); }
-    else { errBox.textContent = 'Не удалось отправить заявку. Позвоните нам — мы всё оформим по телефону.'; errBox.hidden = false; }
+    else { errBox.textContent = 'Не удалось отправить заявку. Попробуйте ещё раз через минуту.'; errBox.hidden = false; }
   } catch { errBox.textContent = 'Нет связи с сервером. Попробуйте ещё раз или позвоните нам.'; errBox.hidden = false; }
   finally { btn.disabled = false; btn.innerHTML = 'Отправить заявку <span class="ar">↗</span>'; }
 });
@@ -363,7 +363,7 @@ if (ck && !localStorage.getItem('pi.cookie')) { ck.hidden = false; $('#cookieOk'
   ]);
   if (settings.status === 'fulfilled') renderSettings(settings.value);
   if (content.status === 'fulfilled') renderContent(content.value.blocks); else $('#zxList')!.innerHTML = '<p class="err-msg">Не удалось загрузить фотографии парка.</p>';
-  if (catalog.status === 'fulfilled') renderCatalog(catalog.value.categories); else $('#packs')!.innerHTML = '<p class="err-msg">Не удалось загрузить программы. Позвоните нам.</p>';
+  if (catalog.status === 'fulfilled') renderCatalog(catalog.value.categories); else $('#packs')!.innerHTML = '<p class="err-msg">Не удалось загрузить программы. Обновите страницу.</p>';
   if (reviews.status === 'fulfilled') renderReviews(reviews.value.reviews);
   estimate();
 })();
