@@ -133,10 +133,19 @@ function renderSettings(s: Settings) {
 
 function renderContent(blocks: Block[]) {
   state.blocks = blocks;
+  // карточки первого экрана: фото берём из галерей самих зон, чтобы подпись всегда совпадала с картинкой
+  const HERO_CARDS: { key: string; label: string; fallback: number }[] = [
+    { key: 'park.slides', label: 'Парк', fallback: 0 }, { key: 'park.tower', label: 'Башня', fallback: 1 }, { key: 'park.neon', label: 'Лазертаг', fallback: 3 },
+  ];
   const hero = blocks.find((b) => b.key === 'park.hero');
-  if (hero?.images.length) {
-    $$('.card-ph').forEach((f) => { const i = Number(f.dataset.hero); const img = hero.images[i] ?? hero.images[0]; f.classList.remove('sk'); f.innerHTML = `<img src="${pic(img.src, 960)}" alt="${esc(img.alt || 'Планета Игр')}" width="${img.w}" height="${img.h}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} /><span class="tag"><i></i>${['Парк', 'Башня', 'Арена', 'Праздник'][i] ?? 'Парк'}</span>`; });
-  }
+  $$('.card-ph').forEach((f, n) => {
+    const card = HERO_CARDS[Number(f.dataset.hero ?? n)] ?? HERO_CARDS[n]!;
+    const zone = blocks.find((b) => b.key === card.key && b.data.published);
+    const img = zone?.images[0] ?? hero?.images[card.fallback] ?? hero?.images[0];
+    if (!img) return;
+    f.classList.remove('sk');
+    f.innerHTML = `<img src="${pic(img.src, 960)}" alt="${esc(img.alt || card.label)}" width="${img.w}" height="${img.h}" ${n ? 'loading="lazy"' : 'fetchpriority="high"'} /><span class="tag"><i></i>${card.label}</span>`;
+  });
   const zones = blocks.filter((b) => b.data.kind === 'zone' && b.data.published && b.images.length && !NOT_ZONES.has(b.key)).sort((a, b) => a.data.sort - b.data.sort);
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
   const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
