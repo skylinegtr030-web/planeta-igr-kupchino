@@ -23,9 +23,13 @@ export const siteService = (db: Db): SiteService => ({
     };
     const rules = (s.booking_rules ?? {}) as Record<string, unknown>;
     const weekendDays = Array.isArray(rules.weekendDays) ? rules.weekendDays.map((d) => num(d, 0)) : [0, 6];
-    const { rows: days } = await db.query<{ day: string }>(
-      `select to_char(day, 'YYYY-MM-DD') day from special_days where kind = 'holiday' and day >= current_date - 1 order by day`);
-    return { contacts, ages: nums(s.ages), tiers: nums(s.tiers), weekendDays, holidays: days.map((d) => d.day) };
+    let holidays: string[] = [];
+    try {
+      const { rows: days } = await db.query<{ d: string }>(
+        `select to_char(day, 'YYYY-MM-DD') as d from special_days where kind = 'holiday' and day >= current_date - 1 order by day`);
+      holidays = days.map((x) => x.d);
+    } catch (e) { console.error('settings: special_days', e); }
+    return { contacts, ages: nums(s.ages), tiers: nums(s.tiers), weekendDays, holidays };
   },
   async reviews() {
     const { rows } = await db.query<Review>(
