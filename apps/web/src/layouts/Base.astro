@@ -21,11 +21,13 @@ const ld = {
   geo: { '@type': 'GeoCoordinates', latitude: 59.8252, longitude: 30.3808 },
   openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], opens: '10:00', closes: '22:00' }],
   areaServed: 'Санкт-Петербург, Купчино, Фрунзенский район',
+  sameAs: ['https://2gis.ru/spb/firm/5348552839303655'],
+  publicAccess: true, isAccessibleForFree: false, smokingAllowed: false,
   makesOffer: [
     { '@type': 'Offer', name: 'День рождения в детском парке', category: 'Детский праздник', priceCurrency: 'RUB', price: '24000', priceSpecification: { '@type': 'PriceSpecification', minPrice: '24000', priceCurrency: 'RUB' } },
     { '@type': 'Offer', name: 'Безлимитный входной билет', priceCurrency: 'RUB', price: '1500' },
   ],
-  amenityFeature: ['Звёздная башня', 'Лабиринт с пушками', 'Скалодром и батуты', 'Тюбинг-горка', 'Неоновая арена и лазертаг', 'Игровые автоматы', 'Банкетные комнаты'].map((n) => ({ '@type': 'LocationFeatureSpecification', name: n, value: true })),
+  amenityFeature: ['Звёздная башня', 'Горки и сухой бассейн', 'Лабиринт с пушками', 'Скалодром и батуты', 'Тюбинг-горка', 'Лазертаг Q-ZAR', 'Лавапол', 'Игровые автоматы', 'Банкетные комнаты «Джунгли» и «Лофт»'].map((n) => ({ '@type': 'LocationFeatureSpecification', name: n, value: true })),
 };
 ---
 <!doctype html>
@@ -59,7 +61,7 @@ const ld = {
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="sitemap" href="/sitemap.xml" />
-  <meta name="theme-color" content="#f7f3ea" />
+  <meta name="theme-color" content="#1d1546" />
   <link rel="preconnect" href={SITE} />
   <script type="application/ld+json" set:html={JSON.stringify(ld)} />
 </head>

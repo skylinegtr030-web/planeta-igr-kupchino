@@ -11,7 +11,7 @@ if git remote get-url github >/dev/null 2>&1; then
 fi
 
 step "1/4 установка, типы, тесты, сборка"
-docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -e npm_config_cache=/tmp/.npm -v "$PWD":/app -w /app node:22-alpine \
+docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -e npm_config_cache=/tmp/.npm -e PUBLIC_SITE_URL="${PUBLIC_SITE_URL:-https://planeta.84.201.143.53.nip.io}" -v "$PWD":/app -w /app node:22-alpine \
   sh -c 'npm install --no-audit --no-fund --loglevel=error && npm run typecheck && npm test && npm run build'
 
 step "2/4 коммит в v2"

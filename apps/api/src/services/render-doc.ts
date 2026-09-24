@@ -30,7 +30,7 @@ export function mdToHtml(src: string): string {
 export function docPage(o: { title: string; html: string; updatedAt: string | null; nav: { slug: string; title: string }[]; company: string; phone: string; current: string }) {
   const date = o.updatedAt ? new Date(o.updatedAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow">
-<title>${esc(o.title)} — ${esc(o.company || 'Планета Игр')}</title><link rel="icon" href="/favicon.png" type="image/png">
+<title>${esc(o.title)} — ${esc(o.company || 'Планета Игр')}</title><meta name="description" content="${esc(o.title)} детского парка развлечений «Планета Игр» в Купчино (Санкт-Петербург)."><meta name="robots" content="index,follow"><meta property="og:title" content="${esc(o.title)} — Планета Игр"><meta property="og:type" content="article"><link rel="icon" href="/favicon.png" type="image/png">
 <style>
 :root{--ink:#101633;--paper:#f7f3ea;--mute:#5a6079;--line:rgba(16,22,51,.12);--red:#e2231a;--yellow:#ffc72c}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
