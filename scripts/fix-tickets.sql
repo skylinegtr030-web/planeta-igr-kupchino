@@ -18,3 +18,9 @@ insert into settings (key, value) select 'tiers', '{"timeCards30":1290,"timeCard
 commit;
 select p.title, p.price_weekday, p.price_weekend, p.price_from, p.duration_min, p.attrs->'options' as options
 from products p join categories c on c.id = p.category_id where c.kind in ('ticket','activity') and p.parent_id is null order by p.sort;
+
+-- Лазертаг Q-ZAR: от 600 ₽ за 20 минут (уточнение клиента 24.09.2026)
+update products set price_weekday = 600, price_weekend = 600, price_from = true, duration_min = 20, attrs = attrs - 'options'
+  where (slug ilike '%zar%' or title ilike '%лазертаг%' or title ilike '%кузар%') and parent_id is null
+    and category_id in (select id from categories where kind in ('ticket','activity'));
+select p.title, p.price_weekday, p.price_from, p.duration_min from products p join categories c on c.id = p.category_id where c.kind in ('ticket','activity') and p.parent_id is null order by p.sort;

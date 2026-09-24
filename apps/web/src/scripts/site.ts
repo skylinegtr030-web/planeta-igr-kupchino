@@ -314,7 +314,7 @@ function renderCatalog(cats: Category[]) {
       const we = p.priceWeekend && p.priceWeekend !== p.priceWeekday ? p.priceWeekend : t.unlimitedWeekend ?? 1800;
       note = 'будни · весь день'; lines = [`Выходные и праздники — ${fmt(we)}`];
     } else if (kind === 'lava') { note = p.durationMin ? mins(p.durationMin) : '10 минут'; }
-    else if (kind === 'qzar') { note = 'за игру · компания'; }
+    else if (kind === 'qzar') { note = p.durationMin ? mins(p.durationMin) : '20 минут'; }
     else if (p.priceWeekend && p.priceWeekend !== p.priceWeekday) { note = 'будни'; lines = [`Выходные и праздники — ${fmt(p.priceWeekend)}`]; }
     label = kind === 'cards' ? 'Автоматы' : kind === 'entry' ? 'Вход в парк' : 'Активность';
     return `<article class="tix rv" style="transition-delay:${i * 0.08}s"><span class="label">${pad(i + 1)} · ${label}</span><div><h4>${esc(p.title)}</h4><div class="big">${big}${note ? `<small>${esc(note)}</small>` : ''}</div>${lines.map((l) => `<p class="opt">${esc(l)}</p>`).join('')}${p.description ? `<p>${esc(p.description)}</p>` : ''}</div></article>`;
