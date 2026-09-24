@@ -14,7 +14,7 @@ type Stats = {
 };
 const STATUS: Record<string, string> = { new: 'Новые', in_progress: 'В работе', confirmed: 'Подтверждены', done: 'Проведены', cancelled: 'Отменены' };
 const DEVICE: Record<string, string> = { desktop: 'Компьютер', mobile: 'Телефон', tablet: 'Планшет' };
-const SECTION: Record<string, string> = { top: 'Первый экран', cmp: 'Сравнение', park: 'Парк', rooms: 'Комнаты', programs: 'Программы', shows: 'Шоу', tickets: 'Билеты', reviews: 'Отзывы', book: 'Бронь', contacts: 'Контакты' };
+const SECTION: Record<string, string> = { top: 'Первый экран', cmp: 'Сравнение', park: 'Парк', rooms: 'Комнаты', programs: 'Программы', shows: 'Шоу', tickets: 'Билеты', reviews: 'Отзывы', faq: 'Вопросы', book: 'Бронь', contacts: 'Контакты' };
 
 function Kpi({ label, value, prev, suffix = '' }: { label: string; value: number; prev?: number; suffix?: string }) {
   const d = prev === undefined ? null : pct(value, prev);

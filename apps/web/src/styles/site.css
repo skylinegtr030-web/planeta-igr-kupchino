@@ -545,3 +545,17 @@ html,body{overflow-x:clip}
 .fact.area .fill::before{content:'';position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--k));background:linear-gradient(90deg,var(--c-red),var(--c-yellow),var(--c-blue))}
 .fact.area.done .fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);animation:fillShine 1.6s ease-out 1}
 @keyframes fillShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* ───────── FAQ и текст о парке ───────── */
+.faq>.glow{width:70vw;height:50vw;right:-15vw;top:0;background:radial-gradient(circle,rgba(255,207,92,.5),rgba(255,92,138,.3) 45%,transparent 70%)}
+.faq-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.faq-item{background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.75);border-radius:var(--r);padding:0 clamp(18px,2vw,26px);box-shadow:0 30px 60px -40px rgba(29,21,70,.35);transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
+.faq-item:hover{transform:translateY(-3px)}
+.faq-item summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;font-family:var(--f-display);font-weight:700;font-size:clamp(.98rem,1.15vw,1.1rem);line-height:1.25}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary i{flex:none;width:32px;height:32px;border-radius:50%;background:var(--c-ink);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:400;font-size:1.2rem;transition:transform .4s var(--ease),background .3s}
+.faq-item[open] summary i{transform:rotate(45deg);background:var(--c-red)}
+.faq-item p{color:var(--c-mute);padding:0 0 22px;font-size:.95rem;line-height:1.6;max-width:70ch}
+.faq-item.rv{transform:translateY(24px)}.faq-item.rv.in{transform:none}
+.about{margin-top:clamp(36px,5vw,64px);display:grid;gap:12px;max-width:80ch;color:var(--c-mute);font-size:.95rem;line-height:1.65}
+.about h3{font-family:var(--f-display);font-weight:700;font-size:clamp(1rem,1.3vw,1.2rem);color:var(--c-ink);line-height:1.25}
