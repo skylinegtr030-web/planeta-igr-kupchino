@@ -11,7 +11,7 @@ export const orderService = (db: Db): OrderService => ({
         `insert into orders (customer_name, phone, event_date, guests, comment, consent_at) values ($1,$2,$3,$4,$5, now()) returning id, number`,
         [o.name, o.phone, o.eventDate, o.kids ?? null, o.comment ?? null]);
       const order = rows[0]!;
-      const slugs = [o.packageSlug, ...o.extras].filter((s): s is string => Boolean(s));
+      const slugs = [o.packageSlug, o.roomSlug, ...o.extras].filter((s): s is string => Boolean(s));
       if (slugs.length) {
         await c.query(
           `insert into order_items (order_id, product_id, title, qty, unit_price)

@@ -1,7 +1,7 @@
 /* Планета Игр — клиентская логика сайта. Все данные приходят из API (PostgreSQL). Без canvas. */
 type Img = { src: string; alt: string; w: number; h: number };
 type Block = { key: string; data: { title: string; kind: string; gallery: string; sort: number; text: string; published: boolean }; images: Img[] };
-type Product = { slug: string; title: string; description: string; features: string[]; priceWeekday: number; priceWeekend: number; priceFrom: boolean; durationMin: number | null; cover: string | null; mark: string | null };
+type Product = { slug: string; title: string; description: string; features: string[]; priceWeekday: number; priceWeekend: number; priceFrom: boolean; durationMin: number | null; cover: string | null; mark: string | null; short?: string | null; capacity?: string | null; guests?: number | null; extendPerHour?: number | null };
 type Category = { slug: string; title: string; kind: string; items: Product[] };
 type Settings = { contacts: { phone: string; hours: string; addressFull: string; addressShort: string; mapQuery: string }; ages: Record<string, number>; tiers: Record<string, number>; weekendDays: number[]; holidays: string[] };
 type Review = { author: string; text: string; rating: number; source: string | null };
@@ -28,10 +28,16 @@ const ZONE_TEXT: Record<string, string> = {
   'park.jungle': 'Зелёная комната с настенными джунглями, живым декором и неоновой надписью. До 20 гостей.',
   'park.loft': 'Чёрно-золотая комната в стиле лофт: белый кирпич, светящаяся звезда и гирлянда лампочек.',
 };
+const ROOM_META: Record<string, { n: string; gallery: string[]; text: string; feats: string[]; cap: string }> = {
+  jungle: { n: '01', gallery: ['park.jungle'], cap: 'до 12 гостей', text: 'Зелёная комната с настенными джунглями — жираф, зебра, слон и обезьянки среди листвы. Живой декор и неоновая надпись «С Днём Рождения».', feats: ['Неоновая надпись', 'Стол с сервировкой', 'Диван для родителей', 'Живая зелень'] },
+  loft: { n: '02', gallery: ['park.loft'], cap: 'до 20 гостей', text: 'Чёрно-золотая комната в индустриальном стиле — белый кирпич, деревянные панели, светящаяся звезда и гирлянда лампочек. Эффектные фото гарантированы.', feats: ['Светящаяся звезда', 'Гирлянда лампочек', 'Золотая сервировка', 'Белый кирпич и дерево'] },
+  duo: { n: '01 + 02', gallery: ['park.jungle', 'park.loft'], cap: 'большая компания', text: 'Обе комнаты сразу — «Джунгли» и «Лофт» рядом. Детям простор, родителям отдельный стол, и никто никому не мешает.', feats: ['Две комнаты рядом', 'Два стола и две зоны', 'Общий праздник для всех гостей'] },
+};
+const roomKey = (slug: string) => (/duo|both|two/.test(slug) ? 'duo' : /loft/.test(slug) ? 'loft' : /jungle|dzhung/.test(slug) ? 'jungle' : '');
 const PACK_TONE: Record<string, string> = { malysh: 't-berry', jungle: 't-jungle', king: 't-king', cyber: 't-cyber' };
 
 // ───────── состояние ─────────
-const state = { dayKind: 'weekday' as 'weekday' | 'weekend', extras: new Set<string>(), catalog: [] as Category[], settings: null as Settings | null, galleries: [] as { title: string; images: Img[] }[] };
+const state = { blocks: [] as Block[], dayKind: 'weekday' as 'weekday' | 'weekend', extras: new Set<string>(), catalog: [] as Category[], settings: null as Settings | null, galleries: [] as { title: string; images: Img[] }[] };
 const byKind = (k: string) => state.catalog.filter((c) => c.kind === k).flatMap((c) => c.items);
 const price = (p: Product, k = state.dayKind) => (k === 'weekend' ? p.priceWeekend : p.priceWeekday);
 
@@ -124,6 +130,7 @@ function renderSettings(s: Settings) {
 }
 
 function renderContent(blocks: Block[]) {
+  state.blocks = blocks;
   const hero = blocks.find((b) => b.key === 'park.hero');
   if (hero?.images.length) {
     $$('.card-ph').forEach((f) => { const i = Number(f.dataset.hero); const img = hero.images[i] ?? hero.images[0]; f.classList.remove('sk'); f.innerHTML = `<img src="${pic(img.src, 960)}" alt="${esc(img.alt || 'Планета Игр')}" width="${img.w}" height="${img.h}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} /><span class="tag"><i></i>${['Парк', 'Башня', 'Арена', 'Праздник'][i] ?? 'Парк'}</span>`; });
@@ -132,6 +139,39 @@ function renderContent(blocks: Block[]) {
   state.galleries = zones.map((z) => ({ title: z.data.title, images: z.images }));
   const zf = $('[data-fact="zones"]'); if (zf) zf.textContent = String(zones.length);
   renderZoneIndex(zones);
+  renderRooms();
+}
+
+// ───────── банкетные комнаты ─────────
+function renderRooms() {
+  const el = $('#rooms-grid'); if (!el) return;
+  const rooms = byKind('room'); if (!rooms.length || !state.blocks.length) return;
+  const imgOf = (key: string, i = 0) => state.blocks.find((b) => b.key === key)?.images[i];
+  el.innerHTML = rooms.map((r, i) => {
+    const k = roomKey(r.slug); const m = ROOM_META[k];
+    const imgs = (m?.gallery ?? []).map((g) => imgOf(g)).filter((x): x is Img => Boolean(x));
+    if (!imgs.length && r.cover) imgs.push({ src: r.cover, alt: r.title, w: 0, h: 0 });
+    const cap = r.capacity || (r.guests ? `до ${r.guests} гостей` : m?.cap ?? '');
+    const text = r.description || r.short || m?.text || '';
+    const feats = r.features.length ? r.features : m?.feats ?? [];
+    const ext = r.extendPerHour ? ` · доп. час ${fmt(r.extendPerHour)}` : '';
+    const dur = r.durationMin ? `за ${r.durationMin / 60} часа` : '';
+    return `<article class="room rv ${k === 'duo' ? 'duo' : ''}" style="transition-delay:${i * 0.1}s">
+      <div class="room-media ${imgs.length > 1 ? 'two' : ''}">${imgs.map((im) => `<img src="${pic(im.src, 960)}" alt="${esc(im.alt || r.title)}" loading="lazy" decoding="async">`).join('')}
+        ${cap ? `<span class="room-cap">${esc(cap)}</span>` : ''}${k === 'duo' ? '<span class="room-cap gold">Выгодно для большой компании</span>' : ''}</div>
+      <div class="room-body">
+        <span class="label"><i class="dot"></i>Комната ${m?.n ?? pad(i + 1)}</span>
+        <h3>${esc(r.title)}</h3>
+        ${text ? `<p>${esc(text)}</p>` : ''}
+        ${feats.length ? `<ul class="room-feats">${feats.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}
+        <div class="room-foot"><div class="room-price"><b>${r.priceFrom ? 'от ' : ''}${fmt(r.priceWeekday)}</b><small>${esc(dur)}${esc(ext)}</small></div><a class="btn btn-red" href="#book" data-room="${esc(r.slug)}">Забронировать <span class="ar">↗</span></a></div>
+      </div></article>`;
+  }).join('');
+  observe(el);
+  const sel = $('#f-room') as HTMLSelectElement | null;
+  if (sel && sel.options.length <= 1) rooms.forEach((r) => { const o = document.createElement('option'); o.value = r.slug; o.textContent = `${r.title} — ${fmt(r.priceWeekday)}`; sel.append(o); });
+  el.onclick = (e) => { const a = (e.target as HTMLElement).closest<HTMLElement>('[data-room]'); if (a && sel) { sel.value = a.dataset.room!; estimate(); } };
+  sel?.addEventListener('change', estimate);
 }
 
 // ───────── парк: указатель зон + сцена ─────────
@@ -172,6 +212,7 @@ function renderZoneIndex(zones: Block[]) {
 
 function renderCatalog(cats: Category[]) {
   state.catalog = cats;
+  renderRooms();
   const packs = byKind('package');
   const pf = $('[data-fact="programs"]'); if (pf) pf.textContent = String(packs.length);
   const pEl = $('#packs')!;
@@ -262,6 +303,7 @@ function estimate() {
   const est = $('#est') as HTMLElement; const pack = byKind('package').find((p) => p.slug === (($('#f-pack') as HTMLSelectElement).value));
   const kind = dayKindFor(dateInp.value) ?? state.dayKind;
   let sum = pack ? price(pack, kind) : 0; let from = pack?.priceFrom ?? false;
+  const room = byKind('room').find((p) => p.slug === (($('#f-room') as HTMLSelectElement | null)?.value ?? '')); if (room) { sum += price(room, kind); from = from || room.priceFrom; }
   const all = byKind('service'); state.extras.forEach((s) => { const p = all.find((x) => x.slug === s); if (p) { sum += price(p, kind); from = from || p.priceFrom; } });
   if (!sum) { est.hidden = true; return; }
   est.hidden = false; animateNumber($('[data-est-sum]')!, sum); ($('[data-est-sum]') as HTMLElement).textContent = (from ? 'от ' : '') + fmt(sum);
@@ -282,7 +324,7 @@ form.addEventListener('submit', async (e) => {
   if (bad) return;
   const btn = $('#submitBtn') as HTMLButtonElement; btn.disabled = true; btn.textContent = 'Отправляем…';
   const kids = Number(fd.get('kids')); const body: Record<string, unknown> = { name, phone, eventDate, extras: [...state.extras], consent: true, consentAt: new Date().toISOString() };
-  if (kids > 0) body.kids = kids; const ps = String(fd.get('packageSlug') ?? ''); if (ps) body.packageSlug = ps; const cm = String(fd.get('comment') ?? '').trim(); if (cm) body.comment = cm;
+  if (kids > 0) body.kids = kids; const ps = String(fd.get('packageSlug') ?? ''); if (ps) body.packageSlug = ps; const rs = String(fd.get('roomSlug') ?? ''); if (rs) body.roomSlug = rs; const cm = String(fd.get('comment') ?? '').trim(); if (cm) body.comment = cm;
   try {
     const r = await fetch('/api/orders', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
     const j = await r.json().catch(() => ({}));

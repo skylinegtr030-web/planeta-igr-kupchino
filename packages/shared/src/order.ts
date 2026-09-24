@@ -10,6 +10,7 @@ export const OrderCreate = z.object({
   eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Дата в формате ГГГГ-ММ-ДД'),
   kids: z.coerce.number().int().min(1).max(60).optional(),
   packageSlug: z.string().max(80).optional(),
+  roomSlug: z.string().max(80).optional(),
   extras: z.array(z.string().max(80)).max(20).default([]),
   comment: z.string().trim().max(1000).optional(),
   consent: z.literal(true, { errorMap: () => ({ message: 'Нужно согласие на обработку персональных данных' }) }),

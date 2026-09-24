@@ -21,7 +21,10 @@
           <div class="fld"><label for="f-date">Дата праздника</label><input id="f-date" name="eventDate" type="date" required /><span class="e"></span></div>
           <div class="fld"><label for="f-kids">Сколько детей</label><input id="f-kids" name="kids" type="number" min="1" max="60" inputmode="numeric" placeholder="10" /><span class="e"></span></div>
         </div>
+        <div class="f2">
+        <div class="fld"><label for="f-room">Банкетная комната</label><select id="f-room" name="roomSlug"><option value="">Без комнаты</option></select><span class="e"></span></div>
         <div class="fld"><label for="f-pack">Программа</label><select id="f-pack" name="packageSlug"><option value="">Пока не выбрал(а)</option></select><span class="e"></span></div>
+        </div>
         <div class="fld"><label>Дополнения</label><div class="chips" id="extraChips"></div></div>
         <div class="fld"><label for="f-comment">Комментарий</label><textarea id="f-comment" name="comment" maxlength="1000" placeholder="Имя и возраст именинника, пожелания"></textarea><span class="e"></span></div>
         <div class="est" id="est" hidden><div><small>Ориентировочно</small><b data-est-sum>—</b></div><small data-est-note></small></div>
