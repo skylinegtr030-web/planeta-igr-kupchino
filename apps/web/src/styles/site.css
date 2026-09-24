@@ -373,7 +373,7 @@
 .ftr ul{list-style:none;display:grid;gap:10px;font-weight:600}
 .ftr a:hover{color:var(--c-yellow)}
 .ftr-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,.12);margin-top:50px;padding-top:22px;font:600 .72rem/1.6 var(--f-mono);letter-spacing:.1em;color:var(--c-mute-d)}
-.ftr .giant{font-family:var(--f-display);font-weight:800;font-size:clamp(2.4rem,9.2vw,10.5rem);letter-spacing:-.01em;line-height:.9;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.2);margin-top:40px;white-space:nowrap;overflow:hidden}
+.ftr .giant{font-family:var(--f-display);font-weight:800;font-size:clamp(2.2rem,8vw,9.4rem);letter-spacing:-.01em;line-height:.9;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.2);margin-top:40px;white-space:nowrap;overflow:hidden}
 
 /* ───────── лайтбокс ───────── */
 .lb{position:fixed;inset:0;z-index:100;background:rgba(29,21,70,.94);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px)}
@@ -426,7 +426,7 @@
   .tix{min-height:200px}
   .form{padding:20px 16px}
   .est b{font-size:1.15rem}
-  .ftr .giant{font-size:9.2vw}
+  .ftr .giant{font-size:8vw}
   .lb button{width:44px;height:44px}
   .lb .p,.lb .n{top:auto;bottom:70px;transform:none}
   .lb .p{left:20px}.lb .n{right:20px}
@@ -503,8 +503,32 @@ html,body{overflow-x:clip}
 .room.rv{transform:translateY(40px) scale(.98)}.room.rv.in{transform:none}
 @media (max-width:900px){.rooms-grid{grid-template-columns:1fr}.room.duo{flex-direction:column}.room.duo .room-media{flex:none;aspect-ratio:4/3;min-height:0}.room-media.two{grid-template-columns:1fr 1fr}.room.sk{min-height:360px}}
 
-/* ───────── мягкие переходы между секциями: фон секции растворяется в радужный фон страницы ───────── */
-.progs,.tickets,.book{--fade:clamp(70px,9vw,140px);padding-block:calc(clamp(72px,10vw,150px) + var(--fade) * .5);-webkit-mask-image:linear-gradient(180deg,transparent,#000 var(--fade),#000 calc(100% - var(--fade)),transparent);mask-image:linear-gradient(180deg,transparent,#000 var(--fade),#000 calc(100% - var(--fade)),transparent)}
-.tickets{margin-top:calc(var(--fade) * -.6)}
-.book{margin-top:calc(var(--fade) * -.6)}
-.ftr{--fade:clamp(60px,8vw,120px);padding-top:calc(clamp(50px,6vw,90px) + var(--fade) * .7);margin-top:calc(var(--fade) * -.6);-webkit-mask-image:linear-gradient(180deg,transparent,#000 var(--fade));mask-image:linear-gradient(180deg,transparent,#000 var(--fade))}
+/* ───────── единый стиль: все секции на общем радужном фоне, карточки — «стекло», за секциями мягкое свечение ───────── */
+.progs,.tickets,.book{background:none;color:var(--c-ink);overflow:visible}
+.progs::before,.progs::after{display:none}
+.scene{isolation:isolate}
+.scene>.glow{position:absolute;z-index:-1;border-radius:50%;pointer-events:none;filter:blur(70px);opacity:.55;animation:glowPulse 14s ease-in-out infinite alternate;will-change:transform}
+.progs>.glow{width:80vw;height:60vw;left:-15vw;top:10%;background:radial-gradient(circle,rgba(255,92,138,.55),rgba(131,56,236,.35) 45%,transparent 70%)}
+.tickets>.glow{width:70vw;height:50vw;right:-20vw;top:0;background:radial-gradient(circle,rgba(31,185,179,.55),rgba(255,207,92,.35) 45%,transparent 70%)}
+.book>.glow{width:80vw;height:60vw;left:-10vw;bottom:-10%;background:radial-gradient(circle,rgba(31,185,179,.5),rgba(201,214,255,.5) 45%,transparent 70%)}
+.rooms>.glow{width:70vw;height:50vw;left:20vw;top:10%;background:radial-gradient(circle,rgba(62,207,142,.45),rgba(255,207,92,.35) 45%,transparent 70%)}
+.shows>.glow{width:60vw;height:50vw;right:-10vw;top:20%;background:radial-gradient(circle,rgba(131,56,236,.4),rgba(255,92,138,.3) 45%,transparent 70%)}
+@keyframes glowPulse{from{transform:translate(0,0) scale(1)}to{transform:translate(4vw,3vw) scale(1.12)}}
+.progs .lead,.progs .rows-title{color:var(--c-mute)}
+.progs .label{color:var(--c-mute)}
+.seg{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.7)}
+.seg button{color:var(--c-mute)}
+.seg button[aria-pressed=true]{color:var(--c-ink)}
+/* стекло */
+.pack,.tix,.rev,.room,.form,.row .add,.chip,.est{background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px -40px rgba(29,21,70,.35)}
+.pack,.tix,.rev,.room,.form{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.pack:hover,.tix:hover,.rev:hover,.room:hover{box-shadow:0 50px 90px -40px rgba(29,21,70,.45)}
+.pack::after,.tix::before,.room::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);background-size:250% 100%;background-position:200% 0;transition:background-position 1.2s var(--ease);z-index:1}
+.pack:hover::after,.tix:hover::before,.room:hover::after{background-position:-50% 0}
+.rows{border-top-color:rgba(29,21,70,.14)}.row{border-bottom-color:rgba(29,21,70,.14)}
+.fld input,.fld select,.fld textarea{background:rgba(255,255,255,.7)}
+/* подвал — плавающая тёмная стеклянная панель */
+.ftr{background:rgba(29,21,70,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:calc(var(--r) + 10px);margin:clamp(20px,4vw,60px) var(--gutter) 24px;padding:clamp(50px,6vw,90px) 0 30px;box-shadow:0 40px 90px -50px rgba(29,21,70,.7);overflow:hidden}
+.ftr .wrap{padding-inline:clamp(20px,3vw,48px)}
+@media (max-width:900px){.pack,.tix,.rev,.room,.form,.ftr{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(255,255,255,.9)}.ftr{background:rgba(29,21,70,.94);margin-inline:12px}.scene>.glow{filter:blur(40px)}}
+@media (prefers-reduced-motion:reduce){.scene>.glow{animation:none}}
