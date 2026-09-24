@@ -8,6 +8,9 @@ import { resolve } from 'node:path';
 import publicRoutes from './routes/public.js';
 import adminRoutes from './routes/admin.js';
 import docsRoutes from './routes/docs.js';
+import adminV2Routes from './routes/admin-v2.js';
+import type { AdminV2Service } from './services/admin-v2.js';
+import type { StatsService } from './services/stats.js';
 import type { DocsService } from './services/docs.js';
 import type { AdminContentService } from './services/admin-content.js';
 import type { CatalogService } from './services/catalog.js';
@@ -22,7 +25,7 @@ import type { AdminMediaService } from './services/admin-media.js';
 export interface Deps {
   catalog: CatalogService; content: ContentService; orders: OrderService; site: SiteService;
   auth: AuthService; adminOrders: AdminOrderService; adminCatalog: AdminCatalogService; adminMedia: AdminMediaService;
-  docs: DocsService; adminContent: AdminContentService;
+  docs: DocsService; adminContent: AdminContentService; adminV2?: AdminV2Service; stats?: StatsService;
   webDist?: string; adminDist?: string; uploadsDir?: string; secureCookies?: boolean; logger?: boolean;
 }
 
@@ -33,6 +36,7 @@ export function buildApp(d: Deps) {
   app.decorateRequest('admin', null);
   app.register(fastifyCookie);
   app.register(publicRoutes(d));
+  if (d.adminV2) app.register(adminV2Routes({ auth: d.auth, v2: d.adminV2, stats: d.stats }));
   app.register(docsRoutes({ docs: d.docs }));
   app.register(adminRoutes({ auth: d.auth, orders: d.adminOrders, catalog: d.adminCatalog, media: d.adminMedia, content: d.adminContent, secureCookies: d.secureCookies ?? false }));
   const uploads = dir(d.uploadsDir);

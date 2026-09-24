@@ -49,6 +49,31 @@ async function getJSON<T>(url: string): Promise<T> {
   return r.json() as Promise<T>;
 }
 
+
+// ───────── статистика (обезличенная, без cookie) ─────────
+const track = (data: Record<string, unknown>) => {
+  try {
+    const body = JSON.stringify({ path: location.pathname, ...data });
+    if (navigator.sendBeacon) navigator.sendBeacon('/api/track', new Blob([body], { type: 'application/json' }));
+    else fetch('/api/track', { method: 'POST', headers: { 'content-type': 'application/json' }, body, keepalive: true }).catch(() => undefined);
+  } catch { /* статистика не должна ломать сайт */ }
+};
+const trackEvent = (name: string, label?: string) => track({ type: 'event', name, label });
+{
+  const u = new URL(location.href);
+  track({ type: 'pageview', referrer: document.referrer || undefined, screenW: innerWidth,
+    utm: { source: u.searchParams.get('utm_source') ?? undefined, medium: u.searchParams.get('utm_medium') ?? undefined, campaign: u.searchParams.get('utm_campaign') ?? undefined } });
+  const seen = new Set<string>();
+  const secIO = new IntersectionObserver((es) => es.forEach((e) => { const id = (e.target as HTMLElement).id; if (e.isIntersecting && id && !seen.has(id)) { seen.add(id); trackEvent('section', id); } }), { threshold: 0.3 });
+  $$('section[id]').forEach((sec) => secIO.observe(sec));
+  document.addEventListener('click', (e) => {
+    const a = (e.target as HTMLElement).closest<HTMLElement>('a.btn, button.btn, [data-pick], [data-room], [data-extra], [data-lb]');
+    if (!a) return;
+    const label = a.dataset.pick ? `программа:${a.dataset.pick}` : a.dataset.room ? `комната:${a.dataset.room}` : a.dataset.extra ? `дополнение:${a.dataset.extra}` : a.dataset.lb !== undefined ? 'фото' : (a.textContent ?? '').trim().slice(0, 60);
+    trackEvent('click', label);
+  }, { passive: true });
+}
+
 // ───────── появление блоков ─────────
 const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -5% 0px', threshold: 0.04 });
 const observe = (root: ParentNode = document) => $$('.rv:not(.in), .words:not(.in)', root).forEach((el) => io.observe(el));
@@ -354,7 +379,7 @@ form.addEventListener('submit', async (e) => {
   try {
     const r = await fetch('/api/orders', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
     const j = await r.json().catch(() => ({}));
-    if (r.status === 201 && j.ok) { $('#okNum')!.textContent = `№ ${j.id}`; form.classList.add('done'); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    if (r.status === 201 && j.ok) { trackEvent('order', ps || rs || 'без программы'); $('#okNum')!.textContent = `№ ${j.id}`; form.classList.add('done'); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
     if (r.status === 422 && j.fields) { Object.entries(j.fields as Record<string, string>).forEach(([k, v]) => setErr(k, v)); }
     else { errBox.textContent = 'Не удалось отправить заявку. Попробуйте ещё раз через минуту.'; errBox.hidden = false; }
   } catch { errBox.textContent = 'Нет связи с сервером. Попробуйте ещё раз или позвоните нам.'; errBox.hidden = false; }

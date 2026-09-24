@@ -43,7 +43,7 @@ export type SettingsPut = z.infer<typeof SettingsPut>;
 
 export const BlockPatch = z.object({
   title: z.string().trim().min(1).max(200).optional(), text: z.string().max(2000).optional(), body: z.string().max(60_000).optional(),
-  published: z.boolean().optional(), sort: z.number().int().min(0).max(10_000).optional(),
+  published: z.boolean().optional(), sort: z.number().int().min(0).max(10_000).optional(), gallery: z.string().max(80).optional(),
 }).refine(nonEmpty, 'Нечего менять');
 export type BlockPatch = z.infer<typeof BlockPatch>;
 export const AdminBlock = z.object({ key: z.string(), data: z.record(z.unknown()), updatedAt: z.string() });

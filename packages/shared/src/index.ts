@@ -3,3 +3,4 @@ export * from './catalog.js';
 export * from './content.js';
 export * from './admin.js';
 export * from './site.js';
+export * from './admin-v2.js';
