@@ -234,7 +234,7 @@
 @keyframes wand{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(18deg)}}
 .cmp-svg .brush{animation:brush 1.1s ease-in-out infinite}
 @keyframes brush{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(4px,-6px) rotate(-8deg)}}
-.cmp-svg .arm{animation:arm 2s ease-in-out infinite;transform-origin:22px -96px}
+.cmp-svg .arm{animation:arm 2s ease-in-out infinite}
 @keyframes arm{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 .cmp-svg .ura{animation:ura 2.2s ease-in-out infinite}
 @keyframes ura{0%,100%{transform:scale(.9) rotate(-6deg)}50%{transform:scale(1.1) rotate(4deg)}}

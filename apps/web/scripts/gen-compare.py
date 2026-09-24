@@ -9,41 +9,63 @@ def label(x,y,text,dark=False,cls='lbl'):
     bg,fg=('#2b2f3a','#c9cfdd') if dark else ('#ffffff','#1b1e3a')
     return f'<g class="{cls}"><rect x="{x-w/2:.0f}" y="{y-13}" width="{w:.0f}" height="26" rx="13" fill="{bg}" opacity=".94"/><text x="{x}" y="{y+4.5}" text-anchor="middle" font-family="var(--f-mono)" font-weight="700" font-size="12" letter-spacing="1.2" fill="{fg}">{text.upper()}</text></g>'
 
-def person(x,y,s=1,shirt='#3A86FF',pants='#2b2f3a',skin='#F2B48C',hair='#3B2A20',pose='up',face='smile',cls='',extra='',hairstyle='cap',shoes='#222',h=1.0,sit=False):
-    """Фигура высотой ~150 в локальных координатах, ноги на (0,0). h — рост (1 ребёнок, 1.3 взрослый)."""
-    sh=shirt; dk='rgba(0,0,0,.18)'
-    if pose=='up': arms=f"<path d='M-20 -96 q-16 -18 -24 -44' stroke='{sh}' stroke-width='13' stroke-linecap='round' fill='none'/><path d='M20 -96 q16 -18 24 -44' stroke='{sh}' stroke-width='13' stroke-linecap='round' fill='none'/><path d='M-30 -118 l-14 -22' stroke='{skin}' stroke-width='11' stroke-linecap='round'/><path d='M30 -118 l14 -22' stroke='{skin}' stroke-width='11' stroke-linecap='round'/><circle cx='-46' cy='-144' r='7' fill='{skin}'/><circle cx='46' cy='-144' r='7' fill='{skin}'/>"
-    elif pose=='down': arms=f"<path d='M-22 -96 q-8 20 -8 42' stroke='{sh}' stroke-width='13' stroke-linecap='round' fill='none'/><path d='M22 -96 q8 20 8 42' stroke='{sh}' stroke-width='13' stroke-linecap='round' fill='none'/><circle cx='-30' cy='-48' r='7' fill='{skin}'/><circle cx='30' cy='-48' r='7' fill='{skin}'/>"
-    elif pose=='phone': arms=f"<path d='M-22 -96 q-8 20 -8 42' stroke='{sh}' stroke-width='13' stroke-linecap='round' fill='none'/><circle cx='-30' cy='-48' r='7' fill='{skin}'/><path d='M22 -96 q14 4 6 20' stroke='{sh}' stroke-width='13' stroke-linecap='round' fill='none'/><circle cx='24' cy='-72' r='7' fill='{skin}'/><rect x='16' y='-92' width='16' height='26' rx='3' fill='#111'/><rect class='glow' x='18' y='-90' width='12' height='20' rx='2' fill='#9fb7ff'/>"
-    elif pose=='right': arms=f"<path d='M-22 -96 q-8 20 -8 42' stroke='{sh}' stroke-width='13' stroke-linecap='round' fill='none'/><circle cx='-30' cy='-48' r='7' fill='{skin}'/><g class='arm'><path d='M22 -96 l40 -10' stroke='{sh}' stroke-width='13' stroke-linecap='round' fill='none'/><path d='M60 -106 l22 -6' stroke='{skin}' stroke-width='11' stroke-linecap='round'/><circle cx='84' cy='-112' r='7' fill='{skin}'/>{extra}</g>"; extra=''
-    elif pose=='hold': arms=f"<path d='M-22 -96 l-10 30 l30 -6' stroke='{sh}' stroke-width='13' stroke-linecap='round' stroke-linejoin='round' fill='none'/><path d='M22 -96 l10 30 l-30 -6' stroke='{sh}' stroke-width='13' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='-4' cy='-72' r='7' fill='{skin}'/><circle cx='6' cy='-72' r='7' fill='{skin}'/>"
+def person(x,y,s=1,shirt='#3A86FF',pants='#2b2f3a',skin='#F2B48C',hair='#3B2A20',pose='up',face='smile',cls='',extra='',hairstyle='cap',shoes='#222',h=1.0,sit=False,sleeves='short',mood='happy'):
+    """Персонаж: ноги на (0,0), рост ~165 (ребёнок). h>1 — взрослый (длиннее ноги и торс, голова та же)."""
+    dk='rgba(0,0,0,.16)'; lt='rgba(255,255,255,.22)'
+    L=int(48*h); T=int(52*h)            # длина ног и торса
+    hip=-L; sh=hip-T                    # линия бёдер и плеч
+    neck=sh-4; hy=neck-26               # шея, центр головы
+    arm_col = skin if sleeves=='short' else shirt
+    def arm(S,E,H,item=''):
+        return (f"<path d='M{S[0]} {S[1]} L{E[0]} {E[1]} L{H[0]} {H[1]}' stroke='{arm_col}' stroke-width='11' stroke-linecap='round' stroke-linejoin='round' fill='none'/>"
+                f"<circle cx='{H[0]}' cy='{H[1]}' r='6.5' fill='{skin}'/>"
+                + (f"<circle cx='{S[0]}' cy='{S[1]}' r='10' fill='{shirt}'/>" if sleeves=='short' else '') + item)
+    R=(24,sh+4); Lp=(-24,sh+4)
+    if pose=='up':    arms=arm(Lp,(-40,sh-18),(-48,sh-48))+arm(R,(40,sh-18),(48,sh-48))
+    elif pose=='down':arms=arm(Lp,(-30,sh+26),(-32,sh+50))+arm(R,(30,sh+26),(32,sh+50))
+    elif pose=='wave':arms=arm(Lp,(-30,sh+26),(-32,sh+50))+arm(R,(44,sh-14),(50,sh-46))
+    elif pose=='right':arms=arm(Lp,(-30,sh+26),(-32,sh+50))+f"<g class='arm' style='transform-origin:24px {sh+4}px'>"+arm(R,(54,sh+2),(84,sh-8),extra)+"</g>"; extra=''
+    elif pose=='hold':arms=arm(Lp,(-34,sh+22),(-10,sh+30))+arm(R,(34,sh+22),(10,sh+30))
+    elif pose=='phone':arms=arm(Lp,(-30,sh+26),(-32,sh+50))+arm(R,(38,sh+22),(22,sh+18),f"<rect x='14' y='{sh+2}' width='16' height='26' rx='3' fill='#111'/><rect class='glow' x='16' y='{sh+4}' width='12' height='20' rx='2' fill='#9fb7ff'/>")
     else: arms=''
-    hairs={'cap':f"<path d='M-27 -142 a27 27 0 0 1 54 0 v4 q-8 -8 -16 -4 q-6 -6 -12 0 q-6 -6 -12 0 q-8 -4 -14 4z' fill='{hair}'/>",
-           'long':f"<path d='M-27 -142 a27 27 0 0 1 54 0 v3 q-6 -9 -14 -5 q-8 -8 -16 -1 q-8 -7 -14 0 q-6 -3 -10 3z' fill='{hair}'/>",
-           'bun':f"<path d='M-27 -142 a27 27 0 0 1 54 0 v4 q-8 -8 -16 -4 q-6 -6 -12 0 q-6 -6 -12 0 q-8 -4 -14 4z' fill='{hair}'/><circle cx='0' cy='-174' r='11' fill='{hair}'/>",
-           'curly':f"<path d='M-27 -138 a27 27 0 0 1 54 0 v8 h-6 a6 6 0 0 1 -12 0 a6 6 0 0 1 -12 0 a6 6 0 0 1 -12 0 a6 6 0 0 1 -12 0z' fill='{hair}'/>",
-           'clown':f"<circle cx='-30' cy='-140' r='14' fill='{hair}'/><circle cx='30' cy='-140' r='14' fill='{hair}'/><path d='M-25 -142 a25 25 0 0 1 50 0z' fill='{hair}'/>"}
-    faces={'smile':"<ellipse cx='-9' cy='-146' rx='4.5' ry='5.5' fill='#fff'/><ellipse cx='9' cy='-146' rx='4.5' ry='5.5' fill='#fff'/><circle cx='-8' cy='-145' r='2.6' fill='#2a1f5e'/><circle cx='8' cy='-145' r='2.6' fill='#2a1f5e'/><circle cx='-7.2' cy='-146.2' r='.9' fill='#fff'/><circle cx='8.8' cy='-146.2' r='.9' fill='#fff'/><circle cx='-16' cy='-135' r='4' fill='#ff8fa3' opacity='.55'/><circle cx='16' cy='-135' r='4' fill='#ff8fa3' opacity='.55'/><path d='M-7 -132 q7 7 14 0' stroke='#7a3b3b' stroke-width='2.5' fill='none' stroke-linecap='round'/>",
-           'sad':"<ellipse cx='-9' cy='-146' rx='4.5' ry='5.5' fill='#fff'/><ellipse cx='9' cy='-146' rx='4.5' ry='5.5' fill='#fff'/><circle cx='-8' cy='-144' r='2.6' fill='#2a2f3a'/><circle cx='8' cy='-144' r='2.6' fill='#2a2f3a'/><path d='M-14 -154 l10 3' stroke='#2a2f3a' stroke-width='2' stroke-linecap='round'/><path d='M14 -154 l-10 3' stroke='#2a2f3a' stroke-width='2' stroke-linecap='round'/><path d='M-6 -129 q6 -5 12 0' stroke='#3a3f4c' stroke-width='2.5' fill='none' stroke-linecap='round'/>",
-           'wow':"<ellipse cx='-9' cy='-146' rx='4.5' ry='5.5' fill='#fff'/><ellipse cx='9' cy='-146' rx='4.5' ry='5.5' fill='#fff'/><circle cx='-8' cy='-145' r='2.6' fill='#2a1f5e'/><circle cx='8' cy='-145' r='2.6' fill='#2a1f5e'/><circle cx='-7.2' cy='-146.2' r='.9' fill='#fff'/><circle cx='8.8' cy='-146.2' r='.9' fill='#fff'/><circle cx='-16' cy='-135' r='4' fill='#ff8fa3' opacity='.55'/><circle cx='16' cy='-135' r='4' fill='#ff8fa3' opacity='.55'/><ellipse cx='0' cy='-131' rx='4.5' ry='5.5' fill='#7a3b3b'/><ellipse cx='0' cy='-129' rx='2.5' ry='2' fill='#ff8fa3'/>",
-           'butterfly':"<path d='M-9 -146 q-14 -14 -18 0 q4 14 18 0 q14 -14 18 0 q-4 14 -18 0z' fill='#8338EC' opacity='.8'/><path d='M-9 -136 q-10 -6 -14 4 q6 8 14 -4 q8 12 14 4 q-4 -10 -14 -4z' fill='#2EC4B6' opacity='.8'/><circle cx='-8' cy='-145' r='2.4' fill='#2a1f5e'/><circle cx='8' cy='-145' r='2.4' fill='#2a1f5e'/><path d='M-7 -131 q7 7 14 0' stroke='#7a3b3b' stroke-width='2.5' fill='none' stroke-linecap='round'/>",
-           'clown':"<ellipse cx='-9' cy='-146' rx='4.5' ry='5.5' fill='#fff'/><ellipse cx='9' cy='-146' rx='4.5' ry='5.5' fill='#fff'/><circle cx='-8' cy='-145' r='2.6' fill='#2a1f5e'/><circle cx='8' cy='-145' r='2.6' fill='#2a1f5e'/><circle cx='-7.2' cy='-146.2' r='.9' fill='#fff'/><circle cx='8.8' cy='-146.2' r='.9' fill='#fff'/><circle cx='-16' cy='-135' r='4' fill='#ff8fa3' opacity='.55'/><circle cx='16' cy='-135' r='4' fill='#ff8fa3' opacity='.55'/><circle cx='0' cy='-137' r='5.5' fill='#FF4D5E'/><path d='M-11 -129 q11 10 22 0' stroke='#c1121f' stroke-width='3' fill='none' stroke-linecap='round'/>",
-           'goggles':"<rect x='-21' y='-152' width='42' height='14' rx='7' fill='#1b1e3a'/><circle cx='-9' cy='-145' r='5' fill='#7fd1ff'/><circle cx='9' cy='-145' r='5' fill='#7fd1ff'/><circle cx='-16' cy='-134' r='4' fill='#ff8fa3' opacity='.5'/><circle cx='16' cy='-134' r='4' fill='#ff8fa3' opacity='.5'/><path d='M-7 -131 q7 7 14 0' stroke='#7a3b3b' stroke-width='2.5' fill='none' stroke-linecap='round'/>"}
-    legs = (f"<rect x='-18' y='-46' width='15' height='46' rx='6' fill='{pants}'/><rect x='3' y='-46' width='15' height='46' rx='6' fill='{pants}'/>"
-            f"<path d='M-20 -2 h18 v4 h-22 q-3 -2 0 -4z' fill='{shoes}'/><path d='M2 -2 h18 q3 2 0 4 h-22 v-4z' fill='{shoes}'/>") if not sit else (
-            f"<rect x='-20' y='-56' width='16' height='44' rx='7' fill='{pants}'/><rect x='4' y='-56' width='16' height='44' rx='7' fill='{pants}'/>"
-            f"<rect x='-22' y='-16' width='20' height='16' rx='6' fill='{shoes}'/><rect x='2' y='-16' width='20' height='16' rx='6' fill='{shoes}'/>")
-    back = f"<path d='M-30 -142 a30 30 0 0 1 60 0 v40 q-10 -8 -16 -14 q-14 8 -28 0 q-6 6 -16 14z' fill='{hair}'/>" if hairstyle=='long' else ''
-    body=f'''<g transform="translate({x} {y}) scale({s} {s*h})"><g class="fig {cls}" style="transform-origin:0px 0px">
-<ellipse cx="0" cy="2" rx="34" ry="6" fill="#000" opacity=".18"/>
-{legs}
-<path d="M-26 -100 q0 -8 8 -8 h36 q8 0 8 8 v50 q0 8 -8 8 h-36 q-8 0 -8 -8z" fill="{sh}"/><path d="M14 -108 h4 q8 0 8 8 v50 q0 8 -8 8 h-4z" fill="{dk}"/>
-{arms}
-<rect x="-6" y="-122" width="12" height="14" fill="{skin}"/>
-{back}<circle cx="0" cy="-142" r="27" fill="{skin}"/>
-{hairs[hairstyle]}{faces[face]}{extra}
-</g></g>'''
-    return body
+    if not sit:
+        legs=(f"<rect x='-19' y='{hip}' width='16' height='{L+2}' rx='7' fill='{pants}'/><rect x='3' y='{hip}' width='16' height='{L+2}' rx='7' fill='{pants}'/>"
+              f"<rect x='-18' y='-14' width='14' height='8' fill='#fff' opacity='.85'/><rect x='4' y='-14' width='14' height='8' fill='#fff' opacity='.85'/>"
+              f"<path d='M-22 -2 q0 -6 6 -6 h10 q4 0 4 6 v3 h-22 q-2 0 -2 -3z' fill='{shoes}'/><path d='M2 -6 h10 q6 0 6 6 v3 h-20 v-3 q0 -6 4 -6z' fill='{shoes}'/>")
+    else:
+        legs=(f"<rect x='-20' y='{hip}' width='17' height='36' rx='8' fill='{pants}'/><rect x='3' y='{hip}' width='17' height='36' rx='8' fill='{pants}'/>"
+              f"<rect x='-22' y='{hip+30}' width='20' height='14' rx='6' fill='{shoes}'/><rect x='2' y='{hip+30}' width='20' height='14' rx='6' fill='{shoes}'/>")
+    torso=(f"<path d='M-27 {sh+6} q0 -8 8 -8 h38 q8 0 8 8 l-3 {T-4} q0 6 -6 6 h-36 q-6 0 -6 -6z' fill='{shirt}'/>"
+           f"<path d='M12 {sh-2} h7 q8 0 8 8 l-3 {T-4} q0 6 -6 6 h-6z' fill='{dk}'/>"
+           f"<path d='M-10 {sh-1} q10 10 20 0' stroke='{lt}' stroke-width='4' fill='none' stroke-linecap='round'/>"
+           f"<rect x='-24' y='{hip-6}' width='48' height='10' rx='4' fill='{pants}'/>")
+    head=f"<circle cx='-23' cy='{hy+2}' r='4.5' fill='{skin}'/><circle cx='23' cy='{hy+2}' r='4.5' fill='{skin}'/><circle cx='0' cy='{hy}' r='25' fill='{skin}'/>"
+    hb={'long':f"<path d='M-29 {hy} a29 29 0 0 1 58 0 v38 q-10 -8 -16 -14 q-13 8 -26 0 q-6 6 -16 14z' fill='{hair}'/>",
+        'curly':f"<circle cx='-22' cy='{hy-14}' r='11' fill='{hair}'/><circle cx='22' cy='{hy-14}' r='11' fill='{hair}'/><circle cx='-28' cy='{hy+2}' r='9' fill='{hair}'/><circle cx='28' cy='{hy+2}' r='9' fill='{hair}'/>"}.get(hairstyle,'')
+    cap=f"<path d='M-25 {hy-2} a25 25 0 0 1 50 0 q-6 -6 -12 -1 q-5 -7 -11 -1 q-6 -6 -12 -1 q-8 -6 -15 3z' fill='{hair}'/>"
+    hf={'cap':cap+f"<path d='M-18 {hy-20} q10 -8 24 -2' stroke='{lt}' stroke-width='3' fill='none' stroke-linecap='round'/>",
+        'long':f"<path d='M-25 {hy-2} a25 25 0 0 1 50 0 q-6 -8 -14 -3 q-8 -8 -16 0 q-8 -6 -20 3z' fill='{hair}'/>",
+        'bun':f"<path d='M-25 {hy-2} a25 25 0 0 1 50 0 q-8 -6 -16 -2 q-9 -6 -18 0 q-8 -4 -16 2z' fill='{hair}'/><circle cx='0' cy='{hy-31}' r='10' fill='{hair}'/>",
+        'curly':f"<path d='M-26 {hy-4} a26 26 0 0 1 52 0 q-6 -4 -12 -2 q-7 -6 -14 -1 q-7 -5 -14 -1 q-6 -3 -12 4z' fill='{hair}'/><circle cx='-14' cy='{hy-24}' r='9' fill='{hair}'/><circle cx='4' cy='{hy-27}' r='9' fill='{hair}'/><circle cx='18' cy='{hy-22}' r='8' fill='{hair}'/>",
+        'clown':f"<circle cx='-30' cy='{hy-4}' r='13' fill='{hair}'/><circle cx='30' cy='{hy-4}' r='13' fill='{hair}'/><circle cx='-24' cy='{hy-18}' r='10' fill='{hair}'/><circle cx='24' cy='{hy-18}' r='10' fill='{hair}'/>",
+        'goggles':cap+f"<rect x='-22' y='{hy-24}' width='44' height='10' rx='5' fill='#1b1e3a'/><circle cx='-10' cy='{hy-19}' r='6' fill='#7fd1ff' stroke='#1b1e3a' stroke-width='2'/><circle cx='10' cy='{hy-19}' r='6' fill='#7fd1ff' stroke='#1b1e3a' stroke-width='2'/>"}[hairstyle]
+    ey=hy-2; pc='#2a1f5e' if mood=='happy' else '#2a2f3a'
+    eyes=(f"<ellipse cx='-9' cy='{ey}' rx='4.5' ry='5.5' fill='#fff'/><ellipse cx='9' cy='{ey}' rx='4.5' ry='5.5' fill='#fff'/>"
+          f"<circle cx='-8' cy='{ey+1}' r='2.7' fill='{pc}'/><circle cx='8' cy='{ey+1}' r='2.7' fill='{pc}'/><circle cx='-7' cy='{ey-.5}' r='1' fill='#fff'/><circle cx='9' cy='{ey-.5}' r='1' fill='#fff'/>")
+    brows = (f"<path d='M-14 {ey-9} q5 -3 10 -1' stroke='{hair}' stroke-width='2.2' fill='none' stroke-linecap='round'/><path d='M4 {ey-10} q5 -2 10 1' stroke='{hair}' stroke-width='2.2' fill='none' stroke-linecap='round'/>" if mood=='happy'
+             else f"<path d='M-14 {ey-11} l10 3' stroke='{hair}' stroke-width='2.2' stroke-linecap='round'/><path d='M14 {ey-11} l-10 3' stroke='{hair}' stroke-width='2.2' stroke-linecap='round'/>")
+    nose=f"<path d='M-2 {ey+8} q2 3 4 0' stroke='rgba(0,0,0,.25)' stroke-width='1.8' fill='none' stroke-linecap='round'/>"
+    cheeks=f"<circle cx='-16' cy='{ey+9}' r='4' fill='#ff8fa3' opacity='.5'/><circle cx='16' cy='{ey+9}' r='4' fill='#ff8fa3' opacity='.5'/>" if mood=='happy' else ''
+    mouths={'smile':f"<path d='M-8 {ey+13} q8 9 16 0 z' fill='#7a2e3a'/><path d='M-6 {ey+13.5} h12 v2 h-12z' fill='#fff'/>",
+            'sad':f"<path d='M-6 {ey+16} q6 -5 12 0' stroke='#3a3f4c' stroke-width='2.5' fill='none' stroke-linecap='round'/>",
+            'wow':f"<ellipse cx='0' cy='{ey+15}' rx='5' ry='6' fill='#7a2e3a'/><ellipse cx='0' cy='{ey+17}' rx='3' ry='2' fill='#ff8fa3'/>",
+            'butterfly':f"<path d='M-9 {ey} q-14 -14 -18 0 q4 14 18 0 q14 -14 18 0 q-4 14 -18 0z' fill='#8338EC' opacity='.75'/><path d='M-9 {ey+9} q-10 -6 -14 4 q6 8 14 -4 q8 12 14 4 q-4 -10 -14 -4z' fill='#2EC4B6' opacity='.75'/><path d='M-8 {ey+13} q8 9 16 0 z' fill='#7a2e3a'/>",
+            'clown':f"<circle cx='0' cy='{ey+8}' r='6' fill='#FF4D5E'/><path d='M-12 {ey+13} q12 12 24 0 z' fill='#c1121f'/><path d='M-9 {ey+13.5} h18 v2.5 h-18z' fill='#fff'/>",
+            'goggles':f"<path d='M-8 {ey+13} q8 9 16 0 z' fill='#7a2e3a'/><path d='M-6 {ey+13.5} h12 v2 h-12z' fill='#fff'/>"}
+    fc=eyes+brows+nose+cheeks+mouths[face]
+    return (f'<g transform="translate({x} {y}) scale({s})"><g class="fig {cls}" style="transform-origin:0px 0px">'
+            f'<ellipse cx="0" cy="2" rx="34" ry="6" fill="#000" opacity=".18"/>{legs}{torso}{arms}'
+            f'<rect x="-6" y="{neck-2}" width="12" height="14" rx="3" fill="{skin}"/>{hb}{head}{hf}{fc}{extra}</g></g>')
 
 # ───────── ЛЕВАЯ СЦЕНА: скучный праздник дома ─────────
 G=['#232733','#2e3340','#3c4252','#4f566a','#6b7387','#8b93a7','#aab1c4']
@@ -79,8 +101,8 @@ left=f'''<svg class="cmp-svg" viewBox="0 0 1200 640" preserveAspectRatio="xMidYM
 <rect x="360" y="380" width="380" height="90" rx="14" fill="{G[2]}"/><rect x="380" y="330" width="340" height="70" rx="12" fill="{G[3]}"/><rect x="360" y="330" width="40" height="140" rx="14" fill="{G[2]}"/><rect x="700" y="330" width="40" height="140" rx="14" fill="{G[2]}"/>
 <rect x="400" y="400" width="150" height="14" rx="5" fill="{G[1]}" opacity=".6"/><rect x="560" y="400" width="150" height="14" rx="5" fill="{G[1]}" opacity=".6"/>
 <!-- дети на диване -->
-{person(470,470,.95,G[3],G[2],'#cfc3bb',G[1],pose='phone',face='sad',cls='breath',hairstyle='cap',sit=True)}
-{person(630,470,.95,G[4],G[2],'#cfc3bb',G[1],pose='down',face='sad',cls='breath d2',hairstyle='long',sit=True)}
+{person(470,470,.95,G[3],G[2],'#cfc3bb',G[1],pose='phone',face='sad',cls='breath',hairstyle='cap',sit=True,mood='sad')}
+{person(630,470,.95,G[4],G[2],'#cfc3bb',G[1],pose='down',face='sad',cls='breath d2',hairstyle='long',sit=True,mood='sad')}
 <g class="zzz" style="transform-origin:680px 330px"><text x="676" y="340" font-family="var(--f-display)" font-weight="800" font-size="22" fill="{G[6]}">z</text><text x="694" y="322" font-family="var(--f-display)" font-weight="800" font-size="17" fill="{G[5]}">z</text></g>
 {label(550,500,'диван',True)}
 <!-- сдувшийся шарик -->
@@ -93,7 +115,7 @@ left=f'''<svg class="cmp-svg" viewBox="0 0 1200 640" preserveAspectRatio="xMidYM
 <rect x="990" y="420" width="30" height="20" rx="3" fill="{G[3]}"/>
 {label(930,480,'торт из магазина',True)}
 <!-- скучающий взрослый с телефоном -->
-{person(1120,470,1.02,G[3],G[1],'#cfc3bb',G[1],pose='phone',face='sad',cls='breath d1',hairstyle='cap',h=1.3)}
+{person(1120,470,1.02,G[3],G[1],'#cfc3bb',G[1],pose='phone',face='sad',cls='breath d1',hairstyle='cap',h=1.3,mood='sad',sleeves='long')}
 <ellipse cx="600" cy="600" rx="420" ry="24" fill="#000" opacity=".25"/>
 </svg>'''
 
@@ -136,28 +158,28 @@ right=f'''<svg class="cmp-svg" viewBox="0 0 1200 640" preserveAspectRatio="xMidY
 <rect x="270" y="400" width="80" height="70" rx="8" fill="#2b2f3a"/><rect x="292" y="300" width="36" height="100" rx="6" fill="url(#gCoil)"/>{''.join(f'<rect x="290" y="{y}" width="40" height="4" fill="#5a3f1c" opacity=".6"/>' for y in range(310,400,12))}
 <ellipse cx="310" cy="300" rx="34" ry="12" fill="#c9d3ea"/><ellipse cx="310" cy="296" rx="26" ry="8" fill="#eef2ff"/>
 <circle class="spark" cx="310" cy="298" r="18" fill="#7fd1ff" filter="url(#softGlow)"/>{bolts}
-{person(400,470,.78,'#1b1e3a','#2b2f3a',skins[0],hairs[3],pose='right',face='goggles',hairstyle='cap',h=1.3,extra="<path d='M84 -112 l0 -60' stroke='#c9d3ea' stroke-width='5' stroke-linecap='round'/><circle cx='84' cy='-176' r='7' fill='#7fd1ff'/>")}
+{person(400,470,.78,'#1b1e3a','#2b2f3a',skins[0],hairs[3],pose='right',face='goggles',hairstyle='goggles',h=1.3,sleeves='long',extra="<path d='M84 -137 l0 -60' stroke='#c9d3ea' stroke-width='5' stroke-linecap='round'/><circle cx='84' cy='-201' r='7' fill='#7fd1ff'/>")}
 {label(330,505,'тесла-шоу')}
 <!-- крио-шоу -->
 <rect x="440" y="410" width="120" height="60" rx="8" fill="#fff"/><rect x="440" y="410" width="120" height="10" fill="#e4e8f5"/>
 <path d="M455 410 q0 -30 35 -30 q35 0 35 30z" fill="#8f9bb8"/><ellipse cx="490" cy="380" rx="35" ry="8" fill="#3d4a6b"/>
 {fogs}
-{person(590,470,.8,'#f2f4f8','#2b2f3a',skins[2],hairs[2],pose='hold',face='goggles',hairstyle='bun',h=1.3,extra="<rect x='-16' y='-96' width='32' height='36' rx='6' fill='#3A86FF'/><rect x='-8' y='-104' width='16' height='10' rx='3' fill='#1b1e3a'/>")}
+{person(590,470,.8,'#f2f4f8','#2b2f3a',skins[2],hairs[2],pose='hold',face='goggles',hairstyle='goggles',h=1.3,sleeves='long',extra="<rect x='-16' y='-112' width='32' height='36' rx='6' fill='#3A86FF'/><rect x='-8' y='-120' width='16' height='10' rx='3' fill='#1b1e3a'/>")}
 {label(500,505,'крио-шоу')}
 <!-- аниматор и мыльные пузыри -->
-{person(700,470,.9,R[0],'#FFD600',skins[3],'#FF9F1C',pose='right',face='clown',hairstyle='clown',h=1.3,extra="<g class='wand' style='transform-origin:84px -112px'><path d='M84 -112 l40 -60' stroke='#3A86FF' stroke-width='5' stroke-linecap='round'/><circle cx='128' cy='-176' r='16' fill='none' stroke='#3A86FF' stroke-width='5'/></g>")}
+{person(700,470,.9,R[0],'#FFD600',skins[3],'#FF9F1C',pose='right',face='clown',hairstyle='clown',h=1.3,sleeves='long',extra="<g class='wand' style='transform-origin:84px -137px'><path d='M84 -137 l40 -60' stroke='#3A86FF' stroke-width='5' stroke-linecap='round'/><circle cx='128' cy='-201' r='16' fill='none' stroke='#3A86FF' stroke-width='5'/></g>")}
 {bubbles}
 {label(720,505,'мыльные пузыри')}
 <!-- аквагрим -->
 <rect x="780" y="430" width="50" height="40" rx="6" fill="#FF9F1C"/><rect x="786" y="440" width="38" height="6" fill="#c1121f" opacity=".3"/>
 {person(805,432,.62,R[3],'#3A86FF',skins[5],hairs[1],pose='down',face='butterfly',hairstyle='long')}
-<g transform="translate(1780 0) scale(-1 1)">{person(890,470,.8,R[5],'#2b2f3a',skins[4],hairs[4],pose='right',face='smile',hairstyle='bun',h=1.3,extra="<g class='brush' style='transform-origin:84px -112px'><path d='M84 -112 l-20 -22' stroke='#8d5a3b' stroke-width='4' stroke-linecap='round'/><path d='M64 -134 l-6 -8' stroke='#8338EC' stroke-width='6' stroke-linecap='round'/></g>")}</g>
+<g transform="translate(1780 0) scale(-1 1)">{person(890,470,.8,R[5],'#2b2f3a',skins[4],hairs[4],pose='right',face='smile',hairstyle='bun',h=1.3,sleeves='long',extra="<g class='brush' style='transform-origin:84px -137px'><path d='M84 -137 l-20 -22' stroke='#8d5a3b' stroke-width='4' stroke-linecap='round'/><path d='M64 -159 l-6 -8' stroke='#8338EC' stroke-width='6' stroke-linecap='round'/></g>")}</g>
 {label(845,505,'аквагрим')}
 <!-- пиньята -->
 <g class="pinata" style="transform-origin:960px 0px" transform="translate(-50 0)"><line x1="1010" y1="0" x2="1010" y2="130" stroke="#333" stroke-width="2"/>
 <path d="M1010 130 l20 40 l44 6 l-32 30 l8 44 l-40 -20 l-40 20 l8 -44 l-32 -30 l44 -6z" fill="#FF4D5E"/><path d="M1010 130 l20 40 l44 6 l-32 30 l-32 -76z" fill="#FF9F1C"/><path d="M1010 130 l-20 40 l-44 6 l32 30 l32 -76z" fill="#FFD600"/>
 {''.join(f'<path d="M{x} 250 q4 10 0 20 q-4 10 0 20" stroke="{c}" stroke-width="3" fill="none"/>' for x,c in [(985,R[3]),(1000,R[4]),(1015,R[5]),(1030,R[2])])}</g>
-<g transform="translate(2100 0) scale(-1 1)">{person(1050,470,.72,R[1],'#2b2f3a',skins[2],hairs[2],pose='right',face='wow',hairstyle='cap',extra="<g class='stick' style='transform-origin:84px -112px'><path d='M84 -112 l-30 -70' stroke='#8d5a3b' stroke-width='6' stroke-linecap='round'/></g>")}</g>
+<g transform="translate(2100 0) scale(-1 1)">{person(1050,470,.72,R[1],'#2b2f3a',skins[2],hairs[2],pose='right',face='wow',hairstyle='cap',extra="<g class='stick' style='transform-origin:84px -108px'><path d='M84 -108 l-30 -70' stroke='#8d5a3b' stroke-width='6' stroke-linecap='round'/></g>")}</g>
 {label(985,505,'пиньята')}
 <!-- банкет: стол в глубине справа -->
 <g transform="translate(0 130)"><rect x="{CX-120}" y="420" width="240" height="14" rx="4" fill="#fff"/><path d="M{CX-120} 434 h240 l10 20 h-260z" fill="#f4e5ff"/><rect x="{CX-100}" y="454" width="10" height="36" fill="#ddd"/><rect x="{CX+90}" y="454" width="10" height="36" fill="#ddd"/>
