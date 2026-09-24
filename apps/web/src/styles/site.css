@@ -502,3 +502,9 @@ html,body{overflow-x:clip}
 .room.duo .room-body{flex:1}
 .room.rv{transform:translateY(40px) scale(.98)}.room.rv.in{transform:none}
 @media (max-width:900px){.rooms-grid{grid-template-columns:1fr}.room.duo{flex-direction:column}.room.duo .room-media{flex:none;aspect-ratio:4/3;min-height:0}.room-media.two{grid-template-columns:1fr 1fr}.room.sk{min-height:360px}}
+
+/* ───────── мягкие переходы между секциями: фон секции растворяется в радужный фон страницы ───────── */
+.progs,.tickets,.book{--fade:clamp(70px,9vw,140px);padding-block:calc(clamp(72px,10vw,150px) + var(--fade) * .5);-webkit-mask-image:linear-gradient(180deg,transparent,#000 var(--fade),#000 calc(100% - var(--fade)),transparent);mask-image:linear-gradient(180deg,transparent,#000 var(--fade),#000 calc(100% - var(--fade)),transparent)}
+.tickets{margin-top:calc(var(--fade) * -.6)}
+.book{margin-top:calc(var(--fade) * -.6)}
+.ftr{--fade:clamp(60px,8vw,120px);padding-top:calc(clamp(50px,6vw,90px) + var(--fade) * .7);margin-top:calc(var(--fade) * -.6);-webkit-mask-image:linear-gradient(180deg,transparent,#000 var(--fade));mask-image:linear-gradient(180deg,transparent,#000 var(--fade))}
