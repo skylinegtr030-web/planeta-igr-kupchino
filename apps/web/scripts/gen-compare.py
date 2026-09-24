@@ -104,6 +104,7 @@ conf=''.join(f'<rect class="cf" x="{random.randint(20,1180)}" y="-20" width="{ra
 holds=''.join(f'<circle cx="{random.randint(60,190)}" cy="{random.randint(130,500)}" r="{random.choice([6,7,9])}" fill="{random.choice(R)}"/>' for _ in range(22))
 CX=1120
 flames=''.join(f'<g><rect x="{x-2.5}" y="372" width="5" height="28" fill="{c}"/><ellipse class="flame" cx="{x}" cy="366" rx="6" ry="10" fill="#FFB800" style="transform-origin:{x}px 372px;animation-delay:{d}s"/><ellipse cx="{x}" cy="369" rx="2.5" ry="5" fill="#FFF4C2"/></g>' for x,c,d in [(CX-36,R[0],0),(CX-18,R[3],.3),(CX,R[4],.15),(CX+18,R[5],.45),(CX+36,R[1],.6)])
+bokeh=''.join(f'<circle class="bokeh" cx="{random.randint(40,1160)}" cy="{random.randint(40,460)}" r="{random.choice([26,34,44,58])}" fill="{random.choice(R)}" opacity=".16" filter="url(#softGlow)" style="animation-duration:{random.uniform(7,13):.1f}s;animation-delay:{-random.uniform(0,10):.1f}s"/>' for _ in range(14))
 right=f'''<svg class="cmp-svg" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
 <defs><linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6C9"/><stop offset="1" stop-color="#FFE0E8"/></linearGradient>
 <linearGradient id="gFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B4CE0"/><stop offset="1" stop-color="#4A2FB8"/></linearGradient>
@@ -112,7 +113,8 @@ right=f'''<svg class="cmp-svg" viewBox="0 0 1200 640" preserveAspectRatio="xMidY
 <linearGradient id="gCoil" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a5a2e"/><stop offset=".5" stop-color="#e0a94f"/><stop offset="1" stop-color="#7a5a2e"/></linearGradient>
 <pattern id="disco" width="9" height="9" patternUnits="userSpaceOnUse"><rect width="9" height="9" fill="#d5dcf0"/><rect width="8" height="8" fill="#f7f9ff"/></pattern>
 <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs>
-<rect width="1200" height="640" fill="url(#gSky)"/>
+<rect width="1200" height="640" fill="url(#gSky)" opacity=".35"/>
+{bokeh}
 <g class="rainbow" style="transform-origin:600px 640px" opacity=".45">{''.join(f'<circle cx="600" cy="640" r="{600-i*22}" fill="none" stroke="{c}" stroke-width="20"/>' for i,c in enumerate(R))}</g>
 <g class="beams" style="transform-origin:600px 80px">{''.join(f'<polygon points="600,80 {600+dx-110},640 {600+dx+110},640" fill="{c}" opacity=".13"/>' for dx,c in [(-420,R[0]),(-140,R[2]),(140,R[3]),(420,R[4])])}</g>
 <!-- пол -->

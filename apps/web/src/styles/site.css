@@ -164,7 +164,15 @@
 .cmp.grab{cursor:grabbing}
 .cmp-side{position:absolute;inset:0}
 .cmp-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
-.cmp-ours{clip-path:inset(0 0 0 calc(var(--x) * 1%));will-change:clip-path}
+.cmp-ours{clip-path:inset(0 0 0 calc(var(--x) * 1%));will-change:clip-path;background:#fff3c4}
+.cmp-ours::before{content:'';position:absolute;inset:-20%;background:linear-gradient(120deg,#ffd6e0,#fff1b8,#c8f7ef,#cfe0ff,#e9d6ff,#ffd6e0);background-size:300% 300%;animation:shimmer 14s ease-in-out infinite}
+.cmp-ours::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 0 38%,rgba(255,255,255,.32) 46%,rgba(255,255,255,0) 54%,transparent 100%),linear-gradient(65deg,transparent 0 60%,rgba(255,255,255,.22) 70%,transparent 80%);background-size:200% 100%,260% 100%;animation:sheen 7s linear infinite;mix-blend-mode:screen}
+@keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes sheen{0%{background-position:200% 0,260% 0}100%{background-position:-200% 0,-260% 0}}
+.cmp-svg .bokeh{animation:bokeh 10s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bokeh{0%,100%{transform:translate(0,0) scale(1);opacity:.12}50%{transform:translate(30px,-40px) scale(1.25);opacity:.26}}
+.cmp.paused .cmp-ours::before,.cmp.paused .cmp-ours::after{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.cmp-ours::before,.cmp-ours::after{animation:none}}
 /* сцена «у других»: медленно и уныло */
 .cmp-svg .tick{animation:tick 60s steps(60) infinite}
 @keyframes tick{to{transform:rotate(360deg)}}
