@@ -160,7 +160,7 @@ function renderSettings(s: Settings) {
   const map = `https://yandex.ru/maps/?text=${encodeURIComponent(s.contacts.mapQuery || s.contacts.addressFull)}`;
   $$<HTMLAnchorElement>('[data-map-link]').forEach((a) => (a.href = map));
   const hf = $('[data-fact="hours"]'); if (hf) hf.textContent = s.contacts.hours;
-  const af = $('[data-fact="age"]'); if (af) af.textContent = '1–14';
+  const af = $('[data-fact="age"]'); if (af) af.textContent = '0+';
   const ages = $('#ages');
   if (ages) ages.innerHTML = [
     s.ages.lavaFloor ? `Лава-пол — с <b>${s.ages.lavaFloor}</b> лет` : '',
