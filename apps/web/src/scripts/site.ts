@@ -26,6 +26,8 @@ const ZONE_TEXT: Record<string, string> = {
   'park.arcade': 'Игровые автоматы, гонки и призовые аппараты. Тайм-карты на 30 и 60 минут.',
   'park.party': 'Праздники с аниматорами и шоу-программами прямо в парке.',
   'park.banquet': 'Уютные банкетные комнаты для торта, подарков и родительского отдыха.',
+  'park.lasertag': 'Лазерные бои на неоновой арене с укрытиями и подсветкой. Командная игра на 20 минут.',
+  'park.lava': 'Интерактивный светящийся пол: плитки меняют цвет под ногами, игры на реакцию и танцы.',
   'park.jungle': 'Зелёная комната с настенными джунглями, живым декором и неоновой надписью. До 20 гостей.',
   'park.loft': 'Чёрно-золотая комната в стиле лофт: белый кирпич, светящаяся звезда и гирлянда лампочек.',
 };
@@ -174,12 +176,12 @@ function renderContent(blocks: Block[]) {
   state.blocks = blocks;
   // карточки первого экрана: фото берём из галерей самих зон, чтобы подпись всегда совпадала с картинкой
   const HERO_CARDS: { key: string; label: string; fallback: number }[] = [
-    { key: 'park.slides', label: 'Парк', fallback: 0 }, { key: 'park.tower', label: 'Башня', fallback: 1 }, { key: 'park.neon', label: 'Лазертаг', fallback: 3 },
+    { key: 'park.slides', label: 'Парк', fallback: 0 }, { key: 'park.tower', label: 'Башня', fallback: 1 }, { key: 'park.lasertag', label: 'Лазертаг', fallback: 3 },
   ];
   const hero = blocks.find((b) => b.key === 'park.hero');
   $$('.card-ph').forEach((f, n) => {
     const card = HERO_CARDS[Number(f.dataset.hero ?? n)] ?? HERO_CARDS[n]!;
-    const zone = blocks.find((b) => b.key === card.key && b.data.published);
+    const zone = blocks.find((b) => b.key === card.key && b.data.published && b.images.length) ?? (card.key === 'park.lasertag' ? blocks.find((b) => b.key === 'park.neon' && b.data.published) : undefined);
     const img = zone?.images[0] ?? hero?.images[card.fallback] ?? hero?.images[0];
     if (!img) return;
     f.classList.remove('sk');
