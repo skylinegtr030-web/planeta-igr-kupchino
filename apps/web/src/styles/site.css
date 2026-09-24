@@ -316,6 +316,7 @@
 .tix .big{font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,3.2vw,3rem);line-height:1;margin-top:14px;letter-spacing:-.02em}
 .tix .big small{font:600 .7rem/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--c-mute);display:block;margin-top:8px}
 .tix p{color:var(--c-mute);font-size:.88rem;margin-top:10px}
+.tix p.opt{color:var(--c-ink);font-weight:700;margin-top:12px;padding-top:10px;border-top:1px solid var(--c-line)}
 .tix.rv{transform:translateY(40px) scale(.97)}.tix.rv.in{transform:none}
 
 /* ───────── отзывы ───────── */

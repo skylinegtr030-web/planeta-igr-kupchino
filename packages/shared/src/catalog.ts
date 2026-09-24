@@ -12,6 +12,7 @@ export const Product = z.object({
   short: z.string().nullable().default(''),
   capacity: z.string().nullable().default(null), guests: z.number().int().nullable().default(null),
   extendPerHour: z.number().nullable().default(null),
+  options: z.array(z.object({ label: z.string(), price: z.number(), from: z.boolean().optional() })).default([]),
 });
 export type Product = z.infer<typeof Product>;
 export const Category = z.object({ slug: z.string(), title: z.string(), kind: CategoryKind, items: z.array(Product) });

@@ -1,14 +1,14 @@
 /* Планета Игр — клиентская логика сайта. Все данные приходят из API (PostgreSQL). Без canvas. */
 type Img = { src: string; alt: string; w: number; h: number };
 type Block = { key: string; data: { title: string; kind: string; gallery: string; sort: number; text: string; published: boolean }; images: Img[] };
-type Product = { slug: string; title: string; description: string; features: string[]; priceWeekday: number; priceWeekend: number; priceFrom: boolean; durationMin: number | null; cover: string | null; mark: string | null; short?: string | null; capacity?: string | null; guests?: number | null; extendPerHour?: number | null };
+type Product = { slug: string; title: string; description: string; features: string[]; priceWeekday: number; priceWeekend: number; priceFrom: boolean; durationMin: number | null; cover: string | null; mark: string | null; short?: string | null; capacity?: string | null; guests?: number | null; extendPerHour?: number | null; options?: { label: string; price: number; from?: boolean }[] };
 type Category = { slug: string; title: string; kind: string; items: Product[] };
 type Settings = { contacts: { phone: string; hours: string; addressFull: string; addressShort: string; mapQuery: string }; ages: Record<string, number>; tiers: Record<string, number>; weekendDays: number[]; holidays: string[] };
 type Review = { author: string; text: string; rating: number; source: string | null };
 
 const $ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => r.querySelector(s) as T | null;
 const $$ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => Array.from(r.querySelectorAll(s)) as T[];
-const fmt = (n: number) => new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
+const fmt = (n: number) => new Intl.NumberFormat('ru-RU').format(n) + '\u00a0₽';
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const pad = (n: number) => n.toString().padStart(2, '0');
@@ -246,16 +246,31 @@ function renderCatalog(cats: Category[]) {
     $$<HTMLButtonElement>(`[data-extra="${slug}"]`).forEach((x) => { const on = state.extras.has(slug); x.setAttribute('aria-pressed', String(on)); if (x.classList.contains('add')) x.textContent = on ? '✓ В заявке' : '+ В заявку'; });
     estimate();
   });
-  // tickets
+  // tickets — тип карточки определяем по названию/slug, цены и варианты из базы
   const tix = [...byKind('ticket'), ...byKind('activity')];
   const tEl = $('#tix')!;
   const t = state.settings?.tiers ?? {};
+  const kindOf = (p: Product) => { const k = `${p.slug} ${p.title}`.toLowerCase(); return /time|тайм|автомат/.test(k) ? 'cards' : /unlim|безлимит|вход/.test(k) ? 'entry' : /lava|лава/.test(k) ? 'lava' : /zar|лазертаг|кузар/.test(k) ? 'qzar' : 'act'; };
+  const mins = (m: number) => `${m} ${m % 10 === 1 && m % 100 !== 11 ? 'минута' : m % 10 >= 2 && m % 10 <= 4 && (m % 100 < 10 || m % 100 >= 20) ? 'минуты' : 'минут'}`;
   tEl.innerHTML = tix.map((p, i) => {
-    let big = fmt(p.priceWeekday), note = 'будни', extra = '';
-    if (p.slug === 'unlimited' && t.unlimitedWeekend) extra = `<p>Выходные и праздники — ${fmt(t.unlimitedWeekend)}</p>`;
-    if (p.slug === 'time-cards' && t.timeCards60) { big = fmt(t.timeCards30 ?? p.priceWeekday); note = '30 минут'; extra = `<p>60 минут — ${fmt(t.timeCards60)}</p>`; }
-    if (p.slug === 'qzar') note = 'за игру · компания'; if (p.slug === 'lavaFloor') note = 'за сеанс';
-    return `<article class="tix rv" style="transition-delay:${i * 0.08}s"><span class="label">${pad(i + 1)} · ${esc(p.slug === 'unlimited' ? 'Вход в парк' : p.slug === 'time-cards' ? 'Автоматы' : 'Активность')}</span><div><h4>${esc(p.title)}</h4><div class="big">${big}<small>${note}</small></div>${p.description ? `<p>${esc(p.description)}</p>` : ''}${extra}</div></article>`;
+    const kind = kindOf(p);
+    let big = (p.priceFrom ? 'от\u00a0' : '') + fmt(p.priceWeekday), note = '', label = 'Активность';
+    let lines: string[] = [];
+    if (p.options?.length) {
+      const [first, ...rest] = p.options;
+      big = (first!.from ? 'от\u00a0' : '') + fmt(first!.price); note = first!.label;
+      lines = rest.map((o) => `${o.label} — ${o.from ? 'от\u00a0' : ''}${fmt(o.price)}`);
+    } else if (kind === 'cards') {
+      const p30 = t.timeCards30 ?? p.priceWeekday, p60 = t.timeCards60 ?? 2190;
+      big = fmt(p30); note = '30 минут'; lines = [`60 минут — ${fmt(p60)}`];
+    } else if (kind === 'entry') {
+      const we = p.priceWeekend && p.priceWeekend !== p.priceWeekday ? p.priceWeekend : t.unlimitedWeekend ?? 1800;
+      note = 'будни · весь день'; lines = [`Выходные и праздники — ${fmt(we)}`];
+    } else if (kind === 'lava') { note = p.durationMin ? mins(p.durationMin) : '10 минут'; }
+    else if (kind === 'qzar') { note = 'за игру · компания'; }
+    else if (p.priceWeekend && p.priceWeekend !== p.priceWeekday) { note = 'будни'; lines = [`Выходные и праздники — ${fmt(p.priceWeekend)}`]; }
+    label = kind === 'cards' ? 'Автоматы' : kind === 'entry' ? 'Вход в парк' : 'Активность';
+    return `<article class="tix rv" style="transition-delay:${i * 0.08}s"><span class="label">${pad(i + 1)} · ${label}</span><div><h4>${esc(p.title)}</h4><div class="big">${big}${note ? `<small>${esc(note)}</small>` : ''}</div>${lines.map((l) => `<p class="opt">${esc(l)}</p>`).join('')}${p.description ? `<p>${esc(p.description)}</p>` : ''}</div></article>`;
   }).join('');
   observe(tEl);
 }
