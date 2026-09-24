@@ -532,3 +532,6 @@ html,body{overflow-x:clip}
 .ftr .wrap{padding-inline:clamp(20px,3vw,48px)}
 @media (max-width:900px){.pack,.tix,.rev,.room,.form,.ftr{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(255,255,255,.9)}.ftr{background:rgba(29,21,70,.94);margin-inline:12px}.scene>.glow{filter:blur(40px)}}
 @media (prefers-reduced-motion:reduce){.scene>.glow{animation:none}}
+
+.cookie-btns{display:flex;gap:10px;flex-shrink:0}.btn-ghost-w{border:2px solid rgba(255,255,255,.35);color:#fff}.btn-ghost-w:hover{background:rgba(255,255,255,.12)}
+@media (max-width:700px){.cookie{flex-direction:column;align-items:stretch}.cookie-btns{justify-content:stretch}.cookie-btns .btn{flex:1;justify-content:center}}

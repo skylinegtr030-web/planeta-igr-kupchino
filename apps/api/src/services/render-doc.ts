@@ -15,7 +15,11 @@ export function mdToHtml(src: string): string {
     const l = raw.trim();
     if (!l) { flushP(); flushL(); continue; }
     const h = /^(#{1,3})\s+(.*)$/.exec(l);
-    if (h) { flushP(); flushL(); const n = Math.min(4, Math.max(2, h[1]!.length)); out.push(`<h${n}>${inline(h[2]!)}</h${n}>`); continue; }
+    if (h) {
+      flushP(); flushL(); const n = Math.min(4, Math.max(2, h[1]!.length));
+      const idm = /^(.*?)\s*\{#([a-z0-9-]+)\}$/.exec(h[2]!); // «## Заголовок {#anchor}» → якорь для ссылок
+      out.push(idm ? `<h${n} id="${idm[2]}">${inline(idm[1]!)}</h${n}>` : `<h${n}>${inline(h[2]!)}</h${n}>`); continue;
+    }
     if (/^[-*]\s+/.test(l)) { flushP(); (list ??= []).push(l.replace(/^[-*]\s+/, '')); continue; }
     flushL(); para.push(l);
   }

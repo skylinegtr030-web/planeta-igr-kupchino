@@ -41,6 +41,10 @@ const clip = (s: string | undefined, n: number) => (s ? s.slice(0, n) : null);
 export const statsService = (db: Db): StatsService => ({
   async track(i, ctx) {
     const v = visitorId(ctx.ip, ctx.userAgent);
+    if (Math.random() < 0.005) { // изредка чистим статистику старше 13 месяцев (политика хранения)
+      db.query(`delete from visits where at < now() - interval '13 months'`).catch(() => undefined);
+      db.query(`delete from site_events where at < now() - interval '13 months'`).catch(() => undefined);
+    }
     if (i.type === 'pageview') {
       await db.query(
         `insert into visits (visitor, path, referrer_host, utm_source, utm_medium, utm_campaign, device, screen_w) values ($1,$2,$3,$4,$5,$6,$7,$8)`,
