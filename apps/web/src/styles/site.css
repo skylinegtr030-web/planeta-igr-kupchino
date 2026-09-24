@@ -175,35 +175,61 @@
 @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 .cmp-svg .breath{animation:breath 4.5s ease-in-out infinite}
 .cmp-svg .d1{animation-delay:-1.5s}.cmp-svg .d2{animation-delay:-3s}
-@keyframes breath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.025)}}
+@keyframes breath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.02)}}
 .cmp-svg .smoke{animation:smoke 3s ease-out infinite}
 @keyframes smoke{0%{opacity:0;transform:translateY(6px)}30%{opacity:.8}100%{opacity:0;transform:translateY(-30px)}}
 .cmp-svg .zzz{animation:zzz 3s ease-in-out infinite}
 @keyframes zzz{0%{opacity:0;transform:translateY(8px) scale(.8)}40%{opacity:1}100%{opacity:0;transform:translateY(-26px) scale(1.1)}}
+.cmp-svg .tvnoise{animation:noise .12s steps(2) infinite}
+@keyframes noise{0%{opacity:.28}100%{opacity:.4}}
+.cmp-svg .tvline{animation:tvline 2.4s linear infinite}
+@keyframes tvline{0%{transform:translateY(0)}100%{transform:translateY(120px)}}
+.cmp-svg .glow{animation:glow 2.6s ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:.7}50%{opacity:1}}
 /* сцена «у нас»: всё прыгает и сияет */
 .cmp-svg .jump{animation:jump 1.1s cubic-bezier(.3,0,.2,1) infinite}
-.cmp-svg .j1{animation-duration:.95s;animation-delay:-.3s}.cmp-svg .j2{animation-duration:1.25s;animation-delay:-.6s}.cmp-svg .j3{animation-duration:1.05s;animation-delay:-.15s}.cmp-svg .j4{animation-duration:1.18s;animation-delay:-.8s}
-@keyframes jump{0%,100%{transform:translateY(0) scaleY(1)}12%{transform:translateY(6px) scaleY(.94)}50%{transform:translateY(-95px) scaleY(1.04)}}
+.cmp-svg .j1{animation-duration:.95s;animation-delay:-.3s}.cmp-svg .j2{animation-duration:1.25s;animation-delay:-.6s}.cmp-svg .j3{animation-duration:1.05s;animation-delay:-.15s}
+@keyframes jump{0%,100%{transform:translateY(0) scaleY(1)}12%{transform:translateY(5px) scaleY(.95)}50%{transform:translateY(-80px) scaleY(1.03)}}
 .cmp-svg .bounce{animation:bounce 1.6s cubic-bezier(.35,0,.25,1) infinite}
-@keyframes bounce{0%,100%{transform:translateY(0) scaleY(.96)}50%{transform:translateY(-190px) rotate(8deg)}}
+@keyframes bounce{0%,100%{transform:translateY(0) scaleY(.96)}50%{transform:translateY(-170px) rotate(6deg)}}
+.cmp-svg .climb{animation:climb 6s ease-in-out infinite}
+@keyframes climb{0%,100%{transform:translateY(0)}50%{transform:translateY(-120px)}}
 .cmp-svg .beams{animation:beams 5s ease-in-out infinite}
 @keyframes beams{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
 .cmp-svg .disco{animation:disco 4s linear infinite}
 @keyframes disco{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 .cmp-svg .rainbow{animation:rainbow 8s ease-in-out infinite}
 @keyframes rainbow{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
-.cmp-svg .star{animation:star 1.8s ease-in-out infinite}
-@keyframes star{0%,100%{transform:scale(.5) rotate(0);opacity:.4}50%{transform:scale(1.2) rotate(30deg);opacity:1}}
+.cmp-svg .bulb{animation:bulb 1.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bulb{0%,100%{opacity:.45;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
 .cmp-svg .flame{animation:flame .5s ease-in-out infinite alternate}
 @keyframes flame{from{transform:scale(1) rotate(-4deg)}to{transform:scale(1.25,1.4) rotate(4deg)}}
 .cmp-svg .bal{animation:bal 9s linear infinite}
 @keyframes bal{0%{transform:translateY(160px);opacity:0}8%{opacity:1}92%{opacity:1}100%{transform:translateY(-700px);opacity:0}}
 .cmp-svg .cf{animation:cf 6s linear infinite;transform-box:fill-box;transform-origin:center}
 @keyframes cf{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(700px) rotate(720deg)}}
-.cmp-svg .slider{offset-rotate:0deg;animation:slide 2.6s cubic-bezier(.4,0,.7,1) infinite}
-@keyframes slide{0%{offset-distance:0%;opacity:0}8%{opacity:1}70%{offset-distance:100%;opacity:1}78%{opacity:0}100%{offset-distance:100%;opacity:0}}
+.cmp-svg .bubble{animation:bubble 6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bubble{0%{transform:translate(0,40px) scale(.2);opacity:0}15%{opacity:1;transform:translate(0,0) scale(1)}80%{opacity:.9}100%{transform:translate(30px,-260px) scale(1.1);opacity:0}}
+.cmp-svg .fog{animation:fog 3s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes fog{0%{transform:translate(0,0) scale(.3);opacity:0}25%{opacity:.85}100%{transform:translate(-40px,60px) scale(1.8);opacity:0}}
+.cmp-svg .bolt{animation:bolt 1.4s steps(1) infinite;opacity:0}
+@keyframes bolt{0%{opacity:0}6%{opacity:1}12%{opacity:0}18%{opacity:1}24%{opacity:0}}
+.cmp-svg .spark{animation:spark 1.4s ease-in-out infinite}
+@keyframes spark{0%,100%{opacity:.35}25%{opacity:.9}}
+.cmp-svg .pinata{animation:pinata 2.4s ease-in-out infinite}
+@keyframes pinata{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+.cmp-svg .stick{animation:stick 1.2s ease-in-out infinite}
+@keyframes stick{0%,100%{transform:rotate(0)}40%{transform:rotate(-50deg)}60%{transform:rotate(20deg)}}
+.cmp-svg .wand{animation:wand 2.2s ease-in-out infinite}
+@keyframes wand{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(18deg)}}
+.cmp-svg .brush{animation:brush 1.1s ease-in-out infinite}
+@keyframes brush{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(4px,-6px) rotate(-8deg)}}
+.cmp-svg .arm{animation:arm 2s ease-in-out infinite;transform-origin:22px -96px}
+@keyframes arm{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 .cmp-svg .ura{animation:ura 2.2s ease-in-out infinite}
 @keyframes ura{0%,100%{transform:scale(.9) rotate(-6deg)}50%{transform:scale(1.1) rotate(4deg)}}
+.cmp-svg .lbl{animation:lbl 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes lbl{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .cmp.paused .cmp-svg *{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){.cmp-svg *{animation:none!important}}
 .cmp-tag{position:absolute;z-index:2;pointer-events:none;top:clamp(14px,2vw,26px);left:clamp(14px,2vw,26px);display:flex;flex-direction:column;gap:6px;padding:12px 16px;border-radius:var(--r-sm);background:rgba(20,24,40,.7);backdrop-filter:blur(10px);color:#fff;transform:rotate(-2deg)}
