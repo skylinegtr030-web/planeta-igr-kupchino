@@ -26,11 +26,11 @@ export default function docsRoutes(d: { docs: DocsService }) {
         html = `<table>${rows.filter(([, v]) => v).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>`;
       } else {
         const doc = await d.docs.get(req.params.slug);
-        if (!doc) return reply.code(404).type('text/html; charset=utf-8').send(docPage({ title: 'Документ не найден', html: '<p>Такой страницы нет.</p>', updatedAt: null, nav, company: company.shortName || company.name, phone: contacts.phone, current: '' }));
+        if (!doc) return reply.code(404).type('text/html; charset=utf-8').send(docPage({ title: 'Документ не найден', html: '<p>Такой страницы нет.</p>', updatedAt: null, nav, company: company.shortName || company.name, phone: company.phone || contacts.phone, current: '' }));
         title = doc.title; html = mdToHtml(fill(doc.body, vars)); updatedAt = doc.updatedAt;
       }
       return reply.header('cache-control', 'public, max-age=300').type('text/html; charset=utf-8')
-        .send(docPage({ title, html, updatedAt, nav: [...nav, { slug: 'company', title: 'Реквизиты' }], company: company.shortName || company.name, phone: contacts.phone, current: req.params.slug }));
+        .send(docPage({ title, html, updatedAt, nav: [...nav, { slug: 'company', title: 'Реквизиты' }], company: company.shortName || company.name, phone: company.phone || contacts.phone, current: req.params.slug }));
     });
   };
 }

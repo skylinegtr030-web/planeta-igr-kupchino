@@ -373,7 +373,7 @@
 .ftr ul{list-style:none;display:grid;gap:10px;font-weight:600}
 .ftr a:hover{color:var(--c-yellow)}
 .ftr-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,.12);margin-top:50px;padding-top:22px;font:600 .72rem/1.6 var(--f-mono);letter-spacing:.1em;color:var(--c-mute-d)}
-.ftr .giant{font-family:var(--f-display);font-weight:800;font-size:clamp(3rem,12vw,13rem);line-height:.9;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.2);margin-top:40px;white-space:nowrap;overflow:hidden}
+.ftr .giant{font-family:var(--f-display);font-weight:800;font-size:clamp(2.4rem,9.2vw,10.5rem);letter-spacing:-.01em;line-height:.9;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.2);margin-top:40px;white-space:nowrap;overflow:hidden}
 
 /* ───────── лайтбокс ───────── */
 .lb{position:fixed;inset:0;z-index:100;background:rgba(16,22,51,.94);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px)}
@@ -426,7 +426,7 @@
   .tix{min-height:200px}
   .form{padding:20px 16px}
   .est b{font-size:1.15rem}
-  .ftr .giant{font-size:14vw}
+  .ftr .giant{font-size:9.2vw}
   .lb button{width:44px;height:44px}
   .lb .p,.lb .n{top:auto;bottom:70px;transform:none}
   .lb .p{left:20px}.lb .n{right:20px}
