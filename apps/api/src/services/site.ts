@@ -18,7 +18,7 @@ export const siteService = (db: Db): SiteService => ({
     const contacts: Contacts = {
       phone: String(c.phone ?? ''), hours: String(c.hours || '10:00–22:00'),
       addressFull: String(c.addressFull || 'Балканская ул., 17, ТРК «Балкания Nova», 3 этаж'), addressShort: String(c.addressShort || 'Купчино · Балкания Nova'),
-      mapQuery: String(c.mapQuery || 'Санкт-Петербург, Балканская улица, 17, ТРК Балкания Nova'),
+      mapQuery: String(c.mapQuery || 'Планета Игр, ТРК Балкания Nova, Балканская улица 17, Санкт-Петербург'),
       mapLat: typeof c.mapLat === 'number' ? c.mapLat : null, mapLon: typeof c.mapLon === 'number' ? c.mapLon : null,
     };
     const rules = (s.booking_rules ?? {}) as Record<string, unknown>;
