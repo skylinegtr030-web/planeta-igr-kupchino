@@ -2,7 +2,17 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "npm install --no-audit --no-fund",
-  "buildCommand": "npm run build -w @pi/shared && npm run build -w @pi/web && npm run build -w @pi/admin && mkdir -p apps/web/dist/admin && cp -R apps/admin/dist/. apps/web/dist/admin/",
+  "buildCommand": "bash scripts/vercel-build.sh",
   "outputDirectory": "apps/web/dist",
-  "cleanUrls": true
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    }
+  ]
 }
