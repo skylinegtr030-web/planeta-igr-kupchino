@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm install --no-audit --no-fund",
+  "buildCommand": "npm run build -w @pi/shared && npm run build -w @pi/web",
+  "outputDirectory": "apps/web/dist",
+  "cleanUrls": true
+}
