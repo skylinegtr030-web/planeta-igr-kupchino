@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "categories": [
+    {
+      "slug": "rooms",
+      "title": "Банкетные комнаты",
+      "kind": "room",
+      "items": [
+        {
+          "slug": "jungle",
+          "title": "Комната «Джунгли»",
+          "description": "",
+          "features": [],
+          "priceWeekday": 5000,
+          "priceWeekend": 5000,
+          "priceFrom": true,
+          "durationMin": null,
+          "cover": "/ph/rooms/jungle/f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg",
+          "mark": null,
+          "guests": null
+        },
+        {
+          "slug": "loft",
+          "title": "Комната «Лофт»",
+          "description": "",
+          "features": [],
+          "priceWeekday": 5000,
+          "priceWeekend": 5000,
+          "priceFrom": true,
+          "durationMin": null,
+          "cover": "/ph/rooms/loft/9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg",
+          "mark": null,
+          "guests": 20
+        }
+      ]
+    }
+  ]
+}

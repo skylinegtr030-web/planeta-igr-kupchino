@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "contacts": {
+    "phone": "",
+    "hours": "10:00–22:00",
+    "addressFull": "Балканская пл., 5, ТРК «Балкания Nova», 3 этаж",
+    "addressShort": "ТРК «Балкания Nova»",
+    "mapQuery": "Планета Игр, ТРК Балкания Nova, Санкт-Петербург"
+  },
+  "ages": {
+    "lavaFloor": 4,
+    "kuzar": 6
+  },
+  "tiers": {},
+  "weekendDays": [
+    0,
+    6
+  ],
+  "holidays": []
+}

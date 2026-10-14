@@ -1,0 +1,154 @@
+{
+  "ok": true,
+  "blocks": [
+    {
+      "key": "park.hero",
+      "data": {
+        "title": "Первый экран",
+        "kind": "hero",
+        "gallery": "park-hero",
+        "sort": 0,
+        "text": "",
+        "published": true
+      },
+      "images": [
+        {
+          "src": "/ph/activities/lava/lava-pol-real-1.jpg",
+          "alt": "Лавапол — светящийся пол",
+          "w": 1600,
+          "h": 1200
+        },
+        {
+          "src": "/ph/rooms/jungle/f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg",
+          "alt": "Комната «Джунгли» — стол и неоновая надпись",
+          "w": 1332,
+          "h": 888
+        },
+        {
+          "src": "/ph/rooms/loft/9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg",
+          "alt": "Комната «Лофт» — звезда и гирлянда",
+          "w": 1448,
+          "h": 1086
+        },
+        {
+          "src": "/ph/activities/lasertag/kuzar-real-arena-1.jpg",
+          "alt": "Лазертаг Q-ZAR — арена",
+          "w": 1600,
+          "h": 1200
+        }
+      ]
+    },
+    {
+      "key": "park.lasertag",
+      "data": {
+        "title": "Лазертаг Q-ZAR",
+        "kind": "zone",
+        "gallery": "park-lasertag",
+        "sort": 10,
+        "text": "",
+        "published": true
+      },
+      "images": [
+        {
+          "src": "/ph/activities/lasertag/kuzar-real-arena-1.jpg",
+          "alt": "Лазертаг Q-ZAR — арена",
+          "w": 1600,
+          "h": 1200
+        },
+        {
+          "src": "/ph/activities/lasertag/kuzar-real-arena-2.jpg",
+          "alt": "Лазертаг Q-ZAR — арена",
+          "w": 1600,
+          "h": 1200
+        },
+        {
+          "src": "/ph/activities/lasertag/kuzar-real-arena-3.jpg",
+          "alt": "Лазертаг Q-ZAR — арена",
+          "w": 1600,
+          "h": 1200
+        }
+      ]
+    },
+    {
+      "key": "park.lava",
+      "data": {
+        "title": "Лавапол",
+        "kind": "zone",
+        "gallery": "park-lava",
+        "sort": 20,
+        "text": "",
+        "published": true
+      },
+      "images": [
+        {
+          "src": "/ph/activities/lava/lava-pol-real-1.jpg",
+          "alt": "Лавапол — светящийся пол",
+          "w": 1600,
+          "h": 1200
+        },
+        {
+          "src": "/ph/activities/lava/lava-pol-real-2.jpg",
+          "alt": "Лавапол — светящийся пол",
+          "w": 1600,
+          "h": 1200
+        },
+        {
+          "src": "/ph/activities/lava/lava-pol-real-3.jpg",
+          "alt": "Лавапол — светящийся пол",
+          "w": 1600,
+          "h": 1200
+        }
+      ]
+    },
+    {
+      "key": "park.jungle",
+      "data": {
+        "title": "Комната «Джунгли»",
+        "kind": "zone",
+        "gallery": "park-jungle",
+        "sort": 90,
+        "text": "",
+        "published": true
+      },
+      "images": [
+        {
+          "src": "/ph/rooms/jungle/f6fc031b-b47f-457a-b2e5-8226815ad9c0.jpeg",
+          "alt": "Комната «Джунгли» — стол и неоновая надпись",
+          "w": 1332,
+          "h": 888
+        },
+        {
+          "src": "/ph/rooms/jungle/fe0f8752-696e-4f60-9c88-fcea23ef4103.jpeg",
+          "alt": "Комната «Джунгли» — стена с животными",
+          "w": 1102,
+          "h": 735
+        }
+      ]
+    },
+    {
+      "key": "park.loft",
+      "data": {
+        "title": "Комната «Лофт»",
+        "kind": "zone",
+        "gallery": "park-loft",
+        "sort": 92,
+        "text": "",
+        "published": true
+      },
+      "images": [
+        {
+          "src": "/ph/rooms/loft/9bf12eb4-5342-47a2-9f0c-df9f864f0405.jpeg",
+          "alt": "Комната «Лофт» — звезда и гирлянда",
+          "w": 1448,
+          "h": 1086
+        },
+        {
+          "src": "/ph/rooms/loft/a1f34b81-2c83-43d4-beb4-c847afdeb72c.jpeg",
+          "alt": "Комната «Лофт» — стол с золотой сервировкой",
+          "w": 1448,
+          "h": 1086
+        }
+      ]
+    }
+  ]
+}

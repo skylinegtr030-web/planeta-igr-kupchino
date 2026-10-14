@@ -2,7 +2,25 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "npm install --no-audit --no-fund",
-  "buildCommand": "npm run build -w @pi/shared && npm run build -w @pi/web && npm run build -w @pi/admin && mkdir -p apps/web/dist/admin && cp -R apps/admin/dist/. apps/web/dist/admin/",
+  "buildCommand": "npm run build -w @pi/shared && npm run build -w @pi/web && npm run build -w @pi/admin && mkdir -p apps/web/dist/admin apps/web/dist/ph && cp -R apps/admin/dist/. apps/web/dist/admin/ && cp -R scripts/seed-media/. apps/web/dist/ph/",
   "outputDirectory": "apps/web/dist",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/content",
+      "destination": "/stub/content.json"
+    },
+    {
+      "source": "/api/catalog",
+      "destination": "/stub/catalog.json"
+    },
+    {
+      "source": "/api/settings",
+      "destination": "/stub/settings.json"
+    },
+    {
+      "source": "/api/reviews",
+      "destination": "/stub/reviews.json"
+    }
+  ]
 }
