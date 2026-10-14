@@ -4,23 +4,15 @@
   "installCommand": "npm install --no-audit --no-fund",
   "buildCommand": "bash scripts/vercel-build.sh",
   "outputDirectory": "apps/web/dist",
-  "cleanUrls": true,
-  "rewrites": [
+  "headers": [
     {
-      "source": "/api/content",
-      "destination": "/stub/content.json"
-    },
-    {
-      "source": "/api/catalog",
-      "destination": "/stub/catalog.json"
-    },
-    {
-      "source": "/api/settings",
-      "destination": "/stub/settings.json"
-    },
-    {
-      "source": "/api/reviews",
-      "destination": "/stub/reviews.json"
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
     }
   ]
 }
