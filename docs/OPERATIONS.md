@@ -1,23 +1,37 @@
-# Эксплуатация «Планеты Игр» (v2)
+# Эксплуатация «Планеты Игр»
 
-Сервер: `/opt/projects/planeta-igr-v2`. Всё запускается через Docker Compose: приложение (`planeta-igr-v2`) + PostgreSQL (`planeta-igr-db-1`) + Caddy (HTTPS).
+Сервер: `skylinegtr030@153.51.119.119`, папка `~/planeta-igr`, порт **3003**.
+Один процесс Node.js (`apps/api/dist/index.js`) отдаёт витрину, админку `/admin/`, API `/api/*` и фото `/media/*`.
+База — отдельная `planeta_igr` в системном PostgreSQL 16. Фото — `runtime/uploads`. Пароли — только в `.env` (в git не попадает).
+Docker не нужен. Соседние сайты на сервере (Q-ZAR :8080, риелтор :3002) не затрагиваются.
 
-## Ежедневные команды
+## Команды
 | Задача | Команда |
 |---|---|
-| Обновить сайт из кода | `bash scripts/update.sh "что изменили"` |
-| Резервная копия (база, фото, код) | `bash scripts/backup.sh` → `/opt/backups/planeta-igr/<дата>` |
-| Восстановить из копии | `bash scripts/restore.sh /opt/backups/planeta-igr/<дата>` |
-| Создать/сбросить администратора | `bash scripts/set-admin.sh email пароль` |
-| Логи приложения | `docker logs planeta-igr-v2 --tail 100` |
+| Обновить сайт из GitHub (с бэкапом) | `bash scripts/update.sh` |
+| Перезапустить сайт | `bash scripts/restart.sh` |
+| Резервная копия | `bash scripts/backup.sh` → `~/backups/planeta-igr/<дата>` |
+| Восстановить из копии | `bash scripts/restore.sh ~/backups/planeta-igr/<дата>` |
+| Создать админа / сбросить пароль | `bash scripts/set-admin.sh email [owner\|manager\|editor]` |
+| Логи | `tail -f server.log` |
 
-## Код без GitHub
-`scripts/setup-local-git.sh` переносит «источник правды» в `/opt/git/planeta-igr.git` на самом сервере (remote `origin`), GitHub остаётся зеркалом (remote `github`).
-`update.sh` сам забирает свежие коммиты с GitHub, если он доступен, и пушит результат в оба места. Когда GitHub больше не нужен — `bash scripts/detach-github.sh`: ссылки, команды и сайт не меняются.
+Автозапуск: `@reboot ~/planeta-igr/run.sh` в crontab. Бэкап каждую ночь в 03:30 (`30 3 * * * ~/planeta-igr/scripts/backup.sh`), хранится 14 дней.
+Миграции схемы (`apps/api/migrations`) применяются сами при старте сервера.
 
-Автоматический бэкап каждую ночь в 03:30: `crontab -e` → `30 3 * * * cd /opt/projects/planeta-igr-v2 && bash scripts/backup.sh >> /var/log/planeta-backup.log 2>&1`
+## Первичное наполнение (новая пустая база)
+```
+set -a; . ./.env; set +a
+cp -rn scripts/seed-media/. runtime/uploads/
+git archive origin/main assets/images | tar -x -C runtime/uploads/assets --strip-components=1
+psql "$DATABASE_URL" -f scripts/seed-rooms.sql
+psql "$DATABASE_URL" -f scripts/seed-activities.sql
+psql "$DATABASE_URL" -f scripts/seed-catalog.sql
+psql "$DATABASE_URL" -f scripts/seed-media.sql
+bash scripts/set-admin.sh you@example.com
+```
 
 ## Переезд на другой сервер
-1. Поставить Docker, склонировать код: `git clone /путь/или/ssh:/opt/git/planeta-igr.git planeta-igr-v2 && cd planeta-igr-v2 && git checkout v2`.
-2. Скопировать `.env` и последний бэкап, `docker compose up -d`, затем `bash scripts/restore.sh <папка бэкапа>`.
-3. Проверить по IP (nip.io), затем переключить A-запись домена; Caddy выпустит сертификат сам.
+1. Поставить Node.js 22+ и PostgreSQL, создать базу и пользователя, склонировать репозиторий (ветка `v2`).
+2. Создать `.env` по образцу `.env.example`, `npm install && npm run build`.
+3. `bash scripts/restore.sh <папка бэкапа>` — база и фото вернутся целиком.
+4. Подключить домен и HTTPS (Caddy/nginx перед портом 3003), в `.env` поставить `COOKIE_SECURE=true`.
